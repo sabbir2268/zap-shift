@@ -1,8 +1,11 @@
 import { UserRound, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const LoginButton = () => {
+  const navigate = useNavigate();
   return (
     <button
+      onClick={() => navigate("/login")}
       className="
         group relative overflow-hidden
         flex items-center gap-2
@@ -46,8 +49,10 @@ const LoginButton = () => {
 
 
 const RegisterButton = () => {
+  const navigate = useNavigate();
   return (
     <button
+      onClick={() => navigate("/register")}
       className="
         group relative overflow-hidden
         flex items-center gap-2
