@@ -8,6 +8,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const mobileMenuRef = useRef(null);
+  const mobileDropdownRef = useRef(null);
   const userMenuRef = useRef(null);
 
   useEffect(() => {
@@ -15,7 +16,9 @@ const Navbar = () => {
       // Close mobile navigation
       if (
         mobileMenuRef.current &&
-        !mobileMenuRef.current.contains(event.target)
+        !mobileMenuRef.current.contains(event.target) &&
+        (!mobileDropdownRef.current ||
+          !mobileDropdownRef.current.contains(event.target))
       ) {
         setIsMenuOpen(false);
       }
@@ -42,7 +45,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="w-full bg-[var(--primary)] text-[var(--text)] shadow-sm rounded-lg">
+    <nav className="relative w-full bg-[var(--primary)] text-[var(--text)] shadow-sm rounded-lg">
       <div className="max-w-7xl mx-auto px-4">
         {/* ================= NAVBAR ================= */}
         <div className="h-16 flex items-center justify-between">
@@ -229,6 +232,7 @@ const Navbar = () => {
         {/* ================= MOBILE MENU ================= */}
         {isMenuOpen && (
           <div
+            ref={mobileDropdownRef}
             className="
               lg:hidden
               absolute

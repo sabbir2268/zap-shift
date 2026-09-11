@@ -14,26 +14,49 @@ import {
 } from "lucide-react";
 import authImage from "../../assets/authImage.png";
 import { useForm } from "react-hook-form";
+import useAuth from "../../hooks/useAuth";
+import SocialLogin from "./SocialLogin";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const {register, handleSubmit, watch, formState: {errors}} = useForm();
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
+
+  const { createUser } = useAuth();
 
   const onSubmit = (data) => {
     console.log(data);
+
+    createUser(data.email, data.password)
+      .then((result) => {
+        console.log(result.user);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (
-    <div className="grid w-full h-screen grid-cols-1 overflow-hidden  lg:grid-cols-5">
+    <div className="grid w-full min-h-screen grid-cols-1 lg:grid-cols-5">
       {/* Form side */}
       <div className="flex flex-col justify-center p-8 sm:p-12 lg:col-span-3">
-        <h2 className="text-4xl font-bold text-[var(--foreground)]">Create account</h2>
+        <h2 className="text-4xl font-bold text-[var(--foreground)]">
+          Create account
+        </h2>
         <p className="mt-2 text-lg text-[var(--text)]/60">
           Join ZapShift to send, track and manage your deliveries.
         </p>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-8 flex flex-col gap-5">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="mt-8 flex flex-col gap-5"
+        >
           <div className="relative">
             <UserRound
               size={18}
@@ -41,7 +64,7 @@ const Register = () => {
             />
             <input
               type="text"
-              {...register("name", { required: true })}
+              {...register("name", { required: false })}
               name="name"
               placeholder="Full name"
               required
@@ -87,7 +110,7 @@ const Register = () => {
               />
               <input
                 type="tel"
-                {...register("phone", { required: true })}
+                {...register("phone", { required: false })}
                 name="phone"
                 placeholder="Phone number"
                 required
@@ -160,7 +183,9 @@ const Register = () => {
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--foreground)]/50 transition-colors duration-300 hover:text-[var(--foreground)]"
-              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+              aria-label={
+                showConfirmPassword ? "Hide password" : "Show password"
+              }
             >
               {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -177,6 +202,7 @@ const Register = () => {
               className="relative z-10 transition-transform duration-300 group-hover:translate-x-1"
             />
           </button>
+          <SocialLogin></SocialLogin>
         </form>
 
         <p className="mt-6 text-center text-[var(--text)]/70">
@@ -190,53 +216,47 @@ const Register = () => {
         </p>
       </div>
 
-<div className="relative flex min-h-72 flex-col justify-end overflow-hidden bg-[var(--foreground)] lg:col-span-2 lg:min-h-full">
-  <img
-    src={authImage}
-    alt="ZapShift delivery rider"
-    className="absolute inset-0 h-full w-full object-cover"
-  />
-
-  <div className="absolute inset-0 bg-gradient-to-b from-[var(--foreground)]/70 via-[var(--foreground)]/20 to-[var(--foreground)]/95"></div>
-
-  {/* Brand badge */}
-  <div className="absolute right-8 top-8 z-10 flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-md">
-    <PackageCheck size={16} className="text-[var(--secondary)]" />
-    <span className="text-sm font-semibold text-[var(--secondary)]">ZapShift</span>
-  </div>
-
-  {/* Text */}
-  <div className="relative z-10 p-6 sm:p-8">
-    <div className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-md">
-      <div className="flex items-center gap-2">
-        <ShieldCheck
-          size={20}
-          className="text-[var(--secondary)]"
+      <div className="relative flex min-h-72 flex-col justify-end overflow-hidden bg-[var(--foreground)] lg:col-span-2 lg:min-h-full">
+        <img
+          src={authImage}
+          alt="ZapShift delivery rider"
+          className="absolute inset-0 h-full w-full object-contain p-6 sm:p-10"
         />
-        <span className="font-semibold text-[var(--secondary)]">
-          Why join us?
-        </span>
+
+        <div className="absolute inset-0 bg-gradient-to-b from-[var(--foreground)]/70 via-[var(--foreground)]/20 to-[var(--foreground)]/95"></div>
+
+        {/* Text */}
+        <div className="relative z-10 p-6 sm:p-8">
+          <div className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-md">
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={20} className="text-[var(--secondary)]" />
+              <span className="font-semibold text-[var(--secondary)]">
+                Why join us?
+              </span>
+            </div>
+
+            <ul className="mt-4 flex flex-col gap-3 text-[var(--primary)]/90">
+              <li className="flex items-center gap-3">
+                <Truck size={18} className="shrink-0 text-[var(--secondary)]" />
+                On-time delivery, every time
+              </li>
+
+              <li className="flex items-center gap-3">
+                <PackageCheck
+                  size={18}
+                  className="shrink-0 text-[var(--secondary)]"
+                />
+                Real-time parcel tracking
+              </li>
+
+              <li className="flex items-center gap-3">
+                <Mail size={18} className="shrink-0 text-[var(--secondary)]" />
+                Instant alerts and updates
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
-
-      <ul className="mt-4 flex flex-col gap-3 text-[var(--primary)]/90">
-        <li className="flex items-center gap-3">
-          <Truck size={18} className="shrink-0 text-[var(--secondary)]" />
-          On-time delivery, every time
-        </li>
-
-        <li className="flex items-center gap-3">
-          <PackageCheck size={18} className="shrink-0 text-[var(--secondary)]" />
-          Real-time parcel tracking
-        </li>
-
-        <li className="flex items-center gap-3">
-          <Mail size={18} className="shrink-0 text-[var(--secondary)]" />
-          Instant alerts and updates
-        </li>
-      </ul>
-    </div>
-  </div>
-</div>
     </div>
   );
 };

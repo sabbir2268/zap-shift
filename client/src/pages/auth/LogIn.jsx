@@ -1,8 +1,18 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Truck, PackageCheck } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  ShieldCheck,
+  Truck,
+  PackageCheck,
+} from "lucide-react";
 import authImage from "../../assets/authImage.png";
 import { useForm } from "react-hook-form";
+import SocialLogin from "./SocialLogin";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,7 +28,7 @@ const Login = () => {
   };
 
   return (
-    <div className="grid w-full h-screen grid-cols-1 overflow-hidden  lg:grid-cols-5">
+    <div className="grid w-full min-h-screen grid-cols-1 lg:grid-cols-5">
       {/* Form side */}
       <div className="flex flex-col justify-center p-8 sm:p-12 lg:col-span-3">
         <h2 className="text-4xl font-bold text-[var(--foreground)]">
@@ -122,6 +132,8 @@ const Login = () => {
           <div className="h-px flex-1 bg-[var(--foreground)]/15"></div>
         </div>
 
+        <SocialLogin />
+
         <p className="mt-6 text-center text-[var(--text)]/70">
           Don&apos;t have an account?{" "}
           <Link
@@ -138,18 +150,10 @@ const Login = () => {
         <img
           src={authImage}
           alt="ZapShift delivery rider"
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-contain p-6 sm:p-10"
         />
 
         <div className="absolute inset-0 bg-gradient-to-b from-[var(--foreground)]/70 via-[var(--foreground)]/20 to-[var(--foreground)]/95"></div>
-
-        {/* Brand badge */}
-        <div className="absolute right-8 top-8 z-10 flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-md">
-          <PackageCheck size={16} className="text-[var(--secondary)]" />
-          <span className="text-sm font-semibold text-[var(--secondary)]">
-            ZapShift
-          </span>
-        </div>
 
         {/* Text */}
         <div className="relative z-10 p-6 sm:p-8">
@@ -168,7 +172,10 @@ const Login = () => {
               </li>
 
               <li className="flex items-center gap-3">
-                <PackageCheck size={18} className="shrink-0 text-[var(--secondary)]" />
+                <PackageCheck
+                  size={18}
+                  className="shrink-0 text-[var(--secondary)]"
+                />
                 Real-time parcel tracking
               </li>
 

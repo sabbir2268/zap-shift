@@ -16,7 +16,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="grid w-full h-screen grid-cols-1 overflow-hidden  lg:grid-cols-5">
+    <div className="grid w-full min-h-screen grid-cols-1 lg:grid-cols-5">
       {/* Form side */}
       <div className="flex flex-col justify-center p-8 sm:p-12 lg:col-span-3">
         <h2 className="text-4xl font-bold text-[var(--foreground)]">Forgot password?</h2>
@@ -78,7 +78,7 @@ const ForgotPassword = () => {
         <img
           src={authImage}
           alt="ZapShift delivery rider"
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-contain p-6 sm:p-10"
         />
 
         <div className="absolute inset-0 bg-gradient-to-b from-[var(--foreground)]/70 via-[var(--foreground)]/20 to-[var(--foreground)]/95"></div>
