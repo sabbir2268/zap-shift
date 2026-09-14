@@ -156,7 +156,7 @@ const FAQ = () => {
                       ${
                         isOpen
                           ? "bg-[var(--secondary)] text-[var(--text)]"
-                          : "bg-[var(--background)] text-[var(--foreground)]"
+                          : "bg-[var(--foreground)] text-[var(--primary)]"
                       }
                     `}
                   >

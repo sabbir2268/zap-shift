@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Mail,
   Lock,
@@ -10,12 +10,23 @@ import {
   Truck,
   PackageCheck,
 } from "lucide-react";
+import toast from "react-hot-toast";
 import authImage from "../../assets/authImage.png";
 import { useForm } from "react-hook-form";
 import SocialLogin from "./SocialLogin";
+import useAuth from "../../hooks/useAuth";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { signIn } = useAuth();
+
+  const from = location.state?.from?.pathname
+    ? location.state.from.pathname + (location.state.from.search || "")
+    : "/";
 
   const {
     register,
@@ -24,7 +35,19 @@ const Login = () => {
   } = useForm();
 
   const onSubmit = (data) => {
-    console.log(data);
+    setLoading(true);
+
+    signIn(data.email, data.password)
+      .then(() => {
+        toast.success("Login successful!");
+        navigate(from, { replace: true });
+      })
+      .catch((error) => {
+        toast.error(error.message || "Invalid email or password");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -115,10 +138,13 @@ const Login = () => {
 
           <button
             type="submit"
-            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-[var(--foreground)] px-6 py-3.5 text-lg font-bold text-[var(--primary)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(3,55,61,0.35)] active:translate-y-0"
+            disabled={loading}
+            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-[var(--foreground)] px-6 py-3.5 text-lg font-bold text-[var(--primary)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(3,55,61,0.35)] active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
           >
             <span className="absolute inset-0 -translate-x-full bg-white/20 skew-x-12 transition-transform duration-700 group-hover:translate-x-full" />
-            <span className="relative z-10">Login</span>
+            <span className="relative z-10">
+              {loading ? "Logging in..." : "Login"}
+            </span>
             <ArrowRight
               size={18}
               className="relative z-10 transition-transform duration-300 group-hover:translate-x-1"
@@ -138,6 +164,7 @@ const Login = () => {
           Don&apos;t have an account?{" "}
           <Link
             to="/register"
+            state={location.state}
             className="font-bold text-[var(--foreground)] underline-offset-4 transition-colors duration-300 hover:text-[var(--secondary)] hover:underline"
           >
             Register

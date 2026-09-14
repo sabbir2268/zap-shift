@@ -8,6 +8,9 @@ import ForgotPassword from "../pages/auth/ForgotPassword";
 import Coverage from "../pages/coverage/Coverage";
 import SendParcel from "../pages/sendParcel/SendParcel";
 import Service from "../pages/service/service";
+import AdminParcels from "../pages/admin/AdminParcels";
+import Profile from "../pages/profile/Profile";
+import BeARider from "../pages/beARider/BeARider";
 import PrivateRoutes from './PrivateRoutes';
 
 export const router = createBrowserRouter([
@@ -28,9 +31,25 @@ export const router = createBrowserRouter([
         element: <Service></Service>,
       },
       {
+        path: "be_a_rider",
+        element: <BeARider></BeARider>,
+      },
+      {
         path: "send_parcel",
         element: <PrivateRoutes>
           <SendParcel></SendParcel>
+        </PrivateRoutes>
+      },
+      {
+        path: "admin",
+        element: <PrivateRoutes>
+          <AdminParcels></AdminParcels>
+        </PrivateRoutes>
+      },
+      {
+        path: "profile",
+        element: <PrivateRoutes>
+          <Profile></Profile>
         </PrivateRoutes>
       },
     ],

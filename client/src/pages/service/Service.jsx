@@ -84,10 +84,10 @@ const Service = () => {
                 key={index}
                 className="
                   group
-                  bg-base-100
+                  bg-[var(--card)]
                   rounded-2xl
                   p-6
-                  border border-base-300
+                  border border-[var(--border)]
                   transition-all duration-300
                   hover:bg-[var(--secondary)]
                   hover:-translate-y-2

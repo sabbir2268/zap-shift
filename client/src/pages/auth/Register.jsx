@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   UserRound,
   Mail,
@@ -12,6 +12,7 @@ import {
   Truck,
   PackageCheck,
 } from "lucide-react";
+import toast from "react-hot-toast";
 import authImage from "../../assets/authImage.png";
 import { useForm } from "react-hook-form";
 import useAuth from "../../hooks/useAuth";
@@ -20,6 +21,14 @@ import SocialLogin from "./SocialLogin";
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from?.pathname
+    ? location.state.from.pathname + (location.state.from.search || "")
+    : "/";
 
   const {
     register,
@@ -31,14 +40,18 @@ const Register = () => {
   const { createUser } = useAuth();
 
   const onSubmit = (data) => {
-    console.log(data);
+    setLoading(true);
 
     createUser(data.email, data.password)
-      .then((result) => {
-        console.log(result.user);
+      .then(() => {
+        toast.success("Account created successfully!");
+        navigate(from, { replace: true });
       })
       .catch((error) => {
-        console.log(error);
+        toast.error(error.message || "Failed to create account");
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -193,10 +206,13 @@ const Register = () => {
 
           <button
             type="submit"
-            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-[var(--foreground)] px-6 py-3.5 text-lg font-bold text-[var(--primary)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(3,55,61,0.35)] active:translate-y-0"
+            disabled={loading}
+            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-[var(--foreground)] px-6 py-3.5 text-lg font-bold text-[var(--primary)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(3,55,61,0.35)] active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
           >
             <span className="absolute inset-0 -translate-x-full bg-white/20 skew-x-12 transition-transform duration-700 group-hover:translate-x-full" />
-            <span className="relative z-10">Create Account</span>
+            <span className="relative z-10">
+              {loading ? "Creating account..." : "Create Account"}
+            </span>
             <ArrowRight
               size={18}
               className="relative z-10 transition-transform duration-300 group-hover:translate-x-1"
@@ -209,6 +225,7 @@ const Register = () => {
           Already have an account?{" "}
           <Link
             to="/login"
+            state={location.state}
             className="font-bold text-[var(--foreground)] underline-offset-4 transition-colors duration-300 hover:text-[var(--secondary)] hover:underline"
           >
             Login

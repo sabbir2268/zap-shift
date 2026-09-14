@@ -20,7 +20,7 @@ const BeAMerchant = () => {
               Merchant and Customer Satisfaction is Our First Priority
             </h2>
 
-            <p className="mt-5 text-base md:text-lg leading-8 text-[var(--secondary)]/40">
+            <p className="mt-5 text-base md:text-lg leading-8 text-[var(--secondary)]/80">
               We offer the lowest delivery charge with the highest value along
               with 100% safety of your product. Profast Courier delivers your
               parcels in every corner of Bangladesh right on time.

@@ -72,7 +72,7 @@ const Coverage = () => {
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--foreground)] leading-tight">
             We Deliver Across{" "}
-            <span className="text-[var(--secondary)]">
+            <span className="inline-block text-[var(--secondary)] bg-[var(--foreground)] px-4 py-1 rounded-xl">
               Bangladesh
             </span>
           </h1>
@@ -95,7 +95,7 @@ const Coverage = () => {
             <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr]">
 
               {/* ================= LEFT PANEL ================= */}
-              <div className="p-5 md:p-6 border-b lg:border-b-0 lg:border-r border-[var(--text)]/10">
+              <div className="p-5 md:p-6 border-b lg:border-b-0 lg:border-r border-white/10">
 
                 {/* Heading */}
                 <div className="mb-5">
@@ -108,11 +108,11 @@ const Coverage = () => {
                     </div>
 
                     <div>
-                      <h2 className="text-xl font-bold text-[var(--text)]">
+                      <h2 className="text-xl font-bold text-[var(--primary)]">
                         Find a Location
                       </h2>
 
-                      <p className="text-sm text-[var(--text)] opacity-60">
+                      <p className="text-sm text-[var(--primary)]/70">
                         Search our delivery network
                       </p>
                     </div>
@@ -154,7 +154,7 @@ const Coverage = () => {
 
                 {/* Division Filter */}
                 <div className="mb-5">
-                  <label className="block text-sm font-medium text-[var(--text)] mb-2">
+                  <label className="block text-sm font-medium text-[var(--primary)] mb-2">
                     Division
                   </label>
 
@@ -180,11 +180,11 @@ const Coverage = () => {
                 {/* Results Header */}
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <h3 className="font-semibold text-[var(--text)]">
+                    <h3 className="font-semibold text-[var(--primary)]">
                       Available Locations
                     </h3>
 
-                    <p className="text-xs text-[var(--text)] opacity-60 mt-1">
+                    <p className="text-xs text-[var(--primary)]/70 mt-1">
                       {filteredBranches.length} location
                       {filteredBranches.length !== 1 ? "s" : ""} found
                     </p>
@@ -277,11 +277,11 @@ const Coverage = () => {
                         />
                       </div>
 
-                      <h4 className="font-semibold text-[var(--text)]">
+                      <h4 className="font-semibold text-[var(--primary)]">
                         No location found
                       </h4>
 
-                      <p className="text-sm text-[var(--text)] opacity-60 mt-1">
+                      <p className="text-sm text-[var(--primary)]/70 mt-1">
                         Try searching another district or branch.
                       </p>
                     </div>

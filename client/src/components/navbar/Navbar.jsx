@@ -1,7 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Menu, X, User, ArrowUpRight } from "lucide-react";
-import { NavLink } from "react-router-dom";
-import { LoginButton, RegisterButton } from "../Buttons/Buttons";
+import { Link, NavLink } from "react-router-dom";
+import useAuth from "./../../hooks/useAuth";
+import {
+  LoginButton,
+  RegisterButton,
+  LogoutButton,
+} from "../Buttons/Buttons";
 import logo from "../../assets/logo.png";
 
 const Navbar = () => {
@@ -10,6 +15,8 @@ const Navbar = () => {
   const mobileMenuRef = useRef(null);
   const mobileDropdownRef = useRef(null);
   const userMenuRef = useRef(null);
+
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -39,9 +46,9 @@ const Navbar = () => {
   const links = [
     { path: "/service", title: "Service" },
     { path: "/coverage", title: "Coverage" },
-    { path: "/aboutUs", title: "About Us" },
-    { path: "/pricing", title: "Pricing" },
-    { path: "/beARider", title: "Be a Rider" },
+    { path: "/be_a_rider", title: "Be a Rider" },
+    { path: "/send_parcel", title: "Send Parcel" },
+    { path: "/admin", title: "Parcels" },
   ];
 
   return (
@@ -134,29 +141,38 @@ const Navbar = () => {
 
           {/* ================= RIGHT ================= */}
           <div className="flex items-center">
-            {/* Desktop Login/Register */}
+            {/* Desktop Login/Register/User */}
             <div className="hidden lg:flex items-center gap-2">
-              <LoginButton />
-              <RegisterButton />
+              {user ? (
+                <>
+                  <LogoutButton />
 
-              <button
-                className="
-                  w-10
-                  h-10
-                  rounded-full
-                  bg-black
-                  text-white
-                  flex
-                  items-center
-                  justify-center
-                  hover:bg-[var(--secondary)]
-                  hover:text-black
-                  transition-all
-                  duration-200
-                "
-              >
-                <ArrowUpRight className="w-5 h-5" />
-              </button>
+                  <Link
+                    to="/profile"
+                    className="
+                      w-10
+                      h-10
+                      rounded-full
+                      bg-black
+                      text-white
+                      flex
+                      items-center
+                      justify-center
+                      hover:bg-[var(--secondary)]
+                      hover:text-black
+                      transition-all
+                      duration-200
+                    "
+                  >
+                    <ArrowUpRight className="w-5 h-5" />
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <LoginButton />
+                  <RegisterButton />
+                </>
+              )}
             </div>
 
             {/* Mobile User + Arrow */}
@@ -189,7 +205,7 @@ const Navbar = () => {
                         right-0
                         top-10
                         z-50
-                        w-40
+                        w-56
                         p-2
                         bg-[var(--card)]
                         rounded-xl
@@ -199,16 +215,30 @@ const Navbar = () => {
                       "
                   >
                     <div className="flex flex-col gap-1">
-                      <LoginButton />
-                      <RegisterButton />
+                      {user && (
+                        <span className="px-4 py-2 text-sm text-[var(--text)] truncate">
+                          {user.displayName || user.email}
+                        </span>
+                      )}
+
+                      {user ? (
+                        <LogoutButton />
+                      ) : (
+                        <>
+                          <LoginButton />
+                          <RegisterButton />
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
               </div>
 
               {/* Arrow Button */}
-              <button
-                className="
+              {user && (
+                <Link
+                  to="/profile"
+                  className="
                     w-9
                     h-9
                     rounded-full
@@ -222,9 +252,10 @@ const Navbar = () => {
                     transition-all
                     duration-200
                   "
-              >
-                <ArrowUpRight className="w-5 h-5" />
-              </button>
+                >
+                  <ArrowUpRight className="w-5 h-5" />
+                </Link>
+              )}
             </div>
           </div>
         </div>

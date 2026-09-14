@@ -1,5 +1,7 @@
-import { UserRound, ArrowRight } from "lucide-react";
+import { UserRound, ArrowRight, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import useAuth from "./../../hooks/useAuth";
 
 const LoginButton = () => {
   const navigate = useNavigate();
@@ -93,4 +95,63 @@ const RegisterButton = () => {
   );
 };
 
-export { LoginButton, RegisterButton };
+const LogoutButton = () => {
+  const navigate = useNavigate();
+  const { logOut } = useAuth();
+
+  const handleLogout = () => {
+    logOut()
+      .then(() => {
+        toast.success("Logged out successfully!");
+        navigate("/");
+      })
+      .catch((error) => {
+        toast.error(error.message || "Failed to log out");
+      });
+  };
+
+  return (
+    <button
+      onClick={handleLogout}
+      className="
+        group relative overflow-hidden
+        flex items-center gap-2
+        rounded-full
+        border-2 border-red-300
+        px-5 py-2.5
+        text-red-500
+        font-bold text-lg
+        transition-all duration-300
+        hover:-translate-y-1
+        hover:bg-red-500
+        hover:text-white
+        hover:shadow-[0_8px_25px_rgba(239,68,68,0.35)]
+        active:translate-y-0
+      "
+    >
+      <span
+        className="
+          absolute inset-0
+          -translate-x-full
+          bg-white/20
+          skew-x-12
+          transition-transform duration-700
+          group-hover:translate-x-full
+        "
+      />
+
+      <LogOut
+        size={18}
+        className="
+          relative z-10
+          transition-transform duration-300
+          group-hover:rotate-12
+        "
+      />
+
+      <span className="relative z-10">Logout</span>
+    </button>
+  );
+};
+
+export { LoginButton, RegisterButton, LogoutButton };

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import {
   Package,
   User,
@@ -12,14 +13,16 @@ import {
   CheckCircle2,
   Truck,
   ReceiptText,
+  Loader2,
 } from "lucide-react";
+import { createParcel } from "../../api/parcels";
 
 const SendParcel = () => {
   const [parcelType, setParcelType] = useState("document");
 
-  // Confirmation popup
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [submittedData, setSubmittedData] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const {
     register,
@@ -97,6 +100,20 @@ const SendParcel = () => {
     setShowConfirmation(true);
   };
 
+  const handleConfirm = async () => {
+    setSubmitting(true);
+
+    try {
+      await createParcel(submittedData);
+      toast.success("Parcel saved successfully!");
+      setShowConfirmation(false);
+    } catch (error) {
+      toast.error(error.message || "Failed to save parcel");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <>
       <section className="w-full bg-[var(--background)] py-12 md:py-16">
@@ -119,7 +136,7 @@ const SendParcel = () => {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* PARCEL INFO */}
 
-            <div className="bg-base-100 rounded-3xl border border-base-300 p-5 md:p-8">
+            <div className="bg-white rounded-3xl border border-gray-200 p-5 md:p-8">
               <SectionHeader
                 icon={<Package size={21} />}
                 title="Parcel Info"
@@ -144,7 +161,7 @@ const SendParcel = () => {
                         ${
                           parcelType === "document"
                             ? "bg-[var(--foreground)] text-[var(--secondary)] border-[var(--foreground)]"
-                            : "border-base-300 hover:bg-base-200"
+                            : "border-gray-200 hover:bg-gray-100"
                         }
                       `}
                     >
@@ -160,7 +177,7 @@ const SendParcel = () => {
                         ${
                           parcelType === "non-document"
                             ? "bg-[var(--foreground)] text-[var(--secondary)] border-[var(--foreground)]"
-                            : "border-base-300 hover:bg-base-200"
+                            : "border-gray-200 hover:bg-gray-100"
                         }
                       `}
                     >
@@ -207,7 +224,7 @@ const SendParcel = () => {
 
             {/* SENDER INFO */}
 
-            <div className="bg-base-100 rounded-3xl border border-base-300 p-5 md:p-8">
+            <div className="bg-white rounded-3xl border border-gray-200 p-5 md:p-8">
               <SectionHeader
                 icon={<User size={21} />}
                 title="Sender Info"
@@ -295,7 +312,7 @@ const SendParcel = () => {
 
             {/* RECEIVER INFO */}
 
-            <div className="bg-base-100 rounded-3xl border border-base-300 p-5 md:p-8">
+            <div className="bg-white rounded-3xl border border-gray-200 p-5 md:p-8">
               <SectionHeader
                 icon={<MapPin size={21} />}
                 title="Receiver Info"
@@ -411,6 +428,8 @@ const SendParcel = () => {
         <ParcelDetails
           setShowConfirmation={setShowConfirmation}
           submittedData={submittedData}
+          submitting={submitting}
+          onConfirm={handleConfirm}
         />
       )}
 
@@ -507,8 +526,8 @@ const InputField = ({
             w-full
             rounded-xl
             border
-            ${error ? "border-red-500" : "border-base-300"}
-            bg-base-100
+            ${error ? "border-red-500" : "border-gray-200"}
+            bg-white
             py-3 px-4
             ${icon ? "pl-11" : ""}
             outline-none
@@ -516,7 +535,7 @@ const InputField = ({
             focus:border-[var(--foreground)]
             focus:ring-2
             focus:ring-[var(--secondary)]
-            disabled:bg-base-200
+            disabled:bg-gray-100
             disabled:cursor-not-allowed
           `}
         />
@@ -558,15 +577,15 @@ const SelectField = ({
             w-full
             rounded-xl
             border
-            ${error ? "border-red-500" : "border-base-300"}
-            bg-base-100
+            ${error ? "border-red-500" : "border-gray-200"}
+            bg-white
             px-4 py-3 pr-10
             outline-none
             transition
             focus:border-[var(--foreground)]
             focus:ring-2
             focus:ring-[var(--secondary)]
-            disabled:bg-base-200
+            disabled:bg-gray-100
             disabled:cursor-not-allowed
           `}
         >
@@ -631,8 +650,8 @@ const TextAreaField = ({
             w-full
             rounded-xl
             border
-            ${error ? "border-red-500" : "border-base-300"}
-            bg-base-100
+            ${error ? "border-red-500" : "border-gray-200"}
+            bg-white
             px-4 py-3
             ${icon ? "pl-11" : ""}
             outline-none
@@ -652,7 +671,12 @@ const TextAreaField = ({
 
 /* Parcel details with delivery charge and service charge */
 
-const ParcelDetails = ({ setShowConfirmation, submittedData }) => {
+const ParcelDetails = ({
+  setShowConfirmation,
+  submittedData,
+  submitting,
+  onConfirm,
+}) => {
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center px-4">
       {/* Background Overlay */}
@@ -669,7 +693,7 @@ const ParcelDetails = ({ setShowConfirmation, submittedData }) => {
               relative
               w-full
               max-w-md
-              bg-base-100
+              bg-white
               rounded-3xl
               shadow-2xl
               overflow-hidden
@@ -693,13 +717,13 @@ const ParcelDetails = ({ setShowConfirmation, submittedData }) => {
                   w-9
                   h-9
                   rounded-full
-                  bg-base-200
+                  bg-gray-100
                   flex
                   items-center
                   justify-center
-                  text-base-content/60
-                  hover:bg-base-300
-                  hover:text-base-content
+                  text-gray-500
+                  hover:bg-gray-200
+                  hover:text-gray-800
                   transition
                 "
           >
@@ -749,7 +773,7 @@ const ParcelDetails = ({ setShowConfirmation, submittedData }) => {
                     rounded-2xl
                     p-4
                     border
-                    border-base-200
+                    border-gray-100
                   "
             >
               <div
@@ -843,7 +867,7 @@ const ParcelDetails = ({ setShowConfirmation, submittedData }) => {
                   mt-5
                   rounded-2xl
                   border
-                  border-base-300
+                  border-gray-200
                   overflow-hidden
                 "
           >
@@ -854,7 +878,7 @@ const ParcelDetails = ({ setShowConfirmation, submittedData }) => {
                     gap-2
                     px-4
                     py-3
-                    bg-base-200
+                    bg-gray-100
                   "
             >
               <ReceiptText size={17} />
@@ -893,7 +917,7 @@ const ParcelDetails = ({ setShowConfirmation, submittedData }) => {
                 </span>
               </div>
 
-              <div className="border-t border-base-300" />
+              <div className="border-t border-gray-200" />
 
               {/* Total */}
 
@@ -925,10 +949,10 @@ const ParcelDetails = ({ setShowConfirmation, submittedData }) => {
                     py-3
                     rounded-full
                     border
-                    border-base-300
+                    border-gray-200
                     font-semibold
                     text-sm
-                    hover:bg-base-200
+                    hover:bg-gray-100
                     transition
                   "
             >
@@ -937,11 +961,8 @@ const ParcelDetails = ({ setShowConfirmation, submittedData }) => {
 
             <button
               type="button"
-              onClick={() => {
-                console.log("Confirmed Parcel:", submittedData);
-
-                setShowConfirmation(false);
-              }}
+              onClick={onConfirm}
+              disabled={submitting}
               className="
                     py-3
                     rounded-full
@@ -952,9 +973,17 @@ const ParcelDetails = ({ setShowConfirmation, submittedData }) => {
                     hover:bg-[var(--primary)]
                     hover:text-[var(--foreground)]
                     transition
+                    disabled:opacity-60
+                    disabled:cursor-not-allowed
+                    flex
+                    items-center
+                    justify-center
+                    gap-2
                   "
             >
-              Confirm Parcel
+              {submitting && <Loader2 size={16} className="animate-spin" />}
+
+              {submitting ? "Saving..." : "Confirm Parcel"}
             </button>
           </div>
         </div>
