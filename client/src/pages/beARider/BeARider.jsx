@@ -1,60 +1,32 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import { useForm } from "react-hook-form";
-import {
-  UserRound,
-  CalendarDays,
-  Mail,
-  MapPin,
-  ChevronDown,
-  IdCard,
-  Phone,
-  Warehouse,
-  Send,
-} from "lucide-react";
+import riderImage from "../../assets/big-deliveryman.png";
 import { createRiderApplication } from "../../api/riders";
-
-const regions = [
-  "Dhaka",
-  "Chattogram",
-  "Rajshahi",
-  "Khulna",
-  "Barishal",
-  "Sylhet",
-  "Rangpur",
-  "Mymensingh",
-];
-
-const warehouses = [
-  "Dhaka Central",
-  "Mirpur Hub",
-  "Uttara Hub",
-  "Dhanmondi Center",
-  "Savar Hub",
-  "Chattogram Central",
-  "Agrabad Hub",
-  "Rajshahi Central",
-  "Khulna Central",
-  "Sylhet Central",
-  "Rangpur Central",
-  "Mymensingh Central",
-];
 
 const BeARider = () => {
   const [submitting, setSubmitting] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-  const onSubmit = (data) => {
+    const form = e.target;
+
+    const riderData = {
+      name: form.name.value,
+      age: form.age.value,
+      email: form.email.value,
+      region: form.region.value,
+      nid: form.nid.value,
+      contact: form.contact.value,
+      warehouse: form.warehouse.value,
+    };
+
     setSubmitting(true);
 
-    createRiderApplication(data)
+    createRiderApplication(riderData)
       .then(() => {
         toast.success("Rider application submitted!");
+        form.reset();
       })
       .catch((error) => {
         toast.error(error.message || "Failed to submit application");
@@ -65,323 +37,163 @@ const BeARider = () => {
   };
 
   return (
-    <section className="w-full bg-[var(--background)] py-12 md:py-16">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <h1 className="text-3xl md:text-4xl font-bold text-[var(--foreground)]">
-            Be a Rider
-          </h1>
+    <section className="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-20">
+      {/* Page Title */}
+      <div className="mb-10">
+        <h1 className="text-4xl md:text-5xl font-bold mb-4">Be a Rider</h1>
 
-          <p className="mt-3 text-[var(--text)] leading-7">
-            Enjoy fast, reliable parcel delivery with real-time tracking and
-            zero hassle. From personal packages to business shipments — we
-            deliver on time, every time.
-          </p>
+        <p className="text-gray-600 text-base md:text-lg max-w-2xl">
+          Enjoy fast, reliable parcel delivery with real-time tracking and zero
+          hassle. From personal packages to business shipments — we deliver on
+          time, every time.
+        </p>
+      </div>
+
+      {/* Shared Background Container */}
+      <div className="bg-white shadow-xl rounded-2xl p-6 md:p-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+          {/* Left Side - Form */}
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold mb-8">
+              Tell us about yourself
+            </h2>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Name */}
+              <div>
+                <label className="block mb-2 font-medium">Your Name</label>
+
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Enter your full name"
+                  required
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+
+              {/* Age */}
+              <div>
+                <label className="block mb-2 font-medium">Your Age</label>
+
+                <input
+                  type="number"
+                  name="age"
+                  placeholder="Enter your age"
+                  required
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block mb-2 font-medium">Your Email</label>
+
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Enter your email address"
+                  required
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+
+              {/* Region */}
+              <div>
+                <label className="block mb-2 font-medium">Your Region</label>
+
+                <select
+                  name="region"
+                  required
+                  defaultValue=""
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none"
+                >
+                  <option value="" disabled>
+                    Select your region
+                  </option>
+
+                  <option value="Dhaka">Dhaka</option>
+                  <option value="Chattogram">Chattogram</option>
+                  <option value="Khulna">Khulna</option>
+                  <option value="Rajshahi">Rajshahi</option>
+                  <option value="Sylhet">Sylhet</option>
+                </select>
+              </div>
+
+              {/* NID */}
+              <div>
+                <label className="block mb-2 font-medium">NID No</label>
+
+                <input
+                  type="text"
+                  name="nid"
+                  placeholder="Enter your NID number"
+                  required
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none"
+                />
+              </div>
+
+              {/* Contact */}
+              <div>
+                <label className="block mb-2 font-medium">Contact</label>
+
+                <input
+                  type="tel"
+                  name="contact"
+                  placeholder="Enter your contact number"
+                  required
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none"
+                />
+              </div>
+
+              {/* Warehouse */}
+              <div>
+                <label className="block mb-2 font-medium">
+                  Which warehouse do you want to work at?
+                </label>
+
+                <select
+                  name="warehouse"
+                  required
+                  defaultValue=""
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none"
+                >
+                  <option value="" disabled>
+                    Select warehouse
+                  </option>
+
+                  <option value="Dhaka Warehouse">Dhaka Warehouse</option>
+
+                  <option value="Chattogram Warehouse">
+                    Chattogram Warehouse
+                  </option>
+
+                  <option value="Khulna Warehouse">Khulna Warehouse</option>
+                </select>
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition duration-300"
+              >
+                {submitting ? "Submitting..." : "Submit"}
+              </button>
+            </form>
+          </div>
+
+          {/* Right Side - Image */}
+          <div className="flex justify-center items-end h-full min-h-[500px]">
+            <img
+              src={riderImage}
+              alt="Be a Rider"
+              className="w-[75%] max-w-md h-auto object-contain"
+            />
+          </div>
         </div>
-
-        {/* Form */}
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-6"
-        >
-          {/* ABOUT YOU */}
-          <div className="bg-white rounded-3xl border border-gray-200 p-5 md:p-8">
-            <SectionHeader
-              icon={<UserRound size={21} />}
-              title="Tell us about yourself"
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <InputField
-                label="Your Name"
-                name="name"
-                placeholder="Enter your name"
-                icon={<UserRound size={18} />}
-                register={register}
-                required
-                error={errors.name}
-              />
-
-              <InputField
-                label="Your Age"
-                name="age"
-                type="number"
-                placeholder="Enter your age"
-                icon={<CalendarDays size={18} />}
-                register={register}
-                required
-                error={errors.age}
-              />
-
-              <InputField
-                label="Your Email"
-                name="email"
-                type="email"
-                placeholder="Enter your email address"
-                icon={<Mail size={18} />}
-                register={register}
-                required
-                error={errors.email}
-              />
-
-              <SelectField
-                label="Your Region"
-                name="region"
-                placeholder="Select your region"
-                options={regions}
-                register={register}
-                required
-                error={errors.region}
-              />
-            </div>
-          </div>
-
-          {/* IDENTITY */}
-          <div className="bg-white rounded-3xl border border-gray-200 p-5 md:p-8">
-            <SectionHeader
-              icon={<IdCard size={21} />}
-              title="Identity Details"
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <InputField
-                label="NID No"
-                name="nid"
-                placeholder="Enter NID number"
-                icon={<IdCard size={18} />}
-                register={register}
-                required
-                error={errors.nid}
-              />
-
-              <InputField
-                label="Contact"
-                name="contact"
-                placeholder="01XXXXXXXXX"
-                icon={<Phone size={18} />}
-                register={register}
-                required
-                error={errors.contact}
-              />
-            </div>
-          </div>
-
-          {/* WORK PREFERENCE */}
-          <div className="bg-white rounded-3xl border border-gray-200 p-5 md:p-8">
-            <SectionHeader
-              icon={<Warehouse size={21} />}
-              title="Work Preference"
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <SelectField
-                label="Which warehouse you want to work?"
-                name="warehouse"
-                placeholder="Select warehouse"
-                options={warehouses}
-                register={register}
-                required
-                error={errors.warehouse}
-              />
-
-              <InputField
-                label="Subscribe"
-                name="subscribeEmail"
-                type="email"
-                placeholder="Enter your email address"
-                icon={<Mail size={18} />}
-                register={register}
-                error={errors.subscribeEmail}
-              />
-            </div>
-          </div>
-
-          {/* Submit */}
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="
-                px-8 py-3.5
-                rounded-full
-                bg-[var(--foreground)]
-                text-[var(--secondary)]
-                font-semibold
-                transition-all
-                duration-300
-                hover:bg-[var(--primary)]
-                hover:text-[var(--foreground)]
-                hover:-translate-y-0.5
-                disabled:opacity-60
-                disabled:cursor-not-allowed
-                flex
-                items-center
-                gap-2
-              "
-            >
-              <Send
-                size={18}
-                className={submitting ? "animate-pulse" : ""}
-              />
-              {submitting ? "Submitting..." : "Submit"}
-            </button>
-          </div>
-        </form>
       </div>
     </section>
-  );
-};
-
-/* SECTION HEADER */
-const SectionHeader = ({ icon, title }) => {
-  return (
-    <div className="flex items-center gap-3 mb-7">
-      <div
-        className="
-          w-11 h-11
-          rounded-xl
-          bg-[var(--secondary)]
-          text-[var(--foreground)]
-          flex items-center justify-center
-        "
-      >
-        {icon}
-      </div>
-
-      <div>
-        <h2 className="text-xl font-bold text-[var(--foreground)]">{title}</h2>
-      </div>
-    </div>
-  );
-};
-
-/* INPUT FIELD */
-const InputField = ({
-  label,
-  name,
-  placeholder,
-  type = "text",
-  icon,
-  register,
-  required = false,
-  error,
-}) => {
-  return (
-    <div>
-      <label className="block text-sm font-semibold text-[var(--foreground)] mb-2">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </label>
-
-      <div className="relative">
-        {icon && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text)]">
-            {icon}
-          </div>
-        )}
-
-        <input
-          type={type}
-          placeholder={placeholder}
-          {...register(name, {
-            required: required ? `${label} is required` : false,
-            ...(type === "email" && {
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Enter a valid email address",
-              },
-            }),
-            ...(type === "number" && {
-              min: {
-                value: 16,
-                message: "Age must be at least 16",
-              },
-            }),
-          })}
-          className={`
-            w-full
-            rounded-xl
-            border
-            ${error ? "border-red-500" : "border-gray-200"}
-            bg-white
-            py-3 px-4
-            ${icon ? "pl-11" : ""}
-            outline-none
-            transition
-            focus:border-[var(--foreground)]
-            focus:ring-2
-            focus:ring-[var(--secondary)]
-          `}
-        />
-      </div>
-
-      {error && <p className="text-red-500 text-xs mt-1">{error.message}</p>}
-    </div>
-  );
-};
-
-/* SELECT FIELD */
-const SelectField = ({
-  label,
-  name,
-  placeholder,
-  options,
-  register,
-  required = false,
-  error,
-}) => {
-  return (
-    <div>
-      <label className="block text-sm font-semibold text-[var(--foreground)] mb-2">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </label>
-
-      <div className="relative">
-        <select
-          {...register(name, {
-            required: required ? `${label} is required` : false,
-          })}
-          className={`
-            appearance-none
-            w-full
-            rounded-xl
-            border
-            ${error ? "border-red-500" : "border-gray-200"}
-            bg-white
-            px-4 py-3 pr-10
-            outline-none
-            transition
-            focus:border-[var(--foreground)]
-            focus:ring-2
-            focus:ring-[var(--secondary)]
-          `}
-        >
-          <option value="">{placeholder}</option>
-
-          {options.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-
-        <ChevronDown
-          size={18}
-          className="
-            absolute
-            right-4
-            top-1/2
-            -translate-y-1/2
-            pointer-events-none
-            text-[var(--text)]
-          "
-        />
-      </div>
-
-      {error && <p className="text-red-500 text-xs mt-1">{error.message}</p>}
-    </div>
   );
 };
 

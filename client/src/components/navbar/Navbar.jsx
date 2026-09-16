@@ -2,11 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Menu, X, User, ArrowUpRight } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 import useAuth from "./../../hooks/useAuth";
-import {
-  LoginButton,
-  RegisterButton,
-  LogoutButton,
-} from "../Buttons/Buttons";
+import { LoginButton, RegisterButton, LogoutButton } from "../Buttons/Buttons";
 import logo from "../../assets/logo.png";
 
 const Navbar = () => {
@@ -121,7 +117,7 @@ const Navbar = () => {
                       ${
                         isActive
                           ? `
-                            text-[var(--secondary)]
+                            text-white
                             bg-[var(--foreground)]
                           `
                           : `
@@ -215,12 +211,6 @@ const Navbar = () => {
                       "
                   >
                     <div className="flex flex-col gap-1">
-                      {user && (
-                        <span className="px-4 py-2 text-sm text-[var(--text)] truncate">
-                          {user.displayName || user.email}
-                        </span>
-                      )}
-
                       {user ? (
                         <LogoutButton />
                       ) : (
@@ -299,7 +289,7 @@ const Navbar = () => {
                       ${
                         isActive
                           ? `
-                            text-[var(--secondary)]
+                            text-white
                             bg-[var(--foreground)]
                           `
                           : `

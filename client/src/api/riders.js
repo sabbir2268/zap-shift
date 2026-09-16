@@ -21,3 +21,6 @@ export const createRiderApplication = (data) =>
     method: "POST",
     body: JSON.stringify(data),
   });
+
+export const deleteRiderApplications = () =>
+  request("/api/rider-applications", { method: "DELETE" });

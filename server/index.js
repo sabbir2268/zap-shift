@@ -198,3 +198,16 @@ app.post("/api/rider-applications", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+// DELETE all rider applications
+app.delete("/api/rider-applications", async (req, res) => {
+  try {
+    const result = await riderApplicationsCollection.deleteMany({});
+    res.json({
+      message: "All rider applications deleted",
+      deletedCount: result.deletedCount,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
