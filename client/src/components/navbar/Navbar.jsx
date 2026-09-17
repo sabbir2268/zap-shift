@@ -43,8 +43,6 @@ const Navbar = () => {
     { path: "/service", title: "Service" },
     { path: "/coverage", title: "Coverage" },
     { path: "/be_a_rider", title: "Be a Rider" },
-    { path: "/send_parcel", title: "Send Parcel" },
-    { path: "/admin", title: "Parcels" },
   ];
 
   return (
@@ -144,7 +142,7 @@ const Navbar = () => {
                   <LogoutButton />
 
                   <Link
-                    to="/profile"
+                    to="/dashboard/profile"
                     className="
                       w-10
                       h-10
@@ -227,7 +225,7 @@ const Navbar = () => {
               {/* Arrow Button */}
               {user && (
                 <Link
-                  to="/profile"
+                  to="/dashboard/profile"
                   className="
                     w-9
                     h-9

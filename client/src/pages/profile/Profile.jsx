@@ -55,7 +55,7 @@ const Profile = () => {
   };
 
   return (
-    <section className="w-full bg-gray-50 py-12 md:py-16">
+    <section className="w-full bg-gray-50 py-6 md:py-8">
       <div className="max-w-xl mx-auto px-4 sm:px-6">
         <div className="rounded-3xl bg-white border border-gray-200 shadow-md overflow-hidden">
           {/* Header */}
@@ -123,7 +123,7 @@ const Profile = () => {
           <div className="px-6 pt-6 pb-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Link
-                to="/admin"
+                to="/dashboard/parcels"
                 className="flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition-all duration-300"
               >
                 <Package size={17} />

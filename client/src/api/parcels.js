@@ -1,36 +1,29 @@
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+import { useCallback } from "react";
+import useAxios from "../hooks/useAxios";
 
-const request = async (url, options = {}) => {
-  const response = await fetch(`${API_BASE}${url}`, {
-    headers: { "Content-Type": "application/json" },
-    ...options,
-  });
+const useParcels = () => {
+  const api = useAxios();
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || "Something went wrong");
-  }
+  const getParcels = useCallback(() => api.get("/api/parcels"), [api]);
 
-  return response.json();
+  const getParcel = useCallback((id) => api.get(`/api/parcels/${id}`), [api]);
+
+  const createParcel = useCallback(
+    (data) => api.post("/api/parcels", data),
+    [api]
+  );
+
+  const updateParcel = useCallback(
+    (id, data) => api.put(`/api/parcels/${id}`, data),
+    [api]
+  );
+
+  const deleteParcel = useCallback(
+    (id) => api.delete(`/api/parcels/${id}`),
+    [api]
+  );
+
+  return { getParcels, getParcel, createParcel, updateParcel, deleteParcel };
 };
 
-export const getParcels = () => request("/api/parcels");
-
-export const getParcel = (id) => request(`/api/parcels/${id}`);
-
-export const createParcel = (data) =>
-  request("/api/parcels", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-
-export const updateParcel = (id, data) =>
-  request(`/api/parcels/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
-
-export const deleteParcel = (id) =>
-  request(`/api/parcels/${id}`, {
-    method: "DELETE",
-  });
+export default useParcels;

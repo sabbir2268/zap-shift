@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import riderImage from "../../assets/big-deliveryman.png";
-import { createRiderApplication } from "../../api/riders";
+import useAxios from "../../hooks/useAxios";
 
 const BeARider = () => {
+  const api = useAxios();
+
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = (e) => {
@@ -23,7 +25,7 @@ const BeARider = () => {
 
     setSubmitting(true);
 
-    createRiderApplication(riderData)
+    api.post("/api/rider-applications", riderData)
       .then(() => {
         toast.success("Rider application submitted!");
         form.reset();

@@ -40,7 +40,10 @@ const WhyUs = () => {
         {/* Cards */}
         <div className="flex flex-col gap-6">
           {whyUsData.map((item) => (
-            <div className="w-full flex flex-col md:flex-row items-center rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div
+              key={item.title}
+              className="w-full flex flex-col md:flex-row items-center rounded-2xl border border-gray-200 bg-white shadow-sm"
+            >
               {/* Image */}
               <div className="w-full md:w-40 flex-shrink-0 flex justify-center items-center p-6 md:p-8">
                 <img

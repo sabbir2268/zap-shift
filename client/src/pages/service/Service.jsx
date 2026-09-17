@@ -174,7 +174,7 @@ const Service = () => {
           </div>
 
           <Link
-            to="/send_parcel"
+            to="/dashboard/send-parcel"
             className="
               group
               flex items-center gap-3

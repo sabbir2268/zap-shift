@@ -14,7 +14,7 @@ import {
   Scale,
 } from "lucide-react";
 
-import { deleteParcel, getParcels, updateParcel } from "../../api/parcels";
+import useParcels from "../../api/parcels";
 
 const STATUS = {
   pending: { label: "Pending", className: "bg-yellow-100 text-yellow-800" },
@@ -25,6 +25,8 @@ const STATUS = {
 };
 
 const AdminParcels = () => {
+  const { getParcels, updateParcel, deleteParcel } = useParcels();
+
   const [parcels, setParcels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
@@ -42,7 +44,7 @@ const AdminParcels = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [getParcels]);
 
   useEffect(() => {
     loadParcels();
@@ -83,7 +85,7 @@ const AdminParcels = () => {
   };
 
   return (
-    <section className="w-full bg-[var(--background)] py-12 md:py-16">
+    <section className="w-full bg-[var(--background)] py-6 md:py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between mb-10">
           <div>

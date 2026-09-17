@@ -15,9 +15,12 @@ import {
   ReceiptText,
   Loader2,
 } from "lucide-react";
-import { createParcel } from "../../api/parcels";
+import useAxios from "../../hooks/useAxios";
+
 
 const SendParcel = () => {
+  const api = useAxios();
+
   const [parcelType, setParcelType] = useState("document");
 
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -104,7 +107,7 @@ const SendParcel = () => {
     setSubmitting(true);
 
     try {
-      await createParcel(submittedData);
+      await api.post("/api/parcels", submittedData);
       toast.success("Parcel saved successfully!");
       setShowConfirmation(false);
     } catch (error) {
@@ -116,7 +119,7 @@ const SendParcel = () => {
 
   return (
     <>
-      <section className="w-full bg-[var(--background)] py-12 md:py-16">
+      <section className="w-full bg-[var(--background)] py-6 md:py-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           {/* ========== HEADER ============ */}
 
@@ -693,10 +696,12 @@ const ParcelDetails = ({
               relative
               w-full
               max-w-md
+              max-h-[90vh]
               bg-white
               rounded-3xl
               shadow-2xl
-              overflow-hidden
+              overflow-y-auto
+              overflow-x-hidden
               animate-[popup_.25s_ease-out]
             "
       >

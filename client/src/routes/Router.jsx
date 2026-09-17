@@ -12,6 +12,9 @@ import AdminParcels from "../pages/admin/AdminParcels";
 import Profile from "../pages/profile/Profile";
 import BeARider from "../pages/beARider/BeARider";
 import PrivateRoutes from './PrivateRoutes';
+import DashboardLayout from "../layouts/DashboardLayout";
+import DashboardHome from "../pages/dashboard/DashboardHome";
+import TrackParcel from "../pages/trackParcel/TrackParcel";
 
 export const router = createBrowserRouter([
   {
@@ -19,7 +22,7 @@ export const router = createBrowserRouter([
     element: <RootLayout></RootLayout>,
     children: [
       {
-        index: "true",
+        index: true,
         element: <Home></Home>,
       },
       {
@@ -34,40 +37,51 @@ export const router = createBrowserRouter([
         path: "be_a_rider",
         element: <BeARider></BeARider>,
       },
+    ],
+  },
+  {
+    path: "/dashboard",
+    element: (
+      <PrivateRoutes>
+        <DashboardLayout />
+      </PrivateRoutes>
+    ),
+    children: [
       {
-        path: "send_parcel",
-        element: <PrivateRoutes>
-          <SendParcel></SendParcel>
-        </PrivateRoutes>
+        index: true,
+        element: <DashboardHome />,
       },
       {
-        path: "admin",
-        element: <PrivateRoutes>
-          <AdminParcels></AdminParcels>
-        </PrivateRoutes>
+        path: "send-parcel",
+        element: <SendParcel />,
+      },
+      {
+        path: "parcels",
+        element: <AdminParcels />,
+      },
+      {
+        path: "track",
+        element: <TrackParcel />,
       },
       {
         path: "profile",
-        element: <PrivateRoutes>
-          <Profile></Profile>
-        </PrivateRoutes>
+        element: <Profile />,
       },
     ],
   },
   {
-    path: "/",
     element: <AuthLayout></AuthLayout>,
     children: [
       {
-        path: "login",
+        path: "/login",
         element: <Login></Login>,
       },
       {
-        path: "register",
+        path: "/register",
         element: <Register></Register>,
       },
       {
-        path: "forgot-password",
+        path: "/forgot-password",
         element: <ForgotPassword></ForgotPassword>,
       },
     ],
