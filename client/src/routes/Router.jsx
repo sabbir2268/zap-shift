@@ -1,42 +1,30 @@
 import { createBrowserRouter } from "react-router";
-import Home from "../pages/home/Home";
 import RootLayout from "../layouts/RootLayout";
 import AuthLayout from "../layouts/AuthLayout";
+import DashboardLayout from "../layouts/DashboardLayout";
+import PrivateRoutes from "./PrivateRoutes";
+import Home from "../pages/home/Home";
+import Coverage from "../pages/coverage/Coverage";
+import Service from "../pages/service/service";
+import BeARider from "../pages/beARider/BeARider";
+import DashboardHome from "../pages/dashboard/DashboardHome";
+import SendParcel from "../pages/sendParcel/SendParcel";
+import AdminParcels from "../pages/admin/AdminParcels";
+import TrackParcel from "../pages/trackParcel/TrackParcel";
+import Profile from "../pages/profile/Profile";
 import Login from "../pages/auth/LogIn";
 import Register from "../pages/auth/Register";
 import ForgotPassword from "../pages/auth/ForgotPassword";
-import Coverage from "../pages/coverage/Coverage";
-import SendParcel from "../pages/sendParcel/SendParcel";
-import Service from "../pages/service/service";
-import AdminParcels from "../pages/admin/AdminParcels";
-import Profile from "../pages/profile/Profile";
-import BeARider from "../pages/beARider/BeARider";
-import PrivateRoutes from './PrivateRoutes';
-import DashboardLayout from "../layouts/DashboardLayout";
-import DashboardHome from "../pages/dashboard/DashboardHome";
-import TrackParcel from "../pages/trackParcel/TrackParcel";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <RootLayout></RootLayout>,
+    element: <RootLayout />,
     children: [
-      {
-        index: true,
-        element: <Home></Home>,
-      },
-      {
-        path: "coverage",
-        element: <Coverage></Coverage>,
-      },
-      {
-        path: "service",
-        element: <Service></Service>,
-      },
-      {
-        path: "be_a_rider",
-        element: <BeARider></BeARider>,
-      },
+      { index: true, element: <Home /> },
+      { path: "coverage", element: <Coverage /> },
+      { path: "service", element: <Service /> },
+      { path: "be_a_rider", element: <BeARider /> },
     ],
   },
   {
@@ -47,43 +35,19 @@ export const router = createBrowserRouter([
       </PrivateRoutes>
     ),
     children: [
-      {
-        index: true,
-        element: <DashboardHome />,
-      },
-      {
-        path: "send-parcel",
-        element: <SendParcel />,
-      },
-      {
-        path: "parcels",
-        element: <AdminParcels />,
-      },
-      {
-        path: "track",
-        element: <TrackParcel />,
-      },
-      {
-        path: "profile",
-        element: <Profile />,
-      },
+      { index: true, element: <DashboardHome /> },
+      { path: "send-parcel", element: <SendParcel /> },
+      { path: "parcels", element: <AdminParcels /> },
+      { path: "track", element: <TrackParcel /> },
+      { path: "profile", element: <Profile /> },
     ],
   },
   {
-    element: <AuthLayout></AuthLayout>,
+    element: <AuthLayout />,
     children: [
-      {
-        path: "/login",
-        element: <Login></Login>,
-      },
-      {
-        path: "/register",
-        element: <Register></Register>,
-      },
-      {
-        path: "/forgot-password",
-        element: <ForgotPassword></ForgotPassword>,
-      },
+      { path: "/login", element: <Login /> },
+      { path: "/register", element: <Register /> },
+      { path: "/forgot-password", element: <ForgotPassword /> },
     ],
   },
 ]);
