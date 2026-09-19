@@ -16,10 +16,12 @@ import {
   Loader2,
 } from "lucide-react";
 import useAxios from "../../hooks/useAxios";
+import useAuth from "../../hooks/useAuth";
 
 
 const SendParcel = () => {
   const api = useAxios();
+  const { user } = useAuth();
 
   const [parcelType, setParcelType] = useState("document");
 
@@ -94,6 +96,7 @@ const SendParcel = () => {
     const parcelData = {
       ...data,
       parcelType,
+      userEmail: user?.email,
       ...cost,
     };
 

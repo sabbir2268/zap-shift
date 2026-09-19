@@ -55,8 +55,11 @@ app.get("/", (req, res) => {
 // GET all parcels
 app.get("/api/parcels", async (req, res) => {
   try {
+    const { email } = req.query;
+    const filter = email ? { userEmail: email } : {};
+
     const parcels = await parcelsCollection
-      .find()
+      .find(filter)
       .sort({ createdAt: -1 })
       .toArray();
     res.json(parcels);
@@ -69,13 +72,16 @@ app.get("/api/parcels", async (req, res) => {
 app.get("/api/parcels/:id", async (req, res) => {
   try {
     const { id } = req.params;
+    const { email } = req.query;
+
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid parcel id" });
     }
 
-    const parcel = await parcelsCollection.findOne({
-      _id: new ObjectId(id),
-    });
+    const filter = { _id: new ObjectId(id) };
+    if (email) filter.userEmail = email;
+
+    const parcel = await parcelsCollection.findOne(filter);
 
     if (!parcel) {
       return res.status(404).json({ message: "Parcel not found" });

@@ -9,6 +9,7 @@ import {
   Loader2,
 } from "lucide-react";
 import useAxios from "../../hooks/useAxios";
+import useAuth from "../../hooks/useAuth";
 
 const STATUS = {
   pending: { label: "Pending", className: "bg-yellow-100 text-yellow-800" },
@@ -20,6 +21,7 @@ const STATUS = {
 
 const TrackParcel = () => {
   const api = useAxios();
+  const { user } = useAuth();
 
   const [parcelId, setParcelId] = useState("");
   const [parcel, setParcel] = useState(null);
@@ -39,7 +41,9 @@ const TrackParcel = () => {
     setSearched(true);
 
     api
-      .get(`/api/parcels/${id}`)
+      .get(`/api/parcels/${id}`, {
+        params: user?.email ? { email: user.email } : {},
+      })
       .then((data) => setParcel(data))
       .catch((err) => setError(err.message || "Parcel not found"))
       .finally(() => setLoading(false));
@@ -48,7 +52,7 @@ const TrackParcel = () => {
   const status = parcel ? STATUS[parcel.status] || STATUS.pending : null;
 
   return (
-    <section className="mx-auto max-w-2xl">
+    <section className="mx-auto max-w-2xl sm:pt-20 lg:pt-0">
       {/* ================= HEADING ================= */}
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-[var(--foreground)]">

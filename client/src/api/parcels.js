@@ -4,7 +4,10 @@ import useAxios from "../hooks/useAxios";
 const useParcels = () => {
   const api = useAxios();
 
-  const getParcels = useCallback(() => api.get("/api/parcels"), [api]);
+  const getParcels = useCallback(
+    (email) => api.get("/api/parcels", { params: email ? { email } : {} }),
+    [api]
+  );
 
   const getParcel = useCallback((id) => api.get(`/api/parcels/${id}`), [api]);
 

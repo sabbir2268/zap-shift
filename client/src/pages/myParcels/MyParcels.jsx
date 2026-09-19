@@ -3,7 +3,6 @@ import toast from "react-hot-toast";
 import {
   Package,
   RefreshCw,
-  Trash2,
   User,
   MapPin,
   Phone,
@@ -12,9 +11,12 @@ import {
   Truck,
   ReceiptText,
   Scale,
+  Hash,
+  Ban,
 } from "lucide-react";
 
 import useParcels from "../../api/parcels";
+import useAuth from "../../hooks/useAuth";
 
 const STATUS = {
   pending: { label: "Pending", className: "bg-yellow-100 text-yellow-800" },
@@ -24,64 +26,52 @@ const STATUS = {
   cancelled: { label: "Cancelled", className: "bg-red-100 text-red-800" },
 };
 
-const AdminParcels = () => {
-  const { getParcels, updateParcel, deleteParcel } = useParcels();
+const MyParcels = () => {
+  const { getParcels, deleteParcel } = useParcels();
+  const { user } = useAuth();
 
   const [parcels, setParcels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
-  const [updatingId, setUpdatingId] = useState(null);
+  const [confirmTarget, setConfirmTarget] = useState(null);
 
   const loadParcels = useCallback(async () => {
     setLoading(true);
 
     try {
-      const data = await getParcels();
+      const data = await getParcels(user?.email);
       setParcels(data);
     } catch (error) {
       toast.error(error.message || "Failed to load parcels");
     } finally {
       setLoading(false);
     }
-  }, [getParcels]);
+  }, [getParcels, user?.email]);
 
   useEffect(() => {
     loadParcels();
   }, [loadParcels]);
 
-  const handleStatusChange = async (parcel, newStatus) => {
-    setUpdatingId(parcel._id);
-
-    try {
-      await updateParcel(parcel._id, { ...parcel, status: newStatus });
-      toast.success("Parcel status updated!");
-      loadParcels();
-    } catch (error) {
-      toast.error(error.message || "Failed to update status");
-    } finally {
-      setUpdatingId(null);
-    }
+  const formatDate = (value) => {
+    if (!value) return "—";
+    return new Date(value).toLocaleString();
   };
 
-  const handleDelete = async (parcel) => {
+  const handleCancel = async (parcel) => {
     setDeletingId(parcel._id);
 
     try {
       await deleteParcel(parcel._id);
-      toast.success("Parcel deleted!");
+      toast.success("Parcel cancelled!");
+      setParcels((prev) => prev.filter((p) => p._id !== parcel._id));
       if (selected?._id === parcel._id) setSelected(null);
-      loadParcels();
+      setConfirmTarget(null);
     } catch (error) {
-      toast.error(error.message || "Failed to delete parcel");
+      toast.error(error.message || "Failed to cancel parcel");
     } finally {
       setDeletingId(null);
     }
-  };
-
-  const formatDate = (value) => {
-    if (!value) return "—";
-    return new Date(value).toLocaleString();
   };
 
   return (
@@ -90,10 +80,10 @@ const AdminParcels = () => {
         <div className="flex items-center justify-between mb-10">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-[var(--foreground)]">
-              Parcel Backend
+              My Parcels
             </h1>
             <p className="mt-3 text-[var(--text)] leading-7">
-              Manage all registered parcels. Update status or remove entries.
+              View all your sent parcels and their current delivery status.
             </p>
           </div>
 
@@ -157,8 +147,12 @@ const AdminParcels = () => {
                       </div>
 
                       <div className="min-w-0">
-                        <p className="font-semibold text-[var(--foreground)] truncate">
-                          {parcel.parcelTitle}
+                        <p className="font-semibold text-[var(--foreground)] truncate flex items-center gap-1.5">
+                          <span className="truncate">{parcel.parcelTitle}</span>
+                          <span className="text-[10px] font-normal text-[var(--text)] bg-gray-100 rounded px-1.5 py-0.5 shrink-0 flex items-center gap-0.5">
+                            <Hash size={10} />
+                            {parcel._id}
+                          </span>
                         </p>
                         <p className="text-xs text-[var(--text)]">
                           {formatDate(parcel.createdAt)}
@@ -239,73 +233,55 @@ const AdminParcels = () => {
 
                   {/* Actions */}
                   <div className="mt-5 pt-4 border-t border-gray-100 flex items-center gap-2">
-                    <select
-                      value={parcel.status || "pending"}
-                      disabled={updatingId === parcel._id}
-                      onChange={(e) =>
-                        handleStatusChange(parcel, e.target.value)
-                      }
+                    <button
+                      type="button"
+                      onClick={() => setSelected(parcel)}
                       className="
                         flex-1
                         rounded-xl
                         border
                         border-gray-200
-                        bg-white
-                        px-3
                         py-2
                         text-sm
-                        outline-none
-                        focus:border-[var(--foreground)]
-                        disabled:opacity-60
-                      "
-                    >
-                      {Object.entries(STATUS).map(([value, status]) => (
-                        <option key={value} value={value}>
-                          {status.label}
-                        </option>
-                      ))}
-                    </select>
-
-                    <button
-                      type="button"
-                      onClick={() => setSelected(parcel)}
-                      className="
-                        w-9 h-9
-                        rounded-xl
-                        border
-                        border-gray-200
+                        font-semibold
+                        text-[var(--foreground)]
                         flex
                         items-center
                         justify-center
-                        text-[var(--text)]
+                        gap-2
                         hover:bg-gray-100
                         transition
                       "
-                      title="View details"
                     >
                       <Eye size={16} />
+                      View Details
                     </button>
 
                     <button
                       type="button"
-                      onClick={() => handleDelete(parcel)}
+                      onClick={() => setConfirmTarget(parcel)}
                       disabled={deletingId === parcel._id}
                       className="
-                        w-9 h-9
+                        flex-1
                         rounded-xl
                         border
                         border-red-200
+                        py-2
+                        text-sm
+                        font-semibold
+                        text-red-500
                         flex
                         items-center
                         justify-center
-                        text-red-500
+                        gap-2
                         hover:bg-red-50
                         transition
+                        disabled:cursor-not-allowed
                         disabled:opacity-60
                       "
-                      title="Delete"
                     >
-                      <Trash2 size={16} />
+                      <Ban size={16} />
+                      {deletingId === parcel._id ? "Cancelling..." : "Cancel Parcel"}
                     </button>
                   </div>
                 </div>
@@ -316,6 +292,15 @@ const AdminParcels = () => {
       </div>
 
       {selected && <ParcelModal parcel={selected} onClose={() => setSelected(null)} />}
+
+      {confirmTarget && (
+        <ConfirmCancelModal
+          parcel={confirmTarget}
+          deleting={deletingId === confirmTarget._id}
+          onConfirm={() => handleCancel(confirmTarget)}
+          onClose={() => setConfirmTarget(null)}
+        />
+      )}
     </section>
   );
 };
@@ -440,6 +425,93 @@ const ParcelModal = ({ parcel, onClose }) => {
   );
 };
 
+const ConfirmCancelModal = ({ parcel, deleting, onConfirm, onClose }) => {
+  return (
+    <div className="fixed inset-0 z-[999] flex items-center justify-center px-4">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={deleting ? undefined : onClose}
+      />
+
+      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl">
+        <div className="h-2 bg-red-500 rounded-t-3xl" />
+
+        <div className="p-6">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-red-100 text-red-500 flex items-center justify-center shrink-0">
+              <Ban size={21} />
+            </div>
+
+            <div className="min-w-0">
+              <h2 className="text-lg font-bold text-[var(--foreground)]">
+                Cancel Parcel?
+              </h2>
+              <p className="text-xs text-[var(--text)] truncate">
+                {parcel.parcelTitle}
+              </p>
+            </div>
+          </div>
+
+          <p className="mt-4 text-sm text-[var(--text)] leading-6">
+            This will permanently delete the parcel record from the backend and
+            MongoDB. This action cannot be undone.
+          </p>
+
+          <div className="mt-6 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={deleting}
+              className="
+                flex-1
+                rounded-xl
+                border
+                border-gray-200
+                py-2.5
+                text-sm
+                font-semibold
+                text-[var(--foreground)]
+                hover:bg-gray-100
+                transition
+                disabled:cursor-not-allowed
+                disabled:opacity-60
+              "
+            >
+              Keep Parcel
+            </button>
+
+            <button
+              type="button"
+              onClick={onConfirm}
+              disabled={deleting}
+              className="
+                flex-1
+                rounded-xl
+                bg-red-500
+                py-2.5
+                text-sm
+                font-semibold
+                text-white
+                hover:bg-red-600
+                transition
+                flex
+                items-center
+                justify-center
+                gap-2
+                disabled:cursor-not-allowed
+                disabled:opacity-60
+              "
+            >
+              <Ban size={16} />
+              {deleting ? "Cancelling..." : "Confirm Cancel"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const DetailSection = ({ icon, title, children }) => (
   <div className="mt-5 rounded-2xl border border-gray-200 overflow-hidden">
     <div className="flex items-center gap-2 px-4 py-3 bg-gray-100">
@@ -457,4 +529,4 @@ const DetailRow = ({ label, value }) => (
   </div>
 );
 
-export default AdminParcels;
+export default MyParcels;

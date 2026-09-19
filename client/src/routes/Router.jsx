@@ -9,7 +9,7 @@ import Service from "../pages/service/service";
 import BeARider from "../pages/beARider/BeARider";
 import DashboardHome from "../pages/dashboard/DashboardHome";
 import SendParcel from "../pages/sendParcel/SendParcel";
-import AdminParcels from "../pages/admin/AdminParcels";
+import MyParcels from "../pages/myParcels/MyParcels";
 import TrackParcel from "../pages/trackParcel/TrackParcel";
 import Profile from "../pages/profile/Profile";
 import Login from "../pages/auth/LogIn";
@@ -37,7 +37,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <DashboardHome /> },
       { path: "send-parcel", element: <SendParcel /> },
-      { path: "parcels", element: <AdminParcels /> },
+      { path: "parcels", element: <MyParcels /> },
       { path: "track", element: <TrackParcel /> },
       { path: "profile", element: <Profile /> },
     ],

@@ -31,7 +31,7 @@ const DashboardHome = () => {
     setError(null);
 
     api
-      .get("/api/parcels")
+      .get("/api/parcels", { params: user?.email ? { email: user.email } : {} })
       .then((data) => setParcels(data))
       .catch((err) => setError(err.message || "Failed to load parcels"))
       .finally(() => setLoading(false));
@@ -78,7 +78,7 @@ const DashboardHome = () => {
     user?.displayName || user?.email?.split("@")[0] || "User";
 
   return (
-    <section className="mx-auto max-w-6xl">
+    <section className="mx-auto max-w-6xl pt-20 ">
       {/* ================= WELCOME ================= */}
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-[var(--foreground)]">
