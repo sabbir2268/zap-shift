@@ -8,8 +8,8 @@ import {
   ReceiptText,
   Loader2,
 } from "lucide-react";
-import useAxios from "../../hooks/useAxios";
-import useAuth from "../../hooks/useAuth";
+import useAxios from "../../../hooks/useAxios";
+import useAuth from "../../../hooks/useAuth";
 
 const STATUS = {
   pending: { label: "Pending", className: "bg-yellow-100 text-yellow-800" },
@@ -52,7 +52,7 @@ const TrackParcel = () => {
   const status = parcel ? STATUS[parcel.status] || STATUS.pending : null;
 
   return (
-    <section className="mx-auto max-w-2xl sm:pt-20 lg:pt-0">
+    <section className="mx-auto max-w-2xl">
       {/* ================= HEADING ================= */}
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-[var(--foreground)]">

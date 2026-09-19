@@ -15,8 +15,8 @@ import {
   Ban,
 } from "lucide-react";
 
-import useParcels from "../../api/parcels";
-import useAuth from "../../hooks/useAuth";
+import useParcels from "../../../api/parcels";
+import useAuth from "../../../hooks/useAuth";
 
 const STATUS = {
   pending: { label: "Pending", className: "bg-yellow-100 text-yellow-800" },

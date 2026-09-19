@@ -171,7 +171,7 @@ const DashboardLayout = () => {
       </aside>
 
       {/* ================= MAIN CONTENT ================= */}
-      <main className="min-h-screen bg-[var(--background)] p-4 sm:p-6 lg:p-8 pt-20 lg:pt-8 lg:flex-1">
+      <main className="min-h-screen bg-[var(--background)] px-4 pb-6 pt-20 sm:px-6 lg:px-8 lg:pb-8 lg:pt-8 lg:flex-1">
         <Outlet />
       </main>
     </div>

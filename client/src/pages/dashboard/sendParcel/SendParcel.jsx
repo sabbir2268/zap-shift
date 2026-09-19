@@ -15,8 +15,8 @@ import {
   ReceiptText,
   Loader2,
 } from "lucide-react";
-import useAxios from "../../hooks/useAxios";
-import useAuth from "../../hooks/useAuth";
+import useAxios from "../../../hooks/useAxios";
+import useAuth from "../../../hooks/useAuth";
 
 
 const SendParcel = () => {

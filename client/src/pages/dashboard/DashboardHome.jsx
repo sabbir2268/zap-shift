@@ -78,7 +78,7 @@ const DashboardHome = () => {
     user?.displayName || user?.email?.split("@")[0] || "User";
 
   return (
-    <section className="mx-auto max-w-6xl pt-20 ">
+    <section className="mx-auto max-w-6xl">
       {/* ================= WELCOME ================= */}
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-[var(--foreground)]">
