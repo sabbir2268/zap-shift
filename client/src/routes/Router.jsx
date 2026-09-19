@@ -12,6 +12,8 @@ import SendParcel from "../pages/dashboard/sendParcel/SendParcel";
 import MyParcels from "../pages/dashboard/myParcels/MyParcels";
 import TrackParcel from "../pages/dashboard/trackParcel/TrackParcel";
 import Profile from "../pages/dashboard/profile/Profile";
+import UpdateParcel from "../pages/dashboard/updateParcel/UpdateParcel";
+import Payment from "../pages/dashboard/payment/Payment";
 import Login from "../pages/auth/LogIn";
 import Register from "../pages/auth/Register";
 import ForgotPassword from "../pages/auth/ForgotPassword";
@@ -40,6 +42,8 @@ export const router = createBrowserRouter([
       { path: "parcels", element: <MyParcels /> },
       { path: "track", element: <TrackParcel /> },
       { path: "profile", element: <Profile /> },
+      { path: "update-parcel/:id", element: <UpdateParcel /> },
+      { path: "payment/:id", element: <Payment /> },
     ],
   },
   {

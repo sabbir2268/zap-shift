@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
   Package,
@@ -13,6 +14,8 @@ import {
   Scale,
   Hash,
   Ban,
+  SquarePen,
+  CreditCard,
 } from "lucide-react";
 
 import useParcels from "../../../api/parcels";
@@ -29,6 +32,7 @@ const STATUS = {
 const MyParcels = () => {
   const { getParcels, deleteParcel } = useParcels();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [parcels, setParcels] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -284,6 +288,65 @@ const MyParcels = () => {
                       {deletingId === parcel._id ? "Cancelling..." : "Cancel Parcel"}
                     </button>
                   </div>
+
+                  {/* Secondary Actions */}
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        navigate(`/dashboard/update-parcel/${parcel._id}`, {
+                          state: { parcel },
+                        })
+                      }
+                      className="
+                        rounded-xl
+                        border
+                        border-[var(--foreground)]/20
+                        py-2
+                        text-sm
+                        font-semibold
+                        text-[var(--foreground)]
+                        flex
+                        items-center
+                        justify-center
+                        gap-2
+                        hover:bg-gray-100
+                        transition
+                      "
+                    >
+                      <SquarePen size={16} />
+                      Update
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        navigate(`/dashboard/payment/${parcel._id}`, {
+                          state: { parcel },
+                        })
+                      }
+                      disabled={parcel.paymentStatus === "paid"}
+                      className="
+                        rounded-xl
+                        bg-[var(--secondary)]
+                        py-2
+                        text-sm
+                        font-semibold
+                        text-[var(--foreground)]
+                        flex
+                        items-center
+                        justify-center
+                        gap-2
+                        hover:bg-[var(--primary)]
+                        transition
+                        disabled:cursor-not-allowed
+                        disabled:opacity-60
+                      "
+                    >
+                      <CreditCard size={16} />
+                      {parcel.paymentStatus === "paid" ? "Paid" : "Payment"}
+                    </button>
+                  </div>
                 </div>
               );
             })}
@@ -301,6 +364,7 @@ const MyParcels = () => {
           onClose={() => setConfirmTarget(null)}
         />
       )}
+
     </section>
   );
 };
