@@ -4,6 +4,8 @@ const dotenv = require('dotenv');
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 dotenv.config();
+
+const stripe = require('stripe')(process.env.PAYMENT_GATEWAY_KEY);
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -215,5 +217,23 @@ app.delete("/api/rider-applications", async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+
+// ============ Payment Intend ============
+
+app.post('/create-payment-intent', async (req, res) => {
+  const amountInCents = req.body.amountInCents
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amountInCents,
+      currency: 'usd',
+      payment_method_types: ['card'],
+    });
+
+    res.send({ clientSecret: paymentIntent.client_secret });
+  } catch (error) {
+    res.status(400).send({ error: error.message });
   }
 });

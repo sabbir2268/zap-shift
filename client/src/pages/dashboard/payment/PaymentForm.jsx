@@ -1,8 +1,9 @@
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import React, { useState } from "react";
 import { CreditCard, ShieldCheck, Wallet } from "lucide-react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
 import useAxios from "../../../hooks/useAxios";
 
 const cardElementOptions = {
@@ -25,6 +26,7 @@ const PaymentForm = () => {
   const elements = useElements();
   const [error, setError] = useState('');
   const {id} = useParams();  
+  const navigate = useNavigate();
   const axiosSecure = useAxios()
 
   const { isPending, data: parcelInfo } = useQuery({
@@ -40,6 +42,9 @@ const PaymentForm = () => {
     return "...loading"
   }
 
+  const amount = parcelInfo.totalCost;
+  const amountInCents = amount * 100;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -52,15 +57,48 @@ const PaymentForm = () => {
       return;
     }
 
-    const { error } = await stripe.createPaymentMethod({
-      type: "card",
-      card,
-    });
+    try {
+      const { error } = await stripe.createPaymentMethod({
+        type: "card",
+        card,
+      });
 
-    if (error) {
-      setError(error.message)
-    } else {
-      setError('')
+      if (error) {
+        setError(error.message)
+        return;
+      } else {
+        setError('')
+      }
+
+      //step -2: create payment intent
+      const res = await axiosSecure.post('/create-payment-intent', {
+        amountInCents,
+        parcelInfo
+      })
+
+      const clientSecret = res.clientSecret;
+      const result = await stripe.confirmCardPayment(clientSecret, {
+        payment_method:{
+          card: elements.getElement(CardElement),
+          billing_details:{
+            name: ''
+          }
+        }
+      })
+
+      if(result.error){
+        setError(result.error.message);
+      }else{
+        if(result.paymentIntent.status === 'succeeded'){
+          await axiosSecure.put(`/api/parcels/${id}`, {
+            paymentStatus: 'paid'
+          })
+          toast.success('Payment successful!');
+          navigate('/dashboard/parcels');
+        }
+      }
+    } catch (err) {
+      setError(err.message || "Payment failed");
     }
   };
 
