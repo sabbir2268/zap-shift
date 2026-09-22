@@ -5,6 +5,8 @@ import { useNavigate, useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import useAxios from "../../../hooks/useAxios";
+import useAuth from "./../../../hooks/useAuth";
+import usePayments from "../../../api/payments";
 
 const cardElementOptions = {
   style: {
@@ -24,22 +26,23 @@ const cardElementOptions = {
 const PaymentForm = () => {
   const stripe = useStripe();
   const elements = useElements();
-  const [error, setError] = useState('');
-  const {id} = useParams();  
+  const [error, setError] = useState("");
+  const { id } = useParams();
   const navigate = useNavigate();
-  const axiosSecure = useAxios()
+  const axiosSecure = useAxios();
+  const { user } = useAuth();
+  const { createPayment } = usePayments();
 
   const { isPending, data: parcelInfo } = useQuery({
-    queryKey: ['parcels', id],
+    queryKey: ["parcels", id],
     queryFn: async () => {
       const res = await axiosSecure.get(`/api/parcels/${id}`);
       return res;
-    }
+    },
+  });
 
-  })
-  
-  if(isPending){
-    return "...loading"
+  if (isPending) {
+    return "...loading";
   }
 
   const amount = parcelInfo.totalCost;
@@ -64,44 +67,66 @@ const PaymentForm = () => {
       });
 
       if (error) {
-        setError(error.message)
+        setError(error.message);
         return;
       } else {
-        setError('')
-      }
+        setError("");
+        //step -2: create payment intent
+        const res = await axiosSecure.post("/create-payment-intent", {
+          amountInCents,
+          parcelInfo,
+        });
 
-      //step -2: create payment intent
-      const res = await axiosSecure.post('/create-payment-intent', {
-        amountInCents,
-        parcelInfo
-      })
+        const clientSecret = res.clientSecret;
 
-      const clientSecret = res.clientSecret;
-      const result = await stripe.confirmCardPayment(clientSecret, {
-        payment_method:{
-          card: elements.getElement(CardElement),
-          billing_details:{
-            name: ''
+        // confirm payment
+        const result = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: {
+            card: elements.getElement(CardElement),
+            billing_details: {
+              name: user.displayName,
+              email: user.email
+            },
+          },
+        });
+
+        if (result.error) {
+          setError(result.error.message);
+        } else {
+          if (result.paymentIntent.status === "succeeded") {
+            await axiosSecure.put(`/api/parcels/${id}`, {
+              paymentStatus: "paid",
+            });
+            await createPayment({
+              userEmail: user.email,
+              userName: user.displayName,
+              parcelId: id,
+              parcelTitle: parcelInfo.parcelTitle,
+              amount: parcelInfo.totalCost,
+              transactionId: result.paymentIntent.id,
+              paymentMethod: "card",
+              status: "succeeded",
+            });
+            console.log("payment info:", {
+              userEmail: user.email,
+              userName: user.displayName,
+              parcelId: id,
+              parcelTitle: parcelInfo.parcelTitle,
+              amount: parcelInfo.totalCost,
+              transactionId: result.paymentIntent.id,
+              paymentMethod: "card",
+              status: "succeeded",
+            });
+            toast.success("Payment successful!");
+            console.log("payment Successful");
+            navigate("/dashboard/parcels");
           }
-        }
-      })
-
-      if(result.error){
-        setError(result.error.message);
-      }else{
-        if(result.paymentIntent.status === 'succeeded'){
-          await axiosSecure.put(`/api/parcels/${id}`, {
-            paymentStatus: 'paid'
-          })
-          toast.success('Payment successful!');
-          navigate('/dashboard/parcels');
         }
       }
     } catch (err) {
       setError(err.message || "Payment failed");
     }
   };
-
 
   return (
     <div className="mt-6 bg-white rounded-3xl border border-gray-200 p-5 md:p-8">
@@ -132,7 +157,10 @@ const PaymentForm = () => {
 
         {/* Secure Notice */}
         <div className="mt-5 flex items-center gap-2 rounded-xl bg-[var(--secondary)]/20 px-4 py-3">
-          <ShieldCheck size={18} className="shrink-0 text-[var(--foreground)]" />
+          <ShieldCheck
+            size={18}
+            className="shrink-0 text-[var(--foreground)]"
+          />
           <p className="text-sm font-medium text-[var(--foreground)]">
             Your payment information is encrypted and 100% secure.
           </p>
@@ -149,9 +177,7 @@ const PaymentForm = () => {
           <Wallet size={18} className="relative z-10" />
         </button>
 
-        {
-          error && <p className="text-red-400">{error}</p>
-        }
+        {error && <p className="text-red-400">{error}</p>}
       </form>
     </div>
   );

@@ -25,6 +25,7 @@ const client = new MongoClient(uri, {
 const dbName = process.env.DB_NAME || "zapShift";
 let parcelsCollection;
 let riderApplicationsCollection;
+let paymentsCollection;
 
 async function run() {
   try {
@@ -37,6 +38,7 @@ async function run() {
     const db = client.db(dbName);
     parcelsCollection = db.collection("parcels");
     riderApplicationsCollection = db.collection("riderApplications");
+    paymentsCollection = db.collection("payments");
   } catch (error) {
     console.error("MongoDB connection error:", error);
   }
@@ -215,6 +217,45 @@ app.delete("/api/rider-applications", async (req, res) => {
       message: "All rider applications deleted",
       deletedCount: result.deletedCount,
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+
+// ============ PAYMENT HISTORY ============
+
+// GET payment history
+app.get("/api/payments", async (req, res) => {
+  try {
+    const { email } = req.query;
+    const filter = email ? { userEmail: email } : {};
+
+    const payments = await paymentsCollection
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .toArray();
+    res.json(payments);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// POST create payment record
+app.post("/api/payments", async (req, res) => {
+  try {
+    const data = req.body;
+
+    const payment = {
+      ...data,
+      status: data.status || "paid",
+      createdAt: new Date(),
+    };
+
+    const result = await paymentsCollection.insertOne(payment);
+    console.log(result);
+
+    res.status(201).json({ _id: result.insertedId, ...payment });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

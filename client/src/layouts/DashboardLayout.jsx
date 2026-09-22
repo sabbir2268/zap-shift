@@ -6,6 +6,7 @@ import {
   Package,
   Truck,
   UserRound,
+  History,
   LogOut,
   Menu,
   X,
@@ -18,6 +19,7 @@ const navItems = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, end: true },
   { to: "/dashboard/send-parcel", label: "Send Parcel", icon: PackagePlus },
   { to: "/dashboard/parcels", label: "My Parcels", icon: Package },
+  { to: "/dashboard/payments", label: "Payment History", icon: History },
   { to: "/dashboard/track", label: "Track Parcels", icon: Truck },
   { to: "/dashboard/profile", label: "Profile", icon: UserRound },
 ];
