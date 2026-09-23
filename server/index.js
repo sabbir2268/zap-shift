@@ -132,12 +132,12 @@ const verifyFBToken = async (req, res, next) => {
 
 // server running api
 
-app.get("/", (req, res) => {
+app.get("/", verifyFBToken, (req, res) => {
   res.send("Server is running ");
 });
 
 //=============User CRUD===============
-app.post("/user", async (req, res) => {
+app.post("/user", verifyFBToken, async (req, res) => {
   try {
     const email = req.body.email;
     const userExist = await userCollection.findOne({ email });
@@ -171,7 +171,7 @@ app.get("/api/parcels", verifyFBToken, async (req, res) => {
 });
 
 // GET single parcel
-app.get("/api/parcels/:id", async (req, res) => {
+app.get("/api/parcels/:id", verifyFBToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { email } = req.query;
@@ -196,7 +196,7 @@ app.get("/api/parcels/:id", async (req, res) => {
 });
 
 // POST create parcel
-app.post("/api/parcels", async (req, res) => {
+app.post("/api/parcels", verifyFBToken, async (req, res) => {
   try {
     const data = req.body;
 
@@ -216,7 +216,7 @@ app.post("/api/parcels", async (req, res) => {
 });
 
 // PUT update parcel
-app.put("/api/parcels/:id", async (req, res) => {
+app.put("/api/parcels/:id", verifyFBToken, async (req, res) => {
   try {
     const { id } = req.params;
     if (!ObjectId.isValid(id)) {
@@ -245,7 +245,7 @@ app.put("/api/parcels/:id", async (req, res) => {
 });
 
 // DELETE parcel
-app.delete("/api/parcels/:id", async (req, res) => {
+app.delete("/api/parcels/:id", verifyFBToken, async (req, res) => {
   try {
     const { id } = req.params;
     if (!ObjectId.isValid(id)) {
@@ -269,7 +269,7 @@ app.delete("/api/parcels/:id", async (req, res) => {
 // ============ RIDER APPLICATION ============
 
 // GET all rider applications
-app.get("/api/rider-applications", async (req, res) => {
+app.get("/api/rider-applications", verifyFBToken, async (req, res) => {
   try {
     const applications = await riderApplicationsCollection
       .find()
@@ -308,7 +308,7 @@ app.post("/api/rider-applications", async (req, res) => {
 });
 
 // DELETE all rider applications
-app.delete("/api/rider-applications", async (req, res) => {
+app.delete("/api/rider-applications", verifyFBToken, async (req, res) => {
   try {
     const result = await riderApplicationsCollection.deleteMany({});
     res.json({
@@ -339,7 +339,7 @@ app.get("/api/payments", verifyFBToken, async (req, res) => {
 });
 
 // POST create payment record
-app.post("/api/payments", async (req, res) => {
+app.post("/api/payments", verifyFBToken, async (req, res) => {
   try {
     const data = req.body;
 
@@ -360,7 +360,7 @@ app.post("/api/payments", async (req, res) => {
 
 // ============ Payment Intend ============
 
-app.post("/create-payment-intent", async (req, res) => {
+app.post("/create-payment-intent", verifyFBToken, async (req, res) => {
   const amountInCents = req.body.amountInCents;
   try {
     const paymentIntent = await stripe.paymentIntents.create({
