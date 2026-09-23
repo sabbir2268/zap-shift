@@ -20,14 +20,10 @@ import {
 
 import useParcels from "../../../api/parcels";
 import useAuth from "../../../hooks/useAuth";
-
-const STATUS = {
-  pending: { label: "Pending", className: "bg-yellow-100 text-yellow-800" },
-  picked_up: { label: "Picked Up", className: "bg-blue-100 text-blue-800" },
-  in_transit: { label: "In Transit", className: "bg-purple-100 text-purple-800" },
-  delivered: { label: "Delivered", className: "bg-green-100 text-green-800" },
-  cancelled: { label: "Cancelled", className: "bg-red-100 text-red-800" },
-};
+import {
+  getDeliveryStatus,
+  getPaymentStatus,
+} from "../../../data/parcelStatuses";
 
 const MyParcels = () => {
   const { getParcels, deleteParcel } = useParcels();
@@ -128,7 +124,8 @@ const MyParcels = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {parcels.map((parcel) => {
-              const status = STATUS[parcel.status] || STATUS.pending;
+              const status = getDeliveryStatus(parcel.status);
+              const paymentStatus = getPaymentStatus(parcel.paymentStatus);
 
               return (
                 <div
@@ -164,19 +161,33 @@ const MyParcels = () => {
                       </div>
                     </div>
 
-                    <span
-                      className={`
-                        shrink-0
-                        text-xs
-                        font-medium
-                        px-3
-                        py-1.5
-                        rounded-full
-                        ${status.className}
-                      `}
-                    >
-                      {status.label}
-                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span
+                        className={`
+                          text-xs
+                          font-medium
+                          px-3
+                          py-1.5
+                          rounded-full
+                          ${status.className}
+                        `}
+                      >
+                        {status.label}
+                      </span>
+
+                      <span
+                        className={`
+                          text-xs
+                          font-medium
+                          px-3
+                          py-1.5
+                          rounded-full
+                          ${paymentStatus.className}
+                        `}
+                      >
+                        {paymentStatus.label}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Route */}
@@ -441,6 +452,22 @@ const ParcelModal = ({ parcel, onClose }) => {
           <DetailSection icon={<Package size={16} />} title="Parcel Info">
             <DetailRow label="Parcel Type" value={parcel.parcelType === "document" ? "Document" : "Non-document"} />
             <DetailRow label="Weight" value={parcel.weight ? `${parcel.weight} KG` : "—"} />
+            <DetailRow
+              label="Delivery Status"
+              value={
+                <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${getDeliveryStatus(parcel.status).className}`}>
+                  {getDeliveryStatus(parcel.status).label}
+                </span>
+              }
+            />
+            <DetailRow
+              label="Payment Status"
+              value={
+                <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${getPaymentStatus(parcel.paymentStatus).className}`}>
+                  {getPaymentStatus(parcel.paymentStatus).label}
+                </span>
+              }
+            />
             <DetailRow label="Delivery Cost" value={`৳ ${parcel.productDeliveryCost}`} />
             <DetailRow label="Service Charge" value={`৳ ${parcel.serviceCharge}`} />
             <DetailRow label="Total Cost" value={`৳ ${parcel.totalCost}`} />

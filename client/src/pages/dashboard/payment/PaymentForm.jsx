@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast";
 import useAxios from "../../../hooks/useAxios";
 import useAuth from "./../../../hooks/useAuth";
 import usePayments from "../../../api/payments";
+import useTrackingUpdate from "../../../hooks/useTrackingUpdate";
 
 const cardElementOptions = {
   style: {
@@ -32,6 +33,7 @@ const PaymentForm = () => {
   const axiosSecure = useAxios();
   const { user } = useAuth();
   const { createPayment } = usePayments();
+  const { updatePaymentStatus } = useTrackingUpdate();
 
   const { isPending, data: parcelInfo } = useQuery({
     queryKey: ["parcels", id],
@@ -94,9 +96,7 @@ const PaymentForm = () => {
           setError(result.error.message);
         } else {
           if (result.paymentIntent.status === "succeeded") {
-            await axiosSecure.put(`/api/parcels/${id}`, {
-              paymentStatus: "paid",
-            });
+            await updatePaymentStatus(id, "paid");
             await createPayment({
               userEmail: user.email,
               userName: user.displayName,

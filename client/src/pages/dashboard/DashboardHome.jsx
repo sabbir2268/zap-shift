@@ -9,14 +9,10 @@ import {
 } from "lucide-react";
 import useAxios from "../../hooks/useAxios";
 import useAuth from "../../hooks/useAuth";
-
-const STATUS = {
-  pending: { label: "Pending", className: "bg-yellow-100 text-yellow-800" },
-  picked_up: { label: "Picked Up", className: "bg-blue-100 text-blue-800" },
-  in_transit: { label: "In Transit", className: "bg-purple-100 text-purple-800" },
-  delivered: { label: "Delivered", className: "bg-green-100 text-green-800" },
-  cancelled: { label: "Cancelled", className: "bg-red-100 text-red-800" },
-};
+import {
+  getDeliveryStatus,
+  getPaymentStatus,
+} from "../../data/parcelStatuses";
 
 const DashboardHome = () => {
   const api = useAxios();
@@ -166,11 +162,13 @@ const DashboardHome = () => {
                     Date
                   </th>
                   <th className="px-3 py-3 font-semibold">Status</th>
+                  <th className="px-3 py-3 font-semibold">Payment</th>
                 </tr>
               </thead>
               <tbody>
                 {recentParcels.map((parcel) => {
-                  const status = STATUS[parcel.status] || STATUS.pending;
+                  const status = getDeliveryStatus(parcel.status);
+                  const paymentStatus = getPaymentStatus(parcel.paymentStatus);
 
                   return (
                     <tr
@@ -198,6 +196,14 @@ const DashboardHome = () => {
                           className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${status.className}`}
                         >
                           {status.label}
+                        </span>
+                      </td>
+
+                      <td className="px-3 py-4">
+                        <span
+                          className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${paymentStatus.className}`}
+                        >
+                          {paymentStatus.label}
                         </span>
                       </td>
                     </tr>

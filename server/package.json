@@ -16,6 +16,7 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongodb": "^7.6.0",
+    "multer": "^2.4.0",
     "stripe": "^22.6.2"
   },
   "devDependencies": {

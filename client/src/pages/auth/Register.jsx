@@ -17,11 +17,15 @@ import authImage from "../../assets/authImage.png";
 import { useForm } from "react-hook-form";
 import useAuth from "../../hooks/useAuth";
 import SocialLogin from "./SocialLogin";
+import axios from "axios";
+import useAxios from "../../hooks/useAxios";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [profilePic, setProfilePic] = useState("");
+  const axiosInstance = useAxios();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -37,14 +41,40 @@ const Register = () => {
     formState: { errors },
   } = useForm();
 
-  const { createUser } = useAuth();
+  const { createUser, updateUserProfile } = useAuth();
 
   const onSubmit = (data) => {
     setLoading(true);
 
     createUser(data.email, data.password)
-      .then(() => {
+      .then(async() => {
         toast.success("Account created successfully!");
+        //update userinfo in the db
+        const userInfo = {
+          name: data.name,
+          photoURL: profilePic,
+          email : data.email,
+          role: 'user',
+          created_at : new Date().toISOString(),
+          last_log_in: new Date().toISOString()
+        }
+
+        const userRes = await axiosInstance.post('/user', userInfo);
+        console.log(userRes);
+
+        //update user profile picture in firebase with email, and password
+        const userProfile = {
+          displayName: data.name,
+          photoURL: profilePic,
+        };
+        updateUserProfile(userProfile)
+          .then(() => {
+            console.log("profile name pic updated");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+
         navigate(from, { replace: true });
       })
       .catch((error) => {
@@ -53,6 +83,25 @@ const Register = () => {
       .finally(() => {
         setLoading(false);
       });
+  };
+
+  const handleImageUpload = async (e) => {
+    const image = e.target.files[0];
+    if (!image) return;
+
+    const formData = new FormData();
+    formData.append("image", image);
+
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/api/upload-image",
+        formData,
+      );
+      setProfilePic(res.data.url);
+      console.log(res.data.url);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Image upload failed");
+    }
   };
 
   return (
@@ -70,6 +119,26 @@ const Register = () => {
           onSubmit={handleSubmit(onSubmit)}
           className="mt-8 flex flex-col gap-5"
         >
+          <div className="relative">
+            <UserRound
+              size={18}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--foreground)]/50"
+            />
+            <input
+              type="file"
+              name="file"
+              onChange={handleImageUpload}
+              placeholder="Upload Your Profile Picture"
+              required
+              className="w-full rounded-xl border-2 border-[var(--foreground)]/15 bg-[var(--card)] py-3.5 pl-12 pr-4 font-sans text-[var(--text)] placeholder:text-[var(--text)]/40 outline-none transition-all duration-300 focus:border-[var(--secondary)] focus:ring-4 focus:ring-[var(--secondary)]/20"
+            />
+            {errors.name && (
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-red-500">
+                Name is required
+              </span>
+            )}
+          </div>
+
           <div className="relative">
             <UserRound
               size={18}

@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require('dotenv');
+const multer = require("multer");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 dotenv.config();
@@ -22,10 +23,53 @@ const client = new MongoClient(uri, {
   },
 });
 
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+app.post("/api/upload-image", upload.single("image"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No image file provided" });
+    }
+
+    const key = process.env.IMGBB_API_KEY;
+    if (!key) {
+      return res.status(500).json({ message: "IMGBB_API_KEY is not set" });
+    }
+
+    const formData = new FormData();
+    formData.append(
+      "image",
+      new Blob([req.file.buffer], { type: req.file.mimetype }),
+      req.file.originalname || "upload.png"
+    );
+
+    const imgbbRes = await fetch(
+      `https://api.imgbb.com/1/upload?key=${key}`,
+      { method: "POST", body: formData }
+    );
+    const data = await imgbbRes.json();
+
+    if (!data.success) {
+      return res
+        .status(400)
+        .json({ message: data.error?.message || "Image upload to imgbb failed" });
+    }
+
+    console.log("imgbb link:", data.data.url);
+    res.json({ url: data.data.url });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 const dbName = process.env.DB_NAME || "zapShift";
 let parcelsCollection;
 let riderApplicationsCollection;
 let paymentsCollection;
+let userCollection;
 
 async function run() {
   try {
@@ -39,6 +83,7 @@ async function run() {
     parcelsCollection = db.collection("parcels");
     riderApplicationsCollection = db.collection("riderApplications");
     paymentsCollection = db.collection("payments");
+    userCollection = db.collection("users");
   } catch (error) {
     console.error("MongoDB connection error:", error);
   }
@@ -53,6 +98,22 @@ run().then(() => {
 app.get("/", (req, res) => {
   res.send("Server is running ");
 });
+
+//=============User CRUD===============
+app.post('/user', async(req, res) => {
+  try {
+    const email = req.body.email;
+    const userExist = await userCollection.findOne({email});
+    if(userExist){
+      return res.status(200).send({message: 'user already exists'})
+    }
+    const user = req.body;
+    const result = await userCollection.insertOne(user);
+    res.send(result);
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+})
 
 // ============ PARCEL CRUD ============
 
@@ -260,7 +321,6 @@ app.post("/api/payments", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
 
 // ============ Payment Intend ============
 

@@ -10,14 +10,10 @@ import {
 } from "lucide-react";
 import useAxios from "../../../hooks/useAxios";
 import useAuth from "../../../hooks/useAuth";
-
-const STATUS = {
-  pending: { label: "Pending", className: "bg-yellow-100 text-yellow-800" },
-  picked_up: { label: "Picked Up", className: "bg-blue-100 text-blue-800" },
-  in_transit: { label: "In Transit", className: "bg-purple-100 text-purple-800" },
-  delivered: { label: "Delivered", className: "bg-green-100 text-green-800" },
-  cancelled: { label: "Cancelled", className: "bg-red-100 text-red-800" },
-};
+import {
+  getDeliveryStatus,
+  getPaymentStatus,
+} from "../../../data/parcelStatuses";
 
 const TrackParcel = () => {
   const api = useAxios();
@@ -49,7 +45,8 @@ const TrackParcel = () => {
       .finally(() => setLoading(false));
   };
 
-  const status = parcel ? STATUS[parcel.status] || STATUS.pending : null;
+  const status = parcel ? getDeliveryStatus(parcel.status) : null;
+  const paymentStatus = parcel ? getPaymentStatus(parcel.paymentStatus) : null;
 
   return (
     <section className="mx-auto max-w-2xl">
@@ -133,11 +130,19 @@ const TrackParcel = () => {
                 </div>
               </div>
 
-              <span
-                className={`rounded-full px-3 py-1.5 text-xs font-medium ${status.className}`}
-              >
-                {status.label}
-              </span>
+              <div className="flex items-center gap-2 shrink-0">
+                <span
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium ${status.className}`}
+                >
+                  {status.label}
+                </span>
+
+                <span
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium ${paymentStatus.className}`}
+                >
+                  {paymentStatus.label}
+                </span>
+              </div>
             </div>
 
             {/* Route */}

@@ -2,15 +2,17 @@ import React, { useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { ArrowLeft, Loader2, Save, SquarePen } from "lucide-react";
-import useParcels from "../../../api/parcels";
+import useTrackingUpdate from "../../../hooks/useTrackingUpdate";
+import { DELIVERY_STATUS, PAYMENT_STATUS } from "../../../data/parcelStatuses";
 
-const STATUS_OPTIONS = [
-  { value: "pending", label: "Pending" },
-  { value: "picked_up", label: "Picked Up" },
-  { value: "in_transit", label: "In Transit" },
-  { value: "delivered", label: "Delivered" },
-  { value: "cancelled", label: "Cancelled" },
-];
+const STATUS_OPTIONS = Object.entries(DELIVERY_STATUS).map(([value, item]) => ({
+  value,
+  label: item.label,
+}));
+
+const PAYMENT_STATUS_OPTIONS = Object.entries(PAYMENT_STATUS).map(
+  ([value, item]) => ({ value, label: item.label })
+);
 
 const inputClass =
   "w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-[var(--foreground)] outline-none focus:border-[var(--foreground)] transition";
@@ -28,7 +30,7 @@ const UpdateParcel = () => {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { updateParcel } = useParcels();
+  const { updateTracking } = useTrackingUpdate();
 
   const parcel = location.state?.parcel;
 
@@ -38,6 +40,7 @@ const UpdateParcel = () => {
     parcelType: parcel?.parcelType || "document",
     weight: parcel?.weight ?? "",
     status: parcel?.status || "pending",
+    paymentStatus: parcel?.paymentStatus || "unpaid",
     senderName: parcel?.senderName || "",
     senderContact: parcel?.senderContact || "",
     senderRegion: parcel?.senderRegion || "",
@@ -58,7 +61,7 @@ const UpdateParcel = () => {
     setSaving(true);
 
     try {
-      await updateParcel(id, {
+      await updateTracking(id, {
         ...form,
         weight: form.weight === "" ? "" : Number(form.weight),
       });
@@ -160,6 +163,20 @@ const UpdateParcel = () => {
               onChange={setField("status")}
             >
               {STATUS_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <Field label="Payment Status" full>
+            <select
+              className={inputClass}
+              value={form.paymentStatus}
+              onChange={setField("paymentStatus")}
+            >
+              {PAYMENT_STATUS_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
