@@ -1,17 +1,27 @@
 const express = require("express");
 const cors = require("cors");
-const dotenv = require('dotenv');
+const dotenv = require("dotenv");
 const multer = require("multer");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const admin = require("firebase-admin");
+const { getAuth } = require("firebase-admin/auth");
 
 dotenv.config();
 
-const stripe = require('stripe')(process.env.PAYMENT_GATEWAY_KEY);
+const stripe = require("stripe")(process.env.PAYMENT_GATEWAY_KEY);
 const app = express();
 const port = process.env.PORT || 3000;
 
+// middleware
 app.use(cors());
 app.use(express.json());
+
+// firebase token initializing
+const serviceAccount = require("./firebase-adminsdk.json");
+
+admin.initializeApp({
+  credential: admin.cert(serviceAccount),
+});
 
 const uri = process.env.MONGODB_URI;
 
@@ -43,19 +53,21 @@ app.post("/api/upload-image", upload.single("image"), async (req, res) => {
     formData.append(
       "image",
       new Blob([req.file.buffer], { type: req.file.mimetype }),
-      req.file.originalname || "upload.png"
+      req.file.originalname || "upload.png",
     );
 
-    const imgbbRes = await fetch(
-      `https://api.imgbb.com/1/upload?key=${key}`,
-      { method: "POST", body: formData }
-    );
+    const imgbbRes = await fetch(`https://api.imgbb.com/1/upload?key=${key}`, {
+      method: "POST",
+      body: formData,
+    });
     const data = await imgbbRes.json();
 
     if (!data.success) {
       return res
         .status(400)
-        .json({ message: data.error?.message || "Image upload to imgbb failed" });
+        .json({
+          message: data.error?.message || "Image upload to imgbb failed",
+        });
     }
 
     console.log("imgbb link:", data.data.url);
@@ -77,7 +89,9 @@ async function run() {
     await client.db("admin").command({
       ping: 1,
     });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    console.log(
+      "Pinged your deployment. You successfully connected to MongoDB!",
+    );
 
     const db = client.db(dbName);
     parcelsCollection = db.collection("parcels");
@@ -95,17 +109,40 @@ run().then(() => {
   });
 });
 
+// custom middleware to verify token
+const verifyFBToken = async (req, res, next) => {
+  const authHeaders = req.headers.authorization;
+  if (!authHeaders) {
+    return res.status(401).send({ message: "Unauthorized Access" });
+  }
+  const token = authHeaders.split(" ")[1];
+  if (!token) {
+    return res.status(401).send({ message: "Unauthorized Access" });
+  }
+  // verify token
+  try {
+    const decoded = await getAuth().verifyIdToken(token);
+    req.decoded = decoded;
+    next();
+  } 
+  catch (error) {
+    return res.status(403).send({ message: "forbidden Access" });
+  }
+};
+
+// server running api
+
 app.get("/", (req, res) => {
   res.send("Server is running ");
 });
 
 //=============User CRUD===============
-app.post('/user', async(req, res) => {
+app.post("/user", async (req, res) => {
   try {
     const email = req.body.email;
-    const userExist = await userCollection.findOne({email});
-    if(userExist){
-      return res.status(200).send({message: 'user already exists'})
+    const userExist = await userCollection.findOne({ email });
+    if (userExist) {
+      return res.status(200).send({ message: "user already exists" });
     }
     const user = req.body;
     const result = await userCollection.insertOne(user);
@@ -113,16 +150,16 @@ app.post('/user', async(req, res) => {
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
-})
+});
 
 // ============ PARCEL CRUD ============
 
 // GET all parcels
-app.get("/api/parcels", async (req, res) => {
+app.get("/api/parcels", verifyFBToken, async (req, res) => {
+  // console.log("headers in parcels",req.headers);
   try {
     const { email } = req.query;
     const filter = email ? { userEmail: email } : {};
-
     const parcels = await parcelsCollection
       .find(filter)
       .sort({ createdAt: -1 })
@@ -190,7 +227,7 @@ app.put("/api/parcels/:id", async (req, res) => {
 
     const result = await parcelsCollection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: { ...updateData, updatedAt: new Date() } }
+      { $set: { ...updateData, updatedAt: new Date() } },
     );
 
     if (result.matchedCount === 0) {
@@ -283,11 +320,10 @@ app.delete("/api/rider-applications", async (req, res) => {
   }
 });
 
-
 // ============ PAYMENT HISTORY ============
 
 // GET payment history
-app.get("/api/payments", async (req, res) => {
+app.get("/api/payments", verifyFBToken, async (req, res) => {
   try {
     const { email } = req.query;
     const filter = email ? { userEmail: email } : {};
@@ -324,13 +360,13 @@ app.post("/api/payments", async (req, res) => {
 
 // ============ Payment Intend ============
 
-app.post('/create-payment-intent', async (req, res) => {
-  const amountInCents = req.body.amountInCents
+app.post("/create-payment-intent", async (req, res) => {
+  const amountInCents = req.body.amountInCents;
   try {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,
-      currency: 'usd',
-      payment_method_types: ['card'],
+      currency: "usd",
+      payment_method_types: ["card"],
     });
 
     res.send({ clientSecret: paymentIntent.client_secret });

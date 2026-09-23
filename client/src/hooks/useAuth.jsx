@@ -8,4 +8,4 @@ const useAuth = () => {
 
 export default useAuth;
 
-// no need to import authinfo in evreyfile.
+// no need to import authinfo in every file.
