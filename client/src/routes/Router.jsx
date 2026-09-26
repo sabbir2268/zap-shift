@@ -26,6 +26,7 @@ import ActiveRiders from "../pages/admin/riders/ActiveRiders";
 import ManageUsers from "../pages/admin/manageUsers/ManageUsers";
 import ManageParcels from "../pages/admin/manageParcels/ManageParcels";
 import ManagePayments from "../pages/admin/managePayments/ManagePayments";
+import Administration from "../pages/admin/administration/Administration";
 
 export const router = createBrowserRouter([
   {
@@ -49,17 +50,15 @@ export const router = createBrowserRouter([
     path: "/dashboard",
     element: (
       <PrivateRoutes>
-        <DashboardLayout />
+        <AdminRedirect>
+          <DashboardLayout />
+        </AdminRedirect>
       </PrivateRoutes>
     ),
     children: [
       {
         index: true,
-        element: (
-          <AdminRedirect>
-            <DashboardHome />
-          </AdminRedirect>
-        ),
+        element: <DashboardHome />,
       },
       { path: "send-parcel", element: <SendParcel /> },
       { path: "parcels", element: <MyParcels /> },
@@ -86,6 +85,7 @@ export const router = createBrowserRouter([
       { path: "manage-users", element: <ManageUsers /> },
       { path: "manage-parcels", element: <ManageParcels /> },
       { path: "manage-payments", element: <ManagePayments /> },
+      { path: "administration", element: <Administration /> },
     ],
   },
   {

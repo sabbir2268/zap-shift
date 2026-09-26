@@ -11,12 +11,16 @@ import {
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase.init";
+import api from "../AxiosContext/axiosClient";
+import { isAdminUser } from "../../data/admin";
 
 const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState(null);
+  const [roleLoading, setRoleLoading] = useState(false);
 
   const createUser = (email, password) => {
     setLoading(true);
@@ -61,9 +65,42 @@ const AuthProvider = ({ children }) => {
     };
   }, []);
 
+  /* load the signed in user's record so their role is available app wide */
+  useEffect(() => {
+    if (!user) {
+      setProfile(null);
+      setRoleLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setRoleLoading(true);
+
+    api
+      .get("/api/users/me")
+      .then((data) => {
+        if (!cancelled) setProfile(data);
+      })
+      .catch(() => {
+        /* account has no record yet, treat it as a plain user */
+        if (!cancelled) setProfile({ role: "user" });
+      })
+      .finally(() => {
+        if (!cancelled) setRoleLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
   const authInfo = {
     user,
     loading,
+    profile,
+    role: profile?.role,
+    roleReady: !loading && !roleLoading,
+    isAdmin: isAdminUser(user, profile?.role),
     createUser,
     signIn,
     logOut,

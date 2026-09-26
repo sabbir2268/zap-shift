@@ -5,7 +5,7 @@ import { Navigate, useLocation } from "react-router";
 
 /* Blocks the admin panel from non-admin users */
 const AdminRoutes = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, role, roleReady } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -16,7 +16,12 @@ const AdminRoutes = ({ children }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (!isAdminUser(user)) {
+  /* wait for the role, otherwise a promoted admin gets bounced */
+  if (!roleReady) {
+    return <span className="loading loading-spinner loading-xl"></span>;
+  }
+
+  if (!isAdminUser(user, role)) {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -25,13 +30,21 @@ const AdminRoutes = ({ children }) => {
 
 /* Sends the admin away from the user dashboard */
 export const AdminRedirect = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, role, roleReady } = useAuth();
 
   if (loading) {
     return <span className="loading loading-spinner loading-xl"></span>;
   }
 
-  if (isAdminUser(user)) {
+  if (!user) {
+    return children;
+  }
+
+  if (!roleReady) {
+    return <span className="loading loading-spinner loading-xl"></span>;
+  }
+
+  if (isAdminUser(user, role)) {
     return <Navigate to="/admin" replace />;
   }
 

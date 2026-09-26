@@ -1,6 +1,16 @@
 export const ADMIN_EMAIL = "zapshiftadmin@gmail.com";
 
-export const isAdminUser = (user) => user?.email === ADMIN_EMAIL;
+/* email comparison is case and whitespace insensitive */
+export const isAdminEmail = (email) =>
+  (email || "").trim().toLowerCase() === ADMIN_EMAIL;
 
-export const getDashboardPath = (user) =>
-  isAdminUser(user) ? "/admin" : "/dashboard";
+/* the owner account, or anyone promoted to admin on the administration page */
+export const isAdminUser = (user, role) =>
+  isAdminEmail(user?.email) || role === "admin";
+
+export const getDashboardPath = (user, role) =>
+  isAdminUser(user, role) ? "/admin" : "/dashboard";
+
+/* where to send someone right after they authenticate */
+export const getPostAuthPath = (email, from) =>
+  isAdminEmail(email) ? "/admin" : from || "/";

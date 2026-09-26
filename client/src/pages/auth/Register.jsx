@@ -19,6 +19,7 @@ import useAuth from "../../hooks/useAuth";
 import SocialLogin from "./SocialLogin";
 import axios from "axios";
 import useAxios from "../../hooks/useAxios";
+import { getPostAuthPath } from "../../data/admin";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -80,7 +81,7 @@ const Register = () => {
             console.log(error);
           });
 
-        navigate(from, { replace: true });
+        navigate(getPostAuthPath(data.email, from), { replace: true });
       })
       .catch((error) => {
         toast.error(error.message || "Failed to create account");

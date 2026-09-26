@@ -7,6 +7,7 @@ import {
   Users,
   Package,
   CreditCard,
+  ShieldPlus,
   LogOut,
   Menu,
   X,
@@ -22,6 +23,7 @@ const navItems = [
   { to: "/admin/manage-users", label: "Manage User", icon: Users },
   { to: "/admin/manage-parcels", label: "Manage Parcel", icon: Package },
   { to: "/admin/manage-payments", label: "Manage Payment", icon: CreditCard },
+  { to: "/admin/administration", label: "Administration", icon: ShieldPlus },
 ];
 
 const AdminLayout = () => {

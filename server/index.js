@@ -239,6 +239,90 @@ app.post("/user", verifyFBToken, async (req, res) => {
   }
 });
 
+// roles an admin is allowed to hand out
+const ALLOWED_ROLES = ["user", "rider", "admin"];
+
+/* the signed in user's own record, used by the client to read their role */
+app.get("/api/users/me", verifyFBToken, async (req, res) => {
+  try {
+    const email = req.decoded?.email;
+
+    const user = await userCollection.findOne(
+      { email },
+      { projection: { password: 0 } }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "No user record for this account" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// GET all users, for the admin administration page
+app.get("/api/users", verifyFBToken, async (req, res) => {
+  try {
+    const users = await userCollection
+      .find({}, { projection: { password: 0 } })
+      .sort({ created_at: -1 })
+      .toArray();
+
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// PATCH change a user's role
+app.patch("/api/users/:id/role", verifyFBToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid user id" });
+    }
+
+    if (!ALLOWED_ROLES.includes(role)) {
+      return res.status(400).json({
+        message: `Role must be one of: ${ALLOWED_ROLES.join(", ")}`,
+      });
+    }
+
+    const target = await userCollection.findOne({ _id: new ObjectId(id) });
+
+    if (!target) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // a rider is not allowed to hold the admin role
+    if (target.role === "rider" && role === "admin") {
+      return res.status(403).json({
+        message: "A rider cannot be set as admin",
+      });
+    }
+
+    const result = await userCollection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          role,
+          updated_at: new Date(),
+        },
+      }
+    );
+
+    const updated = await userCollection.findOne({ _id: new ObjectId(id) });
+
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // ============ PARCEL CRUD ============
 
 // GET all parcels

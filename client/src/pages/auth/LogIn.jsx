@@ -15,6 +15,7 @@ import authImage from "../../assets/authImage.png";
 import { useForm } from "react-hook-form";
 import SocialLogin from "./SocialLogin";
 import useAuth from "../../hooks/useAuth";
+import { getPostAuthPath } from "../../data/admin";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -38,9 +39,11 @@ const Login = () => {
     setLoading(true);
 
     signIn(data.email, data.password)
-      .then(() => {
+      .then((userCredential) => {
         toast.success("Login successful!");
-        navigate(from, { replace: true });
+        navigate(getPostAuthPath(userCredential?.user?.email, from), {
+          replace: true,
+        });
       })
       .catch((error) => {
         toast.error(error.message || "Invalid email or password");

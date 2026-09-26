@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import useAuth from "./../../hooks/useAuth";
 import useAxios from "../../hooks/useAxios";
+import { getPostAuthPath } from "../../data/admin";
 
 const SocialLogin = () => {
   const { signInWithGoogle } = useAuth();
@@ -33,7 +34,7 @@ const SocialLogin = () => {
         const res = await axiosInstance.post('/user', userInfo);
         console.log("user update info", res);
 
-        navigate(from, { replace: true });
+        navigate(getPostAuthPath(user.email, from), { replace: true });
       })
       .catch((error) => {
         toast.error(error.message || "Google login failed");

@@ -13,7 +13,7 @@ const Navbar = () => {
   const mobileDropdownRef = useRef(null);
   const userMenuRef = useRef(null);
 
-  const { user } = useAuth();
+  const { user, role } = useAuth();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -143,7 +143,7 @@ const Navbar = () => {
                   <LogoutButton />
 
                   <Link
-                    to={getDashboardPath(user)}
+                    to={getDashboardPath(user, role)}
                     className="
                       w-10
                       h-10
@@ -226,7 +226,7 @@ const Navbar = () => {
               {/* Arrow Button */}
               {user && (
                 <Link
-                  to={getDashboardPath(user)}
+                  to={getDashboardPath(user, role)}
                   className="
                     w-9
                     h-9
