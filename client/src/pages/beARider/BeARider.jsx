@@ -1,9 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
 import riderImage from "../../assets/big-deliveryman.png";
 import useAxios from "../../hooks/useAxios";
 import useAuth from "../../hooks/useAuth";
+
+/* Warehouses a rider can pick, grouped by the region they belong to */
+const REGION_WAREHOUSES = {
+  Dhaka: ["Dhaka Warehouse", "Gazipur Warehouse", "Savar Warehouse"],
+  Chattogram: ["Chattogram Warehouse", "Cox's Bazar Warehouse"],
+  Khulna: ["Khulna Warehouse", "Jessore Warehouse"],
+  Rajshahi: ["Rajshahi Warehouse", "Rangpur Warehouse"],
+  Sylhet: ["Sylhet Warehouse", "Moulvibazar Warehouse"],
+};
 
 const BeARider = () => {
   const api = useAxios();
@@ -11,14 +20,22 @@ const BeARider = () => {
 
   const [submitting, setSubmitting] = useState(false);
 
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset, watch, setValue } = useForm();
+
+  const selectedRegion = watch("region");
+  const warehouses = selectedRegion ? REGION_WAREHOUSES[selectedRegion] || [] : [];
+
+  /* a warehouse from the previous region must not survive a region change */
+  useEffect(() => {
+    setValue("warehouse", "");
+  }, [selectedRegion, setValue]);
 
   const onSubmit = (data) => {
     const riderData = {
       ...data,
       uid: user?.uid,
-      name: user?.displayName || data.name,
-      email: user?.email || data.email,
+      name: user?.displayName,
+      email: user?.email,
       status: "pending",
       created_at: new Date().toISOString(),
     };
@@ -68,10 +85,10 @@ const BeARider = () => {
 
                 <input
                   type="text"
-                  placeholder="Enter your full name"
+                  value={user?.displayName || ""}
+                  readOnly
                   required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                  {...register("name", { required: true })}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-100 cursor-not-allowed text-gray-600"
                 />
               </div>
 
@@ -94,10 +111,10 @@ const BeARider = () => {
 
                 <input
                   type="email"
-                  placeholder="Enter your email address"
+                  value={user?.email || ""}
+                  readOnly
                   required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                  {...register("email", { required: true })}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-100 cursor-not-allowed text-gray-600"
                 />
               </div>
 
@@ -162,16 +179,16 @@ const BeARider = () => {
                   {...register("warehouse", { required: true })}
                 >
                   <option value="" disabled>
-                    Select warehouse
+                    {selectedRegion
+                      ? "Select warehouse"
+                      : "Select your region first"}
                   </option>
 
-                  <option value="Dhaka Warehouse">Dhaka Warehouse</option>
-
-                  <option value="Chattogram Warehouse">
-                    Chattogram Warehouse
-                  </option>
-
-                  <option value="Khulna Warehouse">Khulna Warehouse</option>
+                  {warehouses.map((warehouse) => (
+                    <option key={warehouse} value={warehouse}>
+                      {warehouse}
+                    </option>
+                  ))}
                 </select>
               </div>
 

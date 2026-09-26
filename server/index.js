@@ -145,12 +145,17 @@ const verifyUser = (req, res, next) => {
 };
 
 // generate a unique rider id like RDR-1A2B3C4D
+// ids are reserved on the application, so that collection is the one to check
 const generateRiderId = async () => {
   for (let attempt = 0; attempt < 5; attempt++) {
     const riderID = `RDR-${crypto.randomBytes(4).toString("hex").toUpperCase()}`;
-    const taken = await userCollection.findOne({ riderID });
 
-    if (!taken) return riderID;
+    const [onApplication, onUser] = await Promise.all([
+      riderApplicationsCollection.findOne({ riderID }),
+      userCollection.findOne({ riderID }),
+    ]);
+
+    if (!onApplication && !onUser) return riderID;
   }
 
   throw new Error("Could not generate a unique rider id");
@@ -175,7 +180,8 @@ const promoteToRider = async (application) => {
     return { promoted: false, reason: "already a rider", riderID: user.riderID };
   }
 
-  const riderID = user.riderID || (await generateRiderId());
+  // reuse the id reserved on the application so the rider keeps one id
+  const riderID = user.riderID || application.riderID || (await generateRiderId());
 
   await userCollection.updateOne(
     { _id: user._id },
@@ -369,6 +375,7 @@ app.post("/api/rider-applications",verifyFBToken,  async (req, res) => {
 
     const application = {
       uid: req.decoded?.uid || data.uid || "",
+      riderID: data.riderID || (await generateRiderId()),
       name: data.name,
       age: data.age,
       email: data.email,
@@ -417,7 +424,7 @@ app.patch("/api/rider-applications/:id", verifyFBToken, async (req, res) => {
       _id: new ObjectId(id),
     });
 
-    // approving promotes the user to role "rider" with a new rider id
+    // approving promotes the user to role "rider" using the id on the application
     if (status === "approved") {
       const { promoted, riderID, reason } = await promoteToRider(updated);
 
