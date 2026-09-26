@@ -51,7 +51,7 @@ const Login = () => {
   };
 
   return (
-    <div className="grid w-full min-h-screen grid-cols-1 lg:grid-cols-5">
+    <div className="grid w-full grid-cols-1 lg:grid-cols-5">
       {/* Form side */}
       <div className="flex flex-col justify-center p-8 sm:p-12 lg:col-span-3">
         <h2 className="text-4xl font-bold text-[var(--foreground)]">
@@ -173,45 +173,41 @@ const Login = () => {
       </div>
 
       {/* Image side */}
-      <div className="relative flex min-h-72 flex-col justify-end overflow-hidden bg-[var(--foreground)] lg:col-span-2 lg:min-h-full">
+      <div className="relative m-4 flex min-h-72 flex-col items-center justify-center gap-6 overflow-hidden rounded-3xl bg-[var(--foreground)] p-6 sm:m-6 sm:gap-8 sm:p-8 lg:col-span-2 lg:m-8">
         <img
           src={authImage}
           alt="ZapShift delivery rider"
-          className="absolute inset-0 h-full w-full object-contain p-6 sm:p-10"
+          className="relative z-10 max-h-44 w-full object-contain sm:max-h-60"
         />
 
-        <div className="absolute inset-0 bg-gradient-to-b from-[var(--foreground)]/70 via-[var(--foreground)]/20 to-[var(--foreground)]/95"></div>
-
         {/* Text */}
-        <div className="relative z-10 p-6 sm:p-8">
-          <div className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-md">
-            <div className="flex items-center gap-2">
-              <ShieldCheck size={20} className="text-[var(--secondary)]" />
-              <span className="font-semibold text-[var(--secondary)]">
-                Welcome back
-              </span>
-            </div>
-
-            <ul className="mt-4 flex flex-col gap-3 text-[var(--primary)]/90">
-              <li className="flex items-center gap-3">
-                <Truck size={18} className="shrink-0 text-[var(--secondary)]" />
-                Fast, reliable delivery you can trust
-              </li>
-
-              <li className="flex items-center gap-3">
-                <PackageCheck
-                  size={18}
-                  className="shrink-0 text-[var(--secondary)]"
-                />
-                Real-time parcel tracking
-              </li>
-
-              <li className="flex items-center gap-3">
-                <Mail size={18} className="shrink-0 text-[var(--secondary)]" />
-                Instant alerts and updates
-              </li>
-            </ul>
+        <div className="relative z-10 w-full rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <ShieldCheck size={20} className="text-[var(--secondary)]" />
+            <span className="font-semibold text-[var(--secondary)]">
+              Welcome back
+            </span>
           </div>
+
+          <ul className="mt-4 flex flex-col gap-3 text-[var(--primary)]/90">
+            <li className="flex items-center gap-3">
+              <Truck size={18} className="shrink-0 text-[var(--secondary)]" />
+              Fast, reliable delivery you can trust
+            </li>
+
+            <li className="flex items-center gap-3">
+              <PackageCheck
+                size={18}
+                className="shrink-0 text-[var(--secondary)]"
+              />
+              Real-time parcel tracking
+            </li>
+
+            <li className="flex items-center gap-3">
+              <Mail size={18} className="shrink-0 text-[var(--secondary)]" />
+              Instant alerts and updates
+            </li>
+          </ul>
         </div>
       </div>
     </div>

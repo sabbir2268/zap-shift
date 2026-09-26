@@ -50,17 +50,24 @@ const RiderList = ({
       setWorkingId(rider._id);
 
       try {
-        await api.patch(`/api/rider-applications/${rider._id}`, {
+        const updated = await api.patch(`/api/rider-applications/${rider._id}`, {
           status: nextStatus,
         });
 
         setApplications((prev) =>
           prev.map((item) =>
-            item._id === rider._id ? { ...item, status: nextStatus } : item
+            item._id === rider._id ? { ...item, ...updated } : item
           )
         );
 
         toast.success(message);
+
+        if (updated?.roleUpdate === "no user record") {
+          toast.error(
+            "Approved, but no matching user record was found to promote.",
+            { id: `promote-${rider._id}` }
+          );
+        }
       } catch (error) {
         toast.error(error.message || "Failed to update rider");
       } finally {
@@ -310,10 +317,7 @@ const RiderTable = ({ riders, workingId, onView, onHold, onActivate }) => {
             <tr className="border-b border-gray-200 text-xs uppercase tracking-wide text-[var(--text)]/50">
               <th className="px-4 py-3 font-semibold">Rider</th>
               <th className="hidden px-4 py-3 font-semibold md:table-cell">
-                UID
-              </th>
-              <th className="hidden px-4 py-3 font-semibold sm:table-cell">
-                Age
+                Email
               </th>
               <th className="hidden px-4 py-3 font-semibold lg:table-cell">
                 Region
@@ -367,21 +371,14 @@ const RiderTable = ({ riders, workingId, onView, onHold, onActivate }) => {
                         <p className="font-semibold text-[var(--foreground)] truncate">
                           {rider.name}
                         </p>
-                        <p className="text-xs text-[var(--text)] truncate">
-                          {rider.email}
-                        </p>
                       </div>
                     </div>
                   </td>
 
                   <td className="hidden px-4 py-3 md:table-cell">
-                    <span className="font-mono text-xs text-[var(--text)]">
-                      {rider.uid || "—"}
+                    <span className="text-[var(--text)] truncate">
+                      {rider.email || "—"}
                     </span>
-                  </td>
-
-                  <td className="hidden px-4 py-3 sm:table-cell">
-                    {rider.age || "—"}
                   </td>
 
                   <td className="hidden px-4 py-3 lg:table-cell">
@@ -811,6 +808,18 @@ const RiderModal = ({ rider, onClose, onDone }) => {
             </div>
 
             <div className="p-4 space-y-3">
+              {rider.riderID ? (
+                <DetailRow
+                  label="Rider ID"
+                  value={
+                    <span className="flex items-center gap-1 font-mono text-xs font-semibold text-[var(--secondary)]">
+                      <Hash size={13} />
+                      {rider.riderID}
+                    </span>
+                  }
+                />
+              ) : null}
+
               <DetailRow
                 label="UID"
                 value={

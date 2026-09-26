@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const multer = require("multer");
+const crypto = require("crypto");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const admin = require("firebase-admin");
 const { getAuth } = require("firebase-admin/auth");
@@ -143,6 +144,62 @@ const verifyUser = (req, res, next) => {
   next();
 };
 
+// generate a unique rider id like RDR-1A2B3C4D
+const generateRiderId = async () => {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const riderID = `RDR-${crypto.randomBytes(4).toString("hex").toUpperCase()}`;
+    const taken = await userCollection.findOne({ riderID });
+
+    if (!taken) return riderID;
+  }
+
+  throw new Error("Could not generate a unique rider id");
+};
+
+// promote an approved applicant to role "rider" and give them a rider id
+const promoteToRider = async (application) => {
+  const user = await userCollection.findOne(
+    application.uid
+      ? {
+          $or: [{ uid: application.uid }, { email: application.email }],
+        }
+      : { email: application.email }
+  );
+
+  if (!user) {
+    return { promoted: false, reason: "no user record" };
+  }
+
+  // already a rider, never hand out a second id
+  if (user.role === "rider" && user.riderID) {
+    return { promoted: false, reason: "already a rider", riderID: user.riderID };
+  }
+
+  const riderID = user.riderID || (await generateRiderId());
+
+  await userCollection.updateOne(
+    { _id: user._id },
+    {
+      $set: {
+        role: "rider",
+        riderID,
+        riderSince: new Date(),
+        riderInfo: {
+          name: application.name,
+          email: application.email,
+          age: application.age,
+          region: application.region,
+          nid: application.nid,
+          contact: application.contact,
+          warehouse: application.warehouse,
+        },
+      },
+    }
+  );
+
+  return { promoted: true, riderID };
+};
+
 // server running api
 
 app.get("/", (req, res) => {
@@ -157,7 +214,18 @@ app.post("/user", verifyFBToken, async (req, res) => {
     if (userExist) {
       return res.status(200).send({ message: "user already exists" });
     }
-    const user = req.body;
+
+    // role and rider id are decided by the server, not the client
+    const user = {
+      ...req.body,
+      uid: req.decoded?.uid || req.body.uid || "",
+      email,
+      role: "user",
+      riderID: null,
+      created_at: req.body.created_at || new Date().toISOString(),
+      last_log_in: new Date().toISOString(),
+    };
+
     const result = await userCollection.insertOne(user);
     res.send(result);
   } catch (error) {
@@ -348,6 +416,21 @@ app.patch("/api/rider-applications/:id", verifyFBToken, async (req, res) => {
     const updated = await riderApplicationsCollection.findOne({
       _id: new ObjectId(id),
     });
+
+    // approving promotes the user to role "rider" with a new rider id
+    if (status === "approved") {
+      const { promoted, riderID, reason } = await promoteToRider(updated);
+
+      if (promoted) {
+        await riderApplicationsCollection.updateOne(
+          { _id: updated._id },
+          { $set: { riderID } },
+        );
+        updated.riderID = riderID;
+      } else {
+        updated.roleUpdate = reason;
+      }
+    }
 
     res.json(updated);
   } catch (error) {

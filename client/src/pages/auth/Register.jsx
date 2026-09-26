@@ -44,6 +44,11 @@ const Register = () => {
   const { createUser, updateUserProfile } = useAuth();
 
   const onSubmit = (data) => {
+    if (!profilePic) {
+      toast.error("Please upload your profile picture");
+      return;
+    }
+
     setLoading(true);
 
     createUser(data.email, data.password)
@@ -105,7 +110,7 @@ const Register = () => {
   };
 
   return (
-    <div className="grid w-full min-h-screen grid-cols-1 lg:grid-cols-5">
+    <div className="grid w-full grid-cols-1 lg:grid-cols-5">
       {/* Form side */}
       <div className="flex flex-col justify-center p-8 sm:p-12 lg:col-span-3">
         <h2 className="text-4xl font-bold text-[var(--foreground)]">
@@ -124,19 +129,28 @@ const Register = () => {
               size={18}
               className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--foreground)]/50"
             />
+            <label
+              htmlFor="profile-pic"
+              className="flex w-full cursor-pointer items-center rounded-xl border-2 border-[var(--foreground)]/15 bg-[var(--card)] py-3.5 pl-12 pr-4 font-sans text-[var(--text)] transition-all duration-300 hover:border-[var(--secondary)]/60"
+            >
+              <span
+                className={`truncate ${
+                  profilePic ? "" : "text-[var(--text)]/40"
+                }`}
+              >
+                {profilePic
+                  ? profilePic.split("/").pop()
+                  : "Upload your profile picture"}
+              </span>
+            </label>
             <input
+              id="profile-pic"
               type="file"
               name="file"
               onChange={handleImageUpload}
-              placeholder="Upload Your Profile Picture"
-              required
-              className="w-full rounded-xl border-2 border-[var(--foreground)]/15 bg-[var(--card)] py-3.5 pl-12 pr-4 font-sans text-[var(--text)] placeholder:text-[var(--text)]/40 outline-none transition-all duration-300 focus:border-[var(--secondary)] focus:ring-4 focus:ring-[var(--secondary)]/20"
+              accept="image/*"
+              className="hidden"
             />
-            {errors.name && (
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-red-500">
-                Name is required
-              </span>
-            )}
           </div>
 
           <div className="relative">
@@ -302,45 +316,42 @@ const Register = () => {
         </p>
       </div>
 
-      <div className="relative flex min-h-72 flex-col justify-end overflow-hidden bg-[var(--foreground)] lg:col-span-2 lg:min-h-full">
+      {/* Image side */}
+      <div className="relative m-4 flex min-h-72 flex-col items-center justify-center gap-6 overflow-hidden rounded-3xl bg-[var(--foreground)] p-6 sm:m-6 sm:gap-8 sm:p-8 lg:col-span-2 lg:m-8">
         <img
           src={authImage}
           alt="ZapShift delivery rider"
-          className="absolute inset-0 h-full w-full object-contain p-6 sm:p-10"
+          className="relative z-10 max-h-44 w-full object-contain sm:max-h-60"
         />
 
-        <div className="absolute inset-0 bg-gradient-to-b from-[var(--foreground)]/70 via-[var(--foreground)]/20 to-[var(--foreground)]/95"></div>
-
         {/* Text */}
-        <div className="relative z-10 p-6 sm:p-8">
-          <div className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-md">
-            <div className="flex items-center gap-2">
-              <ShieldCheck size={20} className="text-[var(--secondary)]" />
-              <span className="font-semibold text-[var(--secondary)]">
-                Why join us?
-              </span>
-            </div>
-
-            <ul className="mt-4 flex flex-col gap-3 text-[var(--primary)]/90">
-              <li className="flex items-center gap-3">
-                <Truck size={18} className="shrink-0 text-[var(--secondary)]" />
-                On-time delivery, every time
-              </li>
-
-              <li className="flex items-center gap-3">
-                <PackageCheck
-                  size={18}
-                  className="shrink-0 text-[var(--secondary)]"
-                />
-                Real-time parcel tracking
-              </li>
-
-              <li className="flex items-center gap-3">
-                <Mail size={18} className="shrink-0 text-[var(--secondary)]" />
-                Instant alerts and updates
-              </li>
-            </ul>
+        <div className="relative z-10 w-full rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <ShieldCheck size={20} className="text-[var(--secondary)]" />
+            <span className="font-semibold text-[var(--secondary)]">
+              Why join us?
+            </span>
           </div>
+
+          <ul className="mt-4 flex flex-col gap-3 text-[var(--primary)]/90">
+            <li className="flex items-center gap-3">
+              <Truck size={18} className="shrink-0 text-[var(--secondary)]" />
+              On-time delivery, every time
+            </li>
+
+            <li className="flex items-center gap-3">
+              <PackageCheck
+                size={18}
+                className="shrink-0 text-[var(--secondary)]"
+              />
+              Real-time parcel tracking
+            </li>
+
+            <li className="flex items-center gap-3">
+              <Mail size={18} className="shrink-0 text-[var(--secondary)]" />
+              Instant alerts and updates
+            </li>
+          </ul>
         </div>
       </div>
     </div>
