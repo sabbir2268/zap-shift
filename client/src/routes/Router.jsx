@@ -2,7 +2,9 @@ import { createBrowserRouter } from "react-router";
 import RootLayout from "../layouts/RootLayout";
 import AuthLayout from "../layouts/AuthLayout";
 import DashboardLayout from "../layouts/DashboardLayout";
+import AdminLayout from "../layouts/AdminLayout";
 import PrivateRoutes from "./PrivateRoutes";
+import AdminRoutes, { AdminRedirect } from "./AdminRoutes";
 import Home from "../pages/home/Home";
 import Coverage from "../pages/coverage/Coverage";
 import Service from "../pages/service/service";
@@ -18,6 +20,12 @@ import PaymentHistory from "../pages/dashboard/payment/PaymentHistory";
 import Login from "../pages/auth/LogIn";
 import Register from "../pages/auth/Register";
 import ForgotPassword from "../pages/auth/ForgotPassword";
+import AdminHome from "../pages/admin/AdminHome";
+import PendingRiders from "../pages/admin/riders/PendingRiders";
+import ActiveRiders from "../pages/admin/riders/ActiveRiders";
+import ManageUsers from "../pages/admin/manageUsers/ManageUsers";
+import ManageParcels from "../pages/admin/manageParcels/ManageParcels";
+import ManagePayments from "../pages/admin/managePayments/ManagePayments";
 
 export const router = createBrowserRouter([
   {
@@ -27,7 +35,14 @@ export const router = createBrowserRouter([
       { index: true, element: <Home /> },
       { path: "coverage", element: <Coverage /> },
       { path: "service", element: <Service /> },
-      { path: "be_a_rider", element: <BeARider /> },
+      {
+        path: "be_a_rider",
+        element: (
+          <PrivateRoutes>
+            <BeARider />
+          </PrivateRoutes>
+        ),
+      },
     ],
   },
   {
@@ -38,7 +53,14 @@ export const router = createBrowserRouter([
       </PrivateRoutes>
     ),
     children: [
-      { index: true, element: <DashboardHome /> },
+      {
+        index: true,
+        element: (
+          <AdminRedirect>
+            <DashboardHome />
+          </AdminRedirect>
+        ),
+      },
       { path: "send-parcel", element: <SendParcel /> },
       { path: "parcels", element: <MyParcels /> },
       { path: "track", element: <TrackParcel /> },
@@ -46,6 +68,24 @@ export const router = createBrowserRouter([
       { path: "update-parcel/:id", element: <UpdateParcel /> },
       { path: "payment/:id", element: <Payment /> },
       { path: "payments", element: <PaymentHistory /> },
+    ],
+  },
+  {
+    path: "/admin",
+    element: (
+      <PrivateRoutes>
+        <AdminRoutes>
+          <AdminLayout />
+        </AdminRoutes>
+      </PrivateRoutes>
+    ),
+    children: [
+      { index: true, element: <AdminHome /> },
+      { path: "pending-riders", element: <PendingRiders /> },
+      { path: "active-riders", element: <ActiveRiders /> },
+      { path: "manage-users", element: <ManageUsers /> },
+      { path: "manage-parcels", element: <ManageParcels /> },
+      { path: "manage-payments", element: <ManagePayments /> },
     ],
   },
   {

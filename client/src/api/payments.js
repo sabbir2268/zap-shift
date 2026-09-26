@@ -17,4 +17,4 @@ const usePayments = () => {
   return { getPayments, createPayment };
 };
 
-export default usePayments;
+export default usePayments; 

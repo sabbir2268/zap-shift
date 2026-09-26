@@ -1,34 +1,35 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+import { useForm } from "react-hook-form";
 import riderImage from "../../assets/big-deliveryman.png";
 import useAxios from "../../hooks/useAxios";
+import useAuth from "../../hooks/useAuth";
 
 const BeARider = () => {
   const api = useAxios();
+  const { user } = useAuth();
 
   const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const { register, handleSubmit, reset } = useForm();
 
-    const form = e.target;
-
+  const onSubmit = (data) => {
     const riderData = {
-      name: form.name.value,
-      age: form.age.value,
-      email: form.email.value,
-      region: form.region.value,
-      nid: form.nid.value,
-      contact: form.contact.value,
-      warehouse: form.warehouse.value,
+      ...data,
+      uid: user?.uid,
+      name: user?.displayName || data.name,
+      email: user?.email || data.email,
+      status: "pending",
+      created_at: new Date().toISOString(),
     };
+    console.log("riderData", riderData);
 
     setSubmitting(true);
 
     api.post("/api/rider-applications", riderData)
       .then(() => {
         toast.success("Rider application submitted!");
-        form.reset();
+        reset();
       })
       .catch((error) => {
         toast.error(error.message || "Failed to submit application");
@@ -60,17 +61,17 @@ const BeARider = () => {
               Tell us about yourself
             </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               {/* Name */}
               <div>
                 <label className="block mb-2 font-medium">Your Name</label>
 
                 <input
                   type="text"
-                  name="name"
                   placeholder="Enter your full name"
                   required
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  {...register("name", { required: true })}
                 />
               </div>
 
@@ -80,10 +81,10 @@ const BeARider = () => {
 
                 <input
                   type="number"
-                  name="age"
                   placeholder="Enter your age"
                   required
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  {...register("age", { required: true })}
                 />
               </div>
 
@@ -93,10 +94,10 @@ const BeARider = () => {
 
                 <input
                   type="email"
-                  name="email"
                   placeholder="Enter your email address"
                   required
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  {...register("email", { required: true })}
                 />
               </div>
 
@@ -105,10 +106,10 @@ const BeARider = () => {
                 <label className="block mb-2 font-medium">Your Region</label>
 
                 <select
-                  name="region"
                   required
                   defaultValue=""
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none"
+                  {...register("region", { required: true })}
                 >
                   <option value="" disabled>
                     Select your region
@@ -128,10 +129,10 @@ const BeARider = () => {
 
                 <input
                   type="text"
-                  name="nid"
                   placeholder="Enter your NID number"
                   required
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none"
+                  {...register("nid", { required: true })}
                 />
               </div>
 
@@ -141,10 +142,10 @@ const BeARider = () => {
 
                 <input
                   type="tel"
-                  name="contact"
                   placeholder="Enter your contact number"
                   required
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none"
+                  {...register("contact", { required: true })}
                 />
               </div>
 
@@ -155,10 +156,10 @@ const BeARider = () => {
                 </label>
 
                 <select
-                  name="warehouse"
                   required
                   defaultValue=""
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none"
+                  {...register("warehouse", { required: true })}
                 >
                   <option value="" disabled>
                     Select warehouse

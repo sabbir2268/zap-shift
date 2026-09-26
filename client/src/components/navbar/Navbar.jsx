@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Menu, X, User, ArrowUpRight } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 import useAuth from "./../../hooks/useAuth";
+import { getDashboardPath } from "../../data/admin";
 import { LoginButton, RegisterButton, LogoutButton } from "../Buttons/Buttons";
 import logo from "../../assets/logo.png";
 
@@ -142,7 +143,7 @@ const Navbar = () => {
                   <LogoutButton />
 
                   <Link
-                    to="/dashboard/profile"
+                    to={getDashboardPath(user)}
                     className="
                       w-10
                       h-10
@@ -225,7 +226,7 @@ const Navbar = () => {
               {/* Arrow Button */}
               {user && (
                 <Link
-                  to="/dashboard/profile"
+                  to={getDashboardPath(user)}
                   className="
                     w-9
                     h-9
