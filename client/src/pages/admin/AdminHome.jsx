@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import useAxios from "../../hooks/useAxios";
-import { getDeliveryStatus } from "../../data/parcelStatuses";
+import StatusBadge from "../../components/StatusBadge/StatusBadge";
 
 const AdminHome = () => {
   const api = useAxios();
@@ -196,13 +196,13 @@ const AdminHome = () => {
                   <th className="hidden px-3 py-3 font-semibold md:table-cell">
                     Date
                   </th>
-                  <th className="px-3 py-3 font-semibold">Status</th>
+                  <th className="px-3 py-3 font-semibold">
+                    Delivery Status
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {recentParcels.map((parcel) => {
-                  const status = getDeliveryStatus(parcel.status);
-
                   return (
                     <tr
                       key={parcel._id}
@@ -227,11 +227,11 @@ const AdminHome = () => {
                       </td>
 
                       <td className="px-3 py-4">
-                        <span
-                          className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${status.className}`}
-                        >
-                          {status.label}
-                        </span>
+                        <StatusBadge
+                          kind="delivery"
+                          value={parcel.status}
+                          bare
+                        />
                       </td>
                     </tr>
                   );

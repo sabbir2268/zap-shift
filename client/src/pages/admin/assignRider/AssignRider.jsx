@@ -18,7 +18,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import useAxios from "../../../hooks/useAxios";
-import { getDeliveryStatus } from "../../../data/parcelStatuses";
+import StatusBadge from "../../../components/StatusBadge/StatusBadge";
 
 const normalize = (value) => String(value || "").trim().toLowerCase();
 
@@ -233,14 +233,13 @@ const ParcelTable = ({ parcels, riderCount, assigningId, onAssign }) => {
             <tr className="border-b border-gray-200 text-xs uppercase tracking-wide text-[var(--text)]/50">
               <th className="px-4 py-3 font-semibold">Parcel</th>
               <th className="px-4 py-3 font-semibold">Date</th>
-              <th className="px-4 py-3 font-semibold">Status</th>
+              <th className="px-4 py-3 font-semibold">Delivery Status</th>
               <th className="px-4 py-3 font-semibold text-right">Action</th>
             </tr>
           </thead>
 
           <tbody>
             {parcels.map((parcel) => {
-              const status = getDeliveryStatus(parcel.status);
               const assigning = assigningId === parcel._id;
 
               return (
@@ -285,20 +284,11 @@ const ParcelTable = ({ parcels, riderCount, assigningId, onAssign }) => {
 
                   {/* Status */}
                   <td className="px-4 py-3">
-                    <span
-                      className={`
-                        inline-block
-                        rounded-full
-                        px-3
-                        py-1
-                        text-xs
-                        font-medium
-                        whitespace-nowrap
-                        ${status.className}
-                      `}
-                    >
-                      {status.label}
-                    </span>
+                    <StatusBadge
+                      kind="delivery"
+                      value={parcel.status}
+                      bare
+                    />
                   </td>
 
                   {/* Action */}

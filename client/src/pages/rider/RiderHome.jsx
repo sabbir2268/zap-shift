@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
 import useRiderDeliveries from "../../hooks/useRiderDeliveries";
-import { getDeliveryStatus } from "../../data/parcelStatuses";
+import StatusBadge from "../../components/StatusBadge/StatusBadge";
 
 const RiderHome = () => {
   const { profile } = useAuth();
@@ -229,8 +229,6 @@ const RiderHome = () => {
 };
 
 const DeliveryRow = ({ parcel, step, busy, onAdvance }) => {
-  const status = getDeliveryStatus(parcel.status);
-
   return (
     <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-gray-200 px-4 py-3">
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -249,11 +247,7 @@ const DeliveryRow = ({ parcel, step, busy, onAdvance }) => {
         </div>
       </div>
 
-      <span
-        className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${status.className}`}
-      >
-        {status.label}
-      </span>
+      <StatusBadge kind="delivery" value={parcel.status} className="shrink-0" />
 
       {step && (
         <button

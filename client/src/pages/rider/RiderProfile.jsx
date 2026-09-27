@@ -12,20 +12,12 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
-
-/* the status an admin can put a rider in, mirrored from the admin rider table */
-const RIDER_STATUS = {
-  pending: { label: "Pending", className: "bg-yellow-100 text-yellow-800" },
-  approved: { label: "Approved", className: "bg-green-100 text-green-800" },
-  rejected: { label: "Rejected", className: "bg-red-100 text-red-800" },
-  held: { label: "On Hold", className: "bg-orange-100 text-orange-800" },
-};
+import StatusBadge from "../../components/StatusBadge/StatusBadge";
 
 const RiderProfile = () => {
   const { user, profile } = useAuth();
 
   const rider = profile?.riderInfo || {};
-  const status = RIDER_STATUS[profile?.riderStatus] || RIDER_STATUS.approved;
 
   const name = rider.name || user?.displayName || "Rider";
   const initial = name[0]?.toUpperCase() || "R";
@@ -58,11 +50,11 @@ const RiderProfile = () => {
             </p>
           </div>
 
-          <span
-            className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold ${status.className}`}
-          >
-            {status.label}
-          </span>
+          <StatusBadge
+            kind="rider"
+            value={profile?.riderStatus || "approved"}
+            className="shrink-0"
+          />
         </div>
 
         {/* Details */}

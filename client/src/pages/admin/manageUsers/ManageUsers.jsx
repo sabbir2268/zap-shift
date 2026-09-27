@@ -10,7 +10,7 @@ import {
   X,
 } from "lucide-react";
 import useAxios from "../../../hooks/useAxios";
-import { getDeliveryStatus } from "../../../data/parcelStatuses";
+import StatusBadge from "../../../components/StatusBadge/StatusBadge";
 
 const ManageUsers = () => {
   const api = useAxios();
@@ -387,8 +387,6 @@ const UserModal = ({ user, parcels, onClose }) => {
             ) : (
               <div className="divide-y divide-gray-100">
                 {parcels.map((parcel) => {
-                  const status = getDeliveryStatus(parcel.status);
-
                   return (
                     <div
                       key={parcel._id}
@@ -406,11 +404,11 @@ const UserModal = ({ user, parcels, onClose }) => {
                         </p>
                       </div>
 
-                      <span
-                        className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${status.className}`}
-                      >
-                        {status.label}
-                      </span>
+                      <StatusBadge
+                        kind="delivery"
+                        value={parcel.status}
+                        className="shrink-0"
+                      />
                     </div>
                   );
                 })}

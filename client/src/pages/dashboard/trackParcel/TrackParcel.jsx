@@ -10,10 +10,7 @@ import {
 } from "lucide-react";
 import useAxios from "../../../hooks/useAxios";
 import useAuth from "../../../hooks/useAuth";
-import {
-  getDeliveryStatus,
-  getPaymentStatus,
-} from "../../../data/parcelStatuses";
+import StatusBadge from "../../../components/StatusBadge/StatusBadge";
 
 const TrackParcel = () => {
   const api = useAxios();
@@ -44,9 +41,6 @@ const TrackParcel = () => {
       .catch((err) => setError(err.message || "Parcel not found"))
       .finally(() => setLoading(false));
   };
-
-  const status = parcel ? getDeliveryStatus(parcel.status) : null;
-  const paymentStatus = parcel ? getPaymentStatus(parcel.paymentStatus) : null;
 
   return (
     <section className="mx-auto max-w-2xl">
@@ -113,7 +107,7 @@ const TrackParcel = () => {
           </div>
         )}
 
-        {searched && !loading && parcel && status && (
+        {searched && !loading && parcel && (
           <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
             {/* Status header */}
             <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-5">
@@ -131,17 +125,8 @@ const TrackParcel = () => {
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
-                <span
-                  className={`rounded-full px-3 py-1.5 text-xs font-medium ${status.className}`}
-                >
-                  {status.label}
-                </span>
-
-                <span
-                  className={`rounded-full px-3 py-1.5 text-xs font-medium ${paymentStatus.className}`}
-                >
-                  {paymentStatus.label}
-                </span>
+                <StatusBadge kind="delivery" value={parcel.status} />
+                <StatusBadge kind="payment" value={parcel.paymentStatus} />
               </div>
             </div>
 

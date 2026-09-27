@@ -20,10 +20,7 @@ import {
 
 import useParcels from "../../../api/parcels";
 import useAuth from "../../../hooks/useAuth";
-import {
-  getDeliveryStatus,
-  getPaymentStatus,
-} from "../../../data/parcelStatuses";
+import StatusBadge from "../../../components/StatusBadge/StatusBadge";
 
 const MyParcels = () => {
   const { getParcels, deleteParcel } = useParcels();
@@ -124,9 +121,6 @@ const MyParcels = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {parcels.map((parcel) => {
-              const status = getDeliveryStatus(parcel.status);
-              const paymentStatus = getPaymentStatus(parcel.paymentStatus);
-
               return (
                 <div
                   key={parcel._id}
@@ -162,31 +156,8 @@ const MyParcels = () => {
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      <span
-                        className={`
-                          text-xs
-                          font-medium
-                          px-3
-                          py-1.5
-                          rounded-full
-                          ${status.className}
-                        `}
-                      >
-                        {status.label}
-                      </span>
-
-                      <span
-                        className={`
-                          text-xs
-                          font-medium
-                          px-3
-                          py-1.5
-                          rounded-full
-                          ${paymentStatus.className}
-                        `}
-                      >
-                        {paymentStatus.label}
-                      </span>
+                      <StatusBadge kind="delivery" value={parcel.status} />
+                      <StatusBadge kind="payment" value={parcel.paymentStatus} />
                     </div>
                   </div>
 
@@ -454,19 +425,11 @@ const ParcelModal = ({ parcel, onClose }) => {
             <DetailRow label="Weight" value={parcel.weight ? `${parcel.weight} KG` : "—"} />
             <DetailRow
               label="Delivery Status"
-              value={
-                <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${getDeliveryStatus(parcel.status).className}`}>
-                  {getDeliveryStatus(parcel.status).label}
-                </span>
-              }
+              value={<StatusBadge kind="delivery" value={parcel.status} bare />}
             />
             <DetailRow
               label="Payment Status"
-              value={
-                <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${getPaymentStatus(parcel.paymentStatus).className}`}>
-                  {getPaymentStatus(parcel.paymentStatus).label}
-                </span>
-              }
+              value={<StatusBadge kind="payment" value={parcel.paymentStatus} bare />}
             />
             <DetailRow label="Delivery Cost" value={`৳ ${parcel.productDeliveryCost}`} />
             <DetailRow label="Service Charge" value={`৳ ${parcel.serviceCharge}`} />

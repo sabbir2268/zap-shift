@@ -17,10 +17,7 @@ import {
   Loader2,
 } from "lucide-react";
 import useRiderDeliveries, { canCancel } from "../../hooks/useRiderDeliveries";
-import {
-  getDeliveryStatus,
-  getPaymentStatus,
-} from "../../data/parcelStatuses";
+import StatusBadge from "../../components/StatusBadge/StatusBadge";
 
 const MyDeliveries = () => {
   const { parcels, loading, workingId, loadDeliveries, setStatus, nextStep } =
@@ -192,14 +189,13 @@ const DeliveryTable = ({
               <th className="hidden px-4 py-3 font-semibold xl:table-cell">
                 Weight
               </th>
-              <th className="px-4 py-3 font-semibold">Status</th>
+              <th className="px-4 py-3 font-semibold">Delivery Status</th>
               <th className="px-4 py-3 font-semibold text-right">Action</th>
             </tr>
           </thead>
 
           <tbody>
             {parcels.map((parcel) => {
-              const status = getDeliveryStatus(parcel.status);
               const step = nextStep(parcel);
               const busy = workingId === parcel._id;
 
@@ -258,20 +254,7 @@ const DeliveryTable = ({
 
                   {/* Status */}
                   <td className="px-4 py-3">
-                    <span
-                      className={`
-                        inline-block
-                        rounded-full
-                        px-3
-                        py-1
-                        text-xs
-                        font-medium
-                        whitespace-nowrap
-                        ${status.className}
-                      `}
-                    >
-                      {status.label}
-                    </span>
+                    <StatusBadge kind="delivery" value={parcel.status} />
                   </td>
 
                   {/* Actions */}
@@ -433,24 +416,12 @@ const DeliveryModal = ({ parcel, onClose }) => (
 
             <DetailRow
               label="Delivery Status"
-              value={
-                <span
-                  className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${getDeliveryStatus(parcel.status).className}`}
-                >
-                  {getDeliveryStatus(parcel.status).label}
-                </span>
-              }
+              value={<StatusBadge kind="delivery" value={parcel.status} bare />}
             />
 
             <DetailRow
               label="Payment Status"
-              value={
-                <span
-                  className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${getPaymentStatus(parcel.paymentStatus).className}`}
-                >
-                  {getPaymentStatus(parcel.paymentStatus).label}
-                </span>
-              }
+              value={<StatusBadge kind="payment" value={parcel.paymentStatus} bare />}
             />
           </div>
         </div>

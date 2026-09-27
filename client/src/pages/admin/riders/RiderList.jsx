@@ -17,15 +17,10 @@ import {
   Loader2,
 } from "lucide-react";
 import useAxios from "../../../hooks/useAxios";
+import { getStatusOptions } from "../../../data/statuses";
+import StatusBadge from "../../../components/StatusBadge/StatusBadge";
 
-const RIDER_STATUS = {
-  pending: { label: "Pending", className: "bg-yellow-100 text-yellow-800" },
-  approved: { label: "Approved", className: "bg-green-100 text-green-800" },
-  rejected: { label: "Rejected", className: "bg-red-100 text-red-800" },
-  held: { label: "On Hold", className: "bg-orange-100 text-orange-800" },
-};
-
-const getRiderStatus = (value) => RIDER_STATUS[value] || RIDER_STATUS.pending;
+const RIDER_STATUS_OPTIONS = getStatusOptions("rider");
 
 const RiderList = ({
   status,
@@ -328,14 +323,13 @@ const RiderTable = ({ riders, workingId, onView, onHold, onActivate }) => {
               <th className="hidden px-4 py-3 font-semibold lg:table-cell">
                 Warehouse
               </th>
-              <th className="px-4 py-3 font-semibold">Status</th>
+              <th className="px-4 py-3 font-semibold">Rider Status</th>
               <th className="px-4 py-3 font-semibold text-right">Action</th>
             </tr>
           </thead>
 
           <tbody>
             {riders.map((rider) => {
-              const riderStatus = getRiderStatus(rider.status);
               const isHeld = rider.status === "held";
               const busy = workingId === rider._id;
 
@@ -395,20 +389,11 @@ const RiderTable = ({ riders, workingId, onView, onHold, onActivate }) => {
 
                   {/* Status */}
                   <td className="px-4 py-3">
-                    <span
-                      className={`
-                        inline-block
-                        rounded-full
-                        px-3
-                        py-1
-                        text-xs
-                        font-medium
-                        whitespace-nowrap
-                        ${riderStatus.className}
-                      `}
-                    >
-                      {riderStatus.label}
-                    </span>
+                    <StatusBadge
+                      kind="rider"
+                      value={rider.status}
+                      bare
+                    />
                   </td>
 
                   {/* Action */}
@@ -514,8 +499,6 @@ const RiderCard = ({
   onHold,
   onActivate,
 }) => {
-  const riderStatus = getRiderStatus(rider.status);
-
   return (
     <div
       className={`
@@ -553,19 +536,7 @@ const RiderCard = ({
           </div>
         </div>
 
-        <span
-          className={`
-            text-xs
-            font-medium
-            px-3
-            py-1.5
-            rounded-full
-            shrink-0
-            ${riderStatus.className}
-          `}
-        >
-          {riderStatus.label}
-        </span>
+        <StatusBadge kind="rider" value={rider.status} className="shrink-0" />
       </div>
 
       {/* UID */}
@@ -892,10 +863,11 @@ const RiderModal = ({ rider, onClose, onDone }) => {
               className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none"
               {...register("status", { required: true })}
             >
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="held">On Hold</option>
-              <option value="rejected">Rejected</option>
+              {RIDER_STATUS_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
 
             {errors.status && (

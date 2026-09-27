@@ -18,10 +18,7 @@ import {
   Loader2,
 } from "lucide-react";
 import useAxios from "../../../hooks/useAxios";
-import {
-  getDeliveryStatus,
-  getPaymentStatus,
-} from "../../../data/parcelStatuses";
+import StatusBadge from "../../../components/StatusBadge/StatusBadge";
 
 const ManageParcels = () => {
   const api = useAxios();
@@ -275,15 +272,15 @@ const ParcelTable = ({
                 Weight
               </th>
               <th className="px-4 py-3 font-semibold">Cost</th>
-              <th className="px-4 py-3 font-semibold">Status</th>
+              <th className="px-4 py-3 font-semibold">
+                Delivery &amp; Payment
+              </th>
               <th className="px-4 py-3 font-semibold text-right">Action</th>
             </tr>
           </thead>
 
           <tbody>
             {parcels.map((parcel) => {
-              const status = getDeliveryStatus(parcel.status);
-              const paymentStatus = getPaymentStatus(parcel.paymentStatus);
               const deleting = deletingId === parcel._id;
 
               return (
@@ -386,17 +383,16 @@ const ParcelTable = ({
                   {/* Status */}
                   <td className="px-4 py-3">
                     <div className="flex flex-col items-start gap-1">
-                      <span
-                        className={`inline-block rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap ${status.className}`}
-                      >
-                        {status.label}
-                      </span>
-
-                      <span
-                        className={`inline-block rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap ${paymentStatus.className}`}
-                      >
-                        {paymentStatus.label}
-                      </span>
+                      <StatusBadge
+                        kind="delivery"
+                        value={parcel.status}
+                        bare
+                      />
+                      <StatusBadge
+                        kind="payment"
+                        value={parcel.paymentStatus}
+                        bare
+                      />
                     </div>
                   </td>
 
@@ -761,22 +757,22 @@ const ParcelModal = ({ parcel, onClose }) => {
               <DetailRow
                 label="Delivery Status"
                 value={
-                  <span
-                    className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${getDeliveryStatus(parcel.status).className}`}
-                  >
-                    {getDeliveryStatus(parcel.status).label}
-                  </span>
+                  <StatusBadge
+                    kind="delivery"
+                    value={parcel.status}
+                    bare
+                  />
                 }
               />
 
               <DetailRow
                 label="Payment Status"
                 value={
-                  <span
-                    className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${getPaymentStatus(parcel.paymentStatus).className}`}
-                  >
-                    {getPaymentStatus(parcel.paymentStatus).label}
-                  </span>
+                  <StatusBadge
+                    kind="payment"
+                    value={parcel.paymentStatus}
+                    bare
+                  />
                 }
               />
 

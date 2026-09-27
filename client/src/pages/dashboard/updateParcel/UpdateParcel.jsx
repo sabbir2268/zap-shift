@@ -4,16 +4,10 @@ import toast from "react-hot-toast";
 import { ArrowLeft, Loader2, Save, SquarePen } from "lucide-react";
 import useTrackingUpdate from "../../../hooks/useTrackingUpdate";
 import useAuth from "../../../hooks/useAuth";
-import { DELIVERY_STATUS, PAYMENT_STATUS } from "../../../data/parcelStatuses";
+import { getStatusOptions } from "../../../data/statuses";
 
-const STATUS_OPTIONS = Object.entries(DELIVERY_STATUS).map(([value, item]) => ({
-  value,
-  label: item.label,
-}));
-
-const PAYMENT_STATUS_OPTIONS = Object.entries(PAYMENT_STATUS).map(
-  ([value, item]) => ({ value, label: item.label })
-);
+const STATUS_OPTIONS = getStatusOptions("delivery");
+const PAYMENT_STATUS_OPTIONS = getStatusOptions("payment");
 
 const inputClass =
   "w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-[var(--foreground)] outline-none focus:border-[var(--foreground)] transition";
