@@ -21,6 +21,7 @@ const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
   const [roleLoading, setRoleLoading] = useState(false);
+  const [blockedReason, setBlockedReason] = useState(null);
   const profileRef = useRef(null);
 
   /*
@@ -32,6 +33,7 @@ const AuthProvider = ({ children }) => {
       const data = await api.get("/api/users/me");
       profileRef.current = data;
       setProfile(data);
+      setBlockedReason(null);
       return data;
     } catch (error) {
       /* no record for this account, so all it can ever be is a plain user */
@@ -40,6 +42,17 @@ const AuthProvider = ({ children }) => {
         profileRef.current = plain;
         setProfile(plain);
         return plain;
+      }
+
+      /* the account was blocked while the session was open. a block is not a
+         role change, so the role we cached is worthless and the session has to
+         end. the sign out also drops the token that will keep being refused */
+      if (error.blocked) {
+        profileRef.current = null;
+        setProfile(null);
+        setBlockedReason(error.message);
+        signOut(auth).catch(() => {});
+        return { role: ROLES.USER };
       }
 
       /* a dropped connection or an expired token is not a role change, so keep
@@ -152,6 +165,8 @@ const AuthProvider = ({ children }) => {
     roleReady: !loading && !roleLoading,
     isAdmin: isAdminRole(role),
     isRider: isRiderRole(role),
+    /* why the session ended, so the login screen can say so */
+    blockedReason,
     loadProfile,
     createUser,
     signIn,

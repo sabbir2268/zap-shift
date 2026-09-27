@@ -4,6 +4,7 @@ import {
   DELIVERY_STATUS,
   PAYMENT_STATUS,
   RIDER_STATUS,
+  ACCOUNT_STATUS,
   STATUS_KINDS,
   getStatus,
   getStatusOptions,
@@ -14,6 +15,7 @@ test("every kind names what it describes", () => {
     delivery: "Delivery",
     payment: "Payment",
     rider: "Rider",
+    account: "Account",
   });
 });
 
@@ -73,11 +75,12 @@ test("select options come from the same source as the badge", () => {
   assert.deepEqual(getStatusOptions("mystery"), []);
 });
 
-test("every declared value has a label and colours", () => {
-  for (const values of [DELIVERY_STATUS, PAYMENT_STATUS, RIDER_STATUS]) {
+test("every declared value has a label, pill colours and a legend dot", () => {
+  for (const values of [DELIVERY_STATUS, PAYMENT_STATUS, RIDER_STATUS, ACCOUNT_STATUS]) {
     for (const [value, status] of Object.entries(values)) {
       assert.ok(status.label, `${value} has no label`);
-      assert.ok(status.className, `${value} has no colours`);
+      assert.ok(status.className, `${value} has no pill colours`);
+      assert.ok(status.dot, `${value} has no legend dot`);
     }
   }
 });

@@ -63,15 +63,19 @@ api.interceptors.response.use(
       forbiddenHandlers.forEach((handler) => handler(error));
     }
 
+    /* the server explains a 403 better than we can, so only fall back to the
+       generic wording when it did not */
     const message =
-      status === 403
-        ? "You do not have permission to do that"
-        : error.response?.data?.message ||
-          error.message ||
-          "Something went wrong";
+      error.response?.data?.message ||
+      (status === 403 ? "You do not have permission to do that" : null) ||
+      error.message ||
+      "Something went wrong";
 
     const failure = new Error(message);
     failure.status = status;
+    /* a block is not a role change, and the session has to end rather than
+       retry or refresh */
+    failure.blocked = error.response?.data?.blocked === true;
 
     return Promise.reject(failure);
   }

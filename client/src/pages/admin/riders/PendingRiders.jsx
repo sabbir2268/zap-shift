@@ -13,6 +13,7 @@ const PendingRiders = () => (
       hint: "New rider applications will appear here once submitted.",
     }}
     allowSearch
+    table
   />
 );
 

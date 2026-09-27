@@ -106,6 +106,17 @@ const requireAuth = async (req, res, next) => {
     { projection: { password: 0 } }
   );
 
+  /* a blocked account holds a valid token but is not allowed to act on it. this
+     is checked here rather than per route, so no endpoint can be forgotten.
+     blocked: true tells the client this is a block and not a role problem, so
+     it can end the session instead of just refusing one request */
+  if (record?.blocked === true) {
+    return res.status(403).json({
+      blocked: true,
+      message: "Your account has been blocked. Contact an admin.",
+    });
+  }
+
   req.decoded = decoded;
   req.auth = { uid, email, emailVerified: decoded.email_verified === true };
   // an account with no record yet is always a plain user, never an admin
@@ -305,6 +316,7 @@ app.post("/user", requireAuth, async (req, res) => {
       photoURL: req.body.photoURL || "",
       role: ROLES.USER,
       riderID: null,
+      blocked: false,
       created_at: req.body.created_at || new Date().toISOString(),
       last_log_in: new Date().toISOString(),
     };
@@ -406,6 +418,54 @@ app.patch("/api/users/:id/role", ...adminOnly, async (req, res) => {
           updated_at: new Date(),
         },
       }
+    );
+
+    const updated = await userCollection.findOne(
+      { _id: targetId },
+      { projection: { password: 0 } }
+    );
+
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+/* PATCH block or unblock an account, admin only. the flag is read by requireAuth
+   on every request, so a blocked account is turned away everywhere at once */
+app.patch("/api/users/:id/block", ...adminOnly, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { blocked } = req.body;
+
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid user id" });
+    }
+
+    if (typeof blocked !== "boolean") {
+      return res.status(400).json({ message: "blocked must be true or false" });
+    }
+
+    const targetId = new ObjectId(id);
+    const target = await userCollection.findOne({ _id: targetId });
+
+    if (!target) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    /* you cannot lock yourself out, and an admin account is never blocked, or
+       the panel could end up with nobody able to undo it */
+    if (targetId.equals(req.user._id)) {
+      return res.status(403).json({ message: "You cannot block your own account" });
+    }
+
+    if (target.role === ROLES.ADMIN) {
+      return res.status(403).json({ message: "An admin account cannot be blocked" });
+    }
+
+    await userCollection.updateOne(
+      { _id: targetId },
+      { $set: { blocked, updated_at: new Date() } }
     );
 
     const updated = await userCollection.findOne(

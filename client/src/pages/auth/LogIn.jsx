@@ -23,7 +23,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-  const { signIn, loadProfile } = useAuth();
+  const { signIn, loadProfile, blockedReason } = useAuth();
   const { destination, linkState } = usePostAuthPath();
 
   const {
@@ -62,6 +62,12 @@ const Login = () => {
         <p className="mt-2 text-lg text-[var(--text)]/60">
           Login to track parcels, manage deliveries and more.
         </p>
+
+        {blockedReason && (
+          <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {blockedReason}
+          </div>
+        )}
 
         <form
           onSubmit={handleSubmit(onSubmit)}

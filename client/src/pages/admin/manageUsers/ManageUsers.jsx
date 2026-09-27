@@ -7,25 +7,40 @@ import {
   Mail,
   Package,
   UserRound,
+  Eye,
+  Ban,
+  Lock,
+  Loader2,
   X,
 } from "lucide-react";
 import useAxios from "../../../hooks/useAxios";
 import StatusBadge from "../../../components/StatusBadge/StatusBadge";
+import { ADMIN_ROLE } from "../../../data/admin";
 
 const ManageUsers = () => {
   const api = useAxios();
 
+  const [users, setUsers] = useState([]);
   const [parcels, setParcels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [busyId, setBusyId] = useState(null);
   const [selected, setSelected] = useState(null);
 
-  const loadParcels = useCallback(async () => {
+  const loadUsers = useCallback(async () => {
     setLoading(true);
 
     try {
-      const data = await api.get("/api/parcels");
-      setParcels(Array.isArray(data) ? data : []);
+      /* the user records are the source of truth, the parcels only add stats.
+         deriving users from parcels instead would hide anybody who registered
+         but never sent one, and would leave no id to block them with */
+      const [records, parcelList] = await Promise.all([
+        api.get("/api/users"),
+        api.get("/api/parcels"),
+      ]);
+
+      setUsers(Array.isArray(records) ? records : []);
+      setParcels(Array.isArray(parcelList) ? parcelList : []);
     } catch (error) {
       toast.error(error.message || "Failed to load users");
     } finally {
@@ -34,60 +49,108 @@ const ManageUsers = () => {
   }, [api]);
 
   useEffect(() => {
-    loadParcels();
-  }, [loadParcels]);
+    loadUsers();
+  }, [loadUsers]);
 
-  /* Users are derived from the parcels they own, grouped by account email. */
-  const users = useMemo(() => {
+  const statsByEmail = useMemo(() => {
     const map = new Map();
 
     parcels.forEach((parcel) => {
       const email = parcel.userEmail;
       if (!email) return;
 
-      const existing = map.get(email) || {
-        email,
-        name: parcel.senderName || email.split("@")[0],
+      const key = email.toLowerCase();
+      const stats = map.get(key) || {
         parcelCount: 0,
         deliveredCount: 0,
         totalSpent: 0,
         lastActivity: null,
       };
 
-      existing.parcelCount += 1;
+      stats.parcelCount += 1;
 
-      if (parcel.status === "delivered") existing.deliveredCount += 1;
+      if (parcel.status === "delivered") stats.deliveredCount += 1;
 
-      existing.totalSpent += Number(parcel.totalCost) || 0;
+      stats.totalSpent += Number(parcel.totalCost) || 0;
 
       const createdAt = parcel.createdAt ? new Date(parcel.createdAt) : null;
 
-      if (
-        createdAt &&
-        (!existing.lastActivity || createdAt > existing.lastActivity)
-      ) {
-        existing.lastActivity = createdAt;
+      if (createdAt && (!stats.lastActivity || createdAt > stats.lastActivity)) {
+        stats.lastActivity = createdAt;
       }
 
-      map.set(email, existing);
+      map.set(key, stats);
     });
 
-    return [...map.values()].sort(
-      (a, b) => b.parcelCount - a.parcelCount
-    );
+    return map;
   }, [parcels]);
+
+  const rows = useMemo(
+    () =>
+      users.map((user) => {
+        const email = (user.email || "").toLowerCase();
+        const stats = statsByEmail.get(email) || {
+          parcelCount: 0,
+          deliveredCount: 0,
+          totalSpent: 0,
+          lastActivity: null,
+        };
+
+        return {
+          ...user,
+          name: user.name || user.email?.split("@")[0] || "—",
+          ...stats,
+          accountStatus: user.blocked === true ? "blocked" : "active",
+        };
+      }),
+    [users, statsByEmail]
+  );
 
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
 
-    if (!term) return users;
+    if (!term) return rows;
 
-    return users.filter((user) =>
-      [user.email, user.name]
+    return rows.filter((user) =>
+      [user.name, user.email, user.role]
         .filter(Boolean)
         .some((value) => value.toLowerCase().includes(term))
     );
-  }, [users, query]);
+  }, [rows, query]);
+
+  /* an admin account is never blockable, the server refuses it, so the button
+     is disabled rather than left to fail after the click */
+  const canBlock = (user) => user.role !== ADMIN_ROLE;
+
+  const handleBlock = async (user) => {
+    const blocking = user.accountStatus !== "blocked";
+
+    setBusyId(user._id);
+
+    try {
+      const updated = await api.patch(`/api/users/${user._id}/block`, {
+        blocked: blocking,
+      });
+
+      setUsers((current) =>
+        current.map((item) =>
+          item._id === user._id
+            ? { ...item, blocked: updated?.blocked === true }
+            : item
+        )
+      );
+
+      toast.success(
+        blocking
+          ? `${user.name} has been blocked`
+          : `${user.name} has been unblocked`
+      );
+    } catch (error) {
+      toast.error(error.message || "Could not update this account");
+    } finally {
+      setBusyId(null);
+    }
+  };
 
   return (
     <section className="w-full bg-[var(--background)] py-6 md:py-8">
@@ -104,7 +167,7 @@ const ManageUsers = () => {
 
           <button
             type="button"
-            onClick={loadParcels}
+            onClick={loadUsers}
             className="
               px-6 py-3
               rounded-full
@@ -133,7 +196,7 @@ const ManageUsers = () => {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by name or email"
+            placeholder="Search by name, email or role"
             className="
               w-full
               rounded-full
@@ -162,105 +225,168 @@ const ManageUsers = () => {
             <p className="mt-2 text-sm text-[var(--text)]">
               {query
                 ? "No users match your search."
-                : "Users appear here once they send a parcel."}
+                : "Users appear here once they register."}
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filtered.map((user) => {
-              const initial = (user.name || user.email)?.[0]?.toUpperCase();
+          <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="px-5 py-4 text-xs font-semibold text-[var(--text)]">
+                      User
+                    </th>
+                    <th className="px-5 py-4 text-xs font-semibold text-[var(--text)]">
+                      Role
+                    </th>
+                    <th className="px-5 py-4 text-xs font-semibold text-[var(--text)]">
+                      Parcels
+                    </th>
+                    <th className="px-5 py-4 text-xs font-semibold text-[var(--text)]">
+                      Delivered
+                    </th>
+                    <th className="px-5 py-4 text-xs font-semibold text-[var(--text)]">
+                      Spent
+                    </th>
+                    <th className="px-5 py-4 text-xs font-semibold text-[var(--text)]">
+                      Account
+                    </th>
+                    <th className="px-5 py-4 text-xs font-semibold text-[var(--text)]">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
 
-              return (
-                <div
-                  key={user.email}
-                  className="bg-white rounded-3xl border border-gray-200 p-5"
-                >
-                  {/* Header */}
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div
-                      className="
-                        w-11 h-11
-                        rounded-full
-                        bg-[var(--secondary)]
-                        text-[var(--foreground)]
-                        flex items-center justify-center shrink-0
-                        font-bold
-                      "
-                    >
-                      {initial}
-                    </div>
+                <tbody className="divide-y divide-gray-100">
+                  {filtered.map((user) => {
+                    const initial = user.name?.[0]?.toUpperCase();
+                    const busy = busyId === user._id;
+                    const blocked = user.accountStatus === "blocked";
+                    const blockable = canBlock(user);
 
-                    <div className="min-w-0">
-                      <p className="font-semibold text-[var(--foreground)] truncate">
-                        {user.name}
-                      </p>
-                      <p className="text-xs text-[var(--text)] truncate flex items-center gap-1">
-                        <Mail size={12} />
-                        {user.email}
-                      </p>
-                    </div>
-                  </div>
+                    return (
+                      <tr key={user._id} className="hover:bg-gray-50">
+                        <td className="px-5 py-4">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div
+                              className="
+                                w-10 h-10
+                                rounded-full
+                                bg-[var(--secondary)]
+                                text-[var(--foreground)]
+                                flex items-center justify-center
+                                shrink-0
+                                font-bold
+                              "
+                            >
+                              {initial}
+                            </div>
 
-                  {/* Stats */}
-                  <div className="mt-4 grid grid-cols-3 gap-3 text-sm">
-                    <div>
-                      <p className="text-[11px] text-[var(--text)]">PARCELS</p>
-                      <p className="font-semibold text-[var(--foreground)]">
-                        {user.parcelCount}
-                      </p>
-                    </div>
+                            <div className="min-w-0">
+                              <p className="font-semibold text-[var(--foreground)] truncate">
+                                {user.name}
+                              </p>
+                              <p className="text-xs text-[var(--text)] truncate flex items-center gap-1">
+                                <Mail size={12} />
+                                {user.email}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
 
-                    <div>
-                      <p className="text-[11px] text-[var(--text)]">DELIVERED</p>
-                      <p className="font-semibold text-[var(--foreground)]">
-                        {user.deliveredCount}
-                      </p>
-                    </div>
+                        <td className="px-5 py-4 text-sm text-[var(--text)] capitalize">
+                          {user.role}
+                        </td>
 
-                    <div>
-                      <p className="text-[11px] text-[var(--text)]">SPENT</p>
-                      <p className="font-semibold text-[var(--foreground)]">
-                        ৳{user.totalSpent}
-                      </p>
-                    </div>
-                  </div>
+                        <td className="px-5 py-4 text-sm font-semibold text-[var(--foreground)]">
+                          {user.parcelCount}
+                        </td>
 
-                  <p className="mt-3 text-xs text-[var(--text)]">
-                    Last activity:{" "}
-                    {user.lastActivity
-                      ? user.lastActivity.toLocaleString()
-                      : "—"}
-                  </p>
+                        <td className="px-5 py-4 text-sm font-semibold text-[var(--foreground)]">
+                          {user.deliveredCount}
+                        </td>
 
-                  {/* Actions */}
-                  <div className="mt-5 pt-4 border-t border-gray-100">
-                    <button
-                      type="button"
-                      onClick={() => setSelected(user)}
-                      className="
-                        w-full
-                        rounded-xl
-                        border
-                        border-gray-200
-                        py-2
-                        text-sm
-                        font-semibold
-                        text-[var(--foreground)]
-                        flex
-                        items-center
-                        justify-center
-                        gap-2
-                        hover:bg-gray-100
-                        transition
-                      "
-                    >
-                      <UserRound size={16} />
-                      View Details
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+                        <td className="px-5 py-4 text-sm font-semibold text-[var(--foreground)]">
+                          ৳{user.totalSpent}
+                        </td>
+
+                        <td className="px-5 py-4">
+                          <StatusBadge
+                            kind="account"
+                            value={user.accountStatus}
+                            className="shrink-0"
+                          />
+                        </td>
+
+                        <td className="px-5 py-4">
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setSelected(user)}
+                              title="View Details"
+                              className="
+                                w-9
+                                h-9
+                                rounded-lg
+                                border
+                                border-gray-200
+                                flex
+                                items-center
+                                justify-center
+                                text-[var(--foreground)]
+                                hover:bg-gray-100
+                                transition
+                              "
+                            >
+                              <Eye size={15} />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleBlock(user)}
+                              disabled={busy || !blockable}
+                              title={
+                                !blockable
+                                  ? "An admin account cannot be blocked"
+                                  : blocked
+                                  ? "Unblock user"
+                                  : "Block user"
+                              }
+                              className={`
+                                w-9
+                                h-9
+                                rounded-lg
+                                border
+                                flex
+                                items-center
+                                justify-center
+                                transition
+                                disabled:cursor-not-allowed
+                                disabled:opacity-40
+                                ${
+                                  blocked
+                                    ? "border-green-200 text-green-600 hover:bg-green-50"
+                                    : "border-red-200 text-red-600 hover:bg-red-50"
+                                }
+                              `}
+                            >
+                              {busy ? (
+                                <Loader2 size={15} className="animate-spin" />
+                              ) : blocked ? (
+                                <Lock size={15} />
+                              ) : (
+                                <Ban size={15} />
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
@@ -269,7 +395,9 @@ const ManageUsers = () => {
         <UserModal
           user={selected}
           parcels={parcels.filter(
-            (parcel) => parcel.userEmail === selected.email
+            (parcel) =>
+              (parcel.userEmail || "").toLowerCase() ===
+              (selected.email || "").toLowerCase()
           )}
           onClose={() => setSelected(null)}
         />
@@ -346,6 +474,25 @@ const UserModal = ({ user, parcels, onClose }) => {
                 {user.email}
               </p>
             </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <StatusBadge
+              kind="account"
+              value={user.accountStatus}
+              className="shrink-0"
+            />
+
+            <span className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold capitalize text-[var(--text)]">
+              {user.role}
+            </span>
+
+            <span className="text-xs text-[var(--text)]">
+              Registered:{" "}
+              {user.created_at
+                ? new Date(user.created_at).toLocaleDateString()
+                : "—"}
+            </span>
           </div>
 
           {/* Summary */}

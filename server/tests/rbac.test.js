@@ -106,11 +106,13 @@ class FakeCollection {
 const OWNER_ID = new ObjectId();
 const ADMIN_ID = new ObjectId();
 const RIDER_ID = new ObjectId();
+const BLOCKED_ID = new ObjectId();
 
 const users = new FakeCollection([
-  { _id: OWNER_ID, uid: "uid-owner", email: "zapshiftadmin@gmail.com", name: "Owner", role: "admin", riderID: null, created_at: "2026-01-01" },
-  { _id: ADMIN_ID, uid: "uid-admin2", email: "second.admin@example.com", name: "Second Admin", role: "admin", riderID: null, created_at: "2026-01-02" },
-  { _id: RIDER_ID, uid: "uid-rider", email: "rider@example.com", name: "Rider Guy", role: "rider", riderID: "RDR-AAAA1111", created_at: "2026-01-03" },
+  { _id: OWNER_ID, uid: "uid-owner", email: "zapshiftadmin@gmail.com", name: "Owner", role: "admin", riderID: null, blocked: false, created_at: "2026-01-01" },
+  { _id: ADMIN_ID, uid: "uid-admin2", email: "second.admin@example.com", name: "Second Admin", role: "admin", riderID: null, blocked: false, created_at: "2026-01-02" },
+  { _id: RIDER_ID, uid: "uid-rider", email: "rider@example.com", name: "Rider Guy", role: "rider", riderID: "RDR-AAAA1111", blocked: false, created_at: "2026-01-03" },
+  { _id: BLOCKED_ID, uid: "uid-blocked", email: "blocked@example.com", name: "Blocked Guy", role: "user", riderID: null, blocked: true, created_at: "2026-01-04" },
 ]);
 
 const parcels = new FakeCollection([
@@ -156,6 +158,7 @@ const TOKENS = {
   "token-rider": { uid: "uid-rider", email: "rider@example.com" },
   "token-stranger": { uid: "uid-stranger", email: "stranger@example.com" },
   "token-ghost": { uid: "uid-ghost", email: "ghost@example.com" },
+  "token-blocked": { uid: "uid-blocked", email: "blocked@example.com" },
 };
 
 const firebaseStub = {
@@ -248,6 +251,7 @@ const run = async () => {
     ["GET", "/api/rider-applications"],
     ["PATCH", "/api/rider-applications/" + new ObjectId().toHexString()],
     ["DELETE", "/api/rider-applications"],
+    ["PATCH", "/api/users/" + new ObjectId().toHexString() + "/block"],
   ];
 
   /* token-rider owns the rider record with riderID RDR-AAAA1111 */
@@ -345,7 +349,7 @@ const run = async () => {
   const allParcels = await call("GET", "/api/parcels", { token: "token-owner" });
   check("GET /api/parcels -> all", allParcels.data.length, parcelsBefore);
   const allUsers = await call("GET", "/api/users", { token: "token-owner" });
-  check("GET /api/users -> all", allUsers.data.length, 3);
+  check("GET /api/users -> all", allUsers.data.length, 4);
   check("GET /api/rider-applications -> 200", (await call("GET", "/api/rider-applications", { token: "token-owner" })).status, 200);
   check("GET /api/payments -> all", (await call("GET", "/api/payments", { token: "token-owner" })).data.length, 1);
   check("DELETE /api/parcels/:id -> 200", (await call("DELETE", `/api/parcels/${foreignId}`, { token: "token-owner" })).status, 200);
@@ -493,6 +497,38 @@ const run = async () => {
 
   section("17. image upload needs a token");
   check("POST /api/upload-image with no token -> 401", (await call("POST", "/api/upload-image")).status, 401);
+
+  section("18. a blocked account is refused everywhere, even with a valid token");
+  const blockedToken = (await call("GET", "/api/users/me", { token: "token-blocked" })).status;
+  check("a blocked account cannot even read itself -> 403", blockedToken, 403);
+  check("a blocked account cannot read users -> 403", (await call("GET", "/api/users", { token: "token-blocked" })).status, 403);
+  check("a blocked account cannot send a parcel -> 403", (await call("POST", "/api/parcels", { token: "token-blocked", body: {} })).status, 403);
+  check("a blocked account cannot apply as a rider -> 403", (await call("POST", "/api/rider-applications", { token: "token-blocked", body: {} })).status, 403);
+  check("a blocked account is not an admin -> 403", (await call("PATCH", `/api/users/${OWNER_ID.toHexString()}/role`, { token: "token-blocked", body: { role: "user" } })).status, 403);
+
+  section("19. a plain user cannot block anybody");
+  check("a rider blocking a user -> 403", (await call("PATCH", `/api/users/${BLOCKED_ID.toHexString()}/block`, { token: "token-rider", body: { blocked: true } })).status, 403);
+
+  section("20. an admin blocks and unblocks an account");
+  const blockedNow = await call("PATCH", `/api/users/${BLOCKED_ID.toHexString()}/block`, { token: "token-owner", body: { blocked: false } });
+  check("an admin can unblock -> 200", blockedNow.status, 200);
+  check("the flag is cleared in the database", users.docs.find((d) => String(d._id) === String(BLOCKED_ID)).blocked, false);
+  check("and the account is let back in", (await call("GET", "/api/users/me", { token: "token-blocked" })).status, 200);
+
+  const reblocked = await call("PATCH", `/api/users/${BLOCKED_ID.toHexString()}/block`, { token: "token-owner", body: { blocked: true } });
+  check("an admin can block again -> 200", reblocked.status, 200);
+  check("the flag is set in the database", users.docs.find((d) => String(d._id) === String(BLOCKED_ID)).blocked, true);
+  check("and the account is locked out", (await call("GET", "/api/users/me", { token: "token-blocked" })).status, 403);
+
+  section("21. blocking cannot lock the panel out");
+  check("an admin blocking themselves -> 403", (await call("PATCH", `/api/users/${OWNER_ID.toHexString()}/block`, { token: "token-owner", body: { blocked: true } })).status, 403);
+  /* section 11 demoted the second admin, so make one to block against */
+  await call("PATCH", `/api/users/${ADMIN_ID.toHexString()}/role`, { token: "token-owner", body: { role: "admin" } });
+  check("an admin blocking another admin -> 403", (await call("PATCH", `/api/users/${ADMIN_ID.toHexString()}/block`, { token: "token-owner", body: { blocked: true } })).status, 403);
+  check("that admin is not blocked in the database", users.docs.find((d) => String(d._id) === String(ADMIN_ID)).blocked, false);
+  check("a non boolean flag -> 400", (await call("PATCH", `/api/users/${BLOCKED_ID.toHexString()}/block`, { token: "token-owner", body: { blocked: "yes" } })).status, 400);
+  check("a bogus user id -> 400", (await call("PATCH", "/api/users/nope/block", { token: "token-owner", body: { blocked: true } })).status, 400);
+  check("a missing user -> 404", (await call("PATCH", `/api/users/${new ObjectId().toHexString()}/block`, { token: "token-owner", body: { blocked: true } })).status, 404);
 
   console.log(`\n${pass} passed, ${fail} failed\n`);
   process.exit(fail === 0 ? 0 : 1);

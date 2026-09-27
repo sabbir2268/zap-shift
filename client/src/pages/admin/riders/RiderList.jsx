@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import {
   RefreshCw,
   X,
+  Check,
   User,
   MapPin,
   Phone,
@@ -17,7 +18,7 @@ import {
   Loader2,
 } from "lucide-react";
 import useAxios from "../../../hooks/useAxios";
-import { getStatusOptions } from "../../../data/statuses";
+import { getStatus, getStatusOptions } from "../../../data/statuses";
 import StatusBadge from "../../../components/StatusBadge/StatusBadge";
 
 const RIDER_STATUS_OPTIONS = getStatusOptions("rider");
@@ -77,6 +78,12 @@ const RiderList = ({
 
   const handleActivate = (rider) =>
     changeStatus(rider, "approved", `${rider.name} is active again!`);
+
+  const handleApprove = (rider) =>
+    changeStatus(rider, "approved", `${rider.name} approved as a rider!`);
+
+  const handleReject = (rider) =>
+    changeStatus(rider, "rejected", `${rider.name}'s application rejected!`);
 
   const loadApplications = useCallback(async () => {
     setLoading(true);
@@ -210,9 +217,12 @@ const RiderList = ({
           <RiderTable
             riders={filtered}
             workingId={workingId}
+            review={status === "pending"}
             onView={(rider) => setSelected(rider)}
             onHold={handleHold}
             onActivate={handleActivate}
+            onApprove={handleApprove}
+            onReject={handleReject}
           />
         ) : (
           <>
@@ -284,8 +294,25 @@ const RiderList = ({
   );
 };
 
-const RiderTable = ({ riders, workingId, onView, onHold, onActivate }) => {
-  const heldCount = riders.filter((rider) => rider.status === "held").length;
+const RiderTable = ({
+  riders,
+  workingId,
+  review = false,
+  onView,
+  onHold,
+  onActivate,
+  onApprove,
+  onReject,
+}) => {
+  /* the legend counts whatever statuses are actually on screen, so a pending
+     page never claims every one of its rows is active */
+  const legend = Object.entries(
+    riders.reduce((counts, rider) => {
+      const key = rider.status || "pending";
+      counts[key] = (counts[key] || 0) + 1;
+      return counts;
+    }, {})
+  ).map(([value, count]) => ({ ...getStatus("rider", value), count }));
 
   return (
     <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden">
@@ -295,15 +322,15 @@ const RiderTable = ({ riders, workingId, onView, onHold, onActivate }) => {
           {riders.length} rider{riders.length === 1 ? "" : "s"}
         </span>
 
-        <span className="flex items-center gap-1.5 text-xs text-[var(--text)]">
-          <span className="w-2.5 h-2.5 rounded-full bg-green-400" />
-          Active ({riders.length - heldCount})
-        </span>
-
-        <span className="flex items-center gap-1.5 text-xs text-[var(--text)]">
-          <span className="w-2.5 h-2.5 rounded-full bg-orange-400" />
-          On Hold ({heldCount})
-        </span>
+        {legend.map((entry) => (
+          <span
+            key={entry.label}
+            className="flex items-center gap-1.5 text-xs text-[var(--text)]"
+          >
+            <span className={`w-2.5 h-2.5 rounded-full ${entry.dot}`} />
+            {entry.label} ({entry.count})
+          </span>
+        ))}
       </div>
 
       <div className="overflow-x-auto">
@@ -420,7 +447,65 @@ const RiderTable = ({ riders, workingId, onView, onHold, onActivate }) => {
                         <Eye size={15} />
                       </button>
 
-                      {isHeld ? (
+                      {review ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => onApprove(rider)}
+                            disabled={busy}
+                            title="Approve application"
+                            className="
+                              w-9
+                              h-9
+                              rounded-lg
+                              border
+                              border-green-200
+                              flex
+                              items-center
+                              justify-content
+                              text-green-600
+                              hover:bg-green-50
+                              transition
+                              disabled:cursor-not-allowed
+                              disabled:opacity-60
+                            "
+                          >
+                            {busy ? (
+                              <Loader2 size={15} className="animate-spin" />
+                            ) : (
+                              <Check size={15} />
+                            )}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => onReject(rider)}
+                            disabled={busy}
+                            title="Reject application"
+                            className="
+                              w-9
+                              h-9
+                              rounded-lg
+                              border
+                              border-red-200
+                              flex
+                              items-center
+                              justify-content
+                              text-red-600
+                              hover:bg-red-50
+                              transition
+                              disabled:cursor-not-allowed
+                              disabled:opacity-60
+                            "
+                          >
+                            {busy ? (
+                              <Loader2 size={15} className="animate-spin" />
+                            ) : (
+                              <X size={15} />
+                            )}
+                          </button>
+                        </>
+                      ) : isHeld ? (
                         <button
                           type="button"
                           onClick={() => onActivate(rider)}
