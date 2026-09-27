@@ -107,12 +107,15 @@ const OWNER_ID = new ObjectId();
 const ADMIN_ID = new ObjectId();
 const RIDER_ID = new ObjectId();
 const BLOCKED_ID = new ObjectId();
+const NAMELESS_ID = new ObjectId();
 
 const users = new FakeCollection([
   { _id: OWNER_ID, uid: "uid-owner", email: "zapshiftadmin@gmail.com", name: "Owner", role: "admin", riderID: null, blocked: false, created_at: "2026-01-01" },
   { _id: ADMIN_ID, uid: "uid-admin2", email: "second.admin@example.com", name: "Second Admin", role: "admin", riderID: null, blocked: false, created_at: "2026-01-02" },
   { _id: RIDER_ID, uid: "uid-rider", email: "rider@example.com", name: "Rider Guy", role: "rider", riderID: "RDR-AAAA1111", blocked: false, created_at: "2026-01-03" },
   { _id: BLOCKED_ID, uid: "uid-blocked", email: "blocked@example.com", name: "Blocked Guy", role: "user", riderID: null, blocked: true, created_at: "2026-01-04" },
+  /* a firebase email account with no displayName, and no name on the record */
+  { _id: NAMELESS_ID, uid: "uid-nameless", email: "nameless@example.com", role: "user", riderID: null, blocked: false, created_at: "2026-01-05" },
 ]);
 
 const parcels = new FakeCollection([
@@ -159,6 +162,7 @@ const TOKENS = {
   "token-stranger": { uid: "uid-stranger", email: "stranger@example.com" },
   "token-ghost": { uid: "uid-ghost", email: "ghost@example.com" },
   "token-blocked": { uid: "uid-blocked", email: "blocked@example.com" },
+  "token-nameless": { uid: "uid-nameless", email: "nameless@example.com" },
 };
 
 const firebaseStub = {
@@ -349,7 +353,7 @@ const run = async () => {
   const allParcels = await call("GET", "/api/parcels", { token: "token-owner" });
   check("GET /api/parcels -> all", allParcels.data.length, parcelsBefore);
   const allUsers = await call("GET", "/api/users", { token: "token-owner" });
-  check("GET /api/users -> all", allUsers.data.length, 4);
+  check("GET /api/users -> all", allUsers.data.length, 5);
   check("GET /api/rider-applications -> 200", (await call("GET", "/api/rider-applications", { token: "token-owner" })).status, 200);
   check("GET /api/payments -> all", (await call("GET", "/api/payments", { token: "token-owner" })).data.length, 1);
   check("DELETE /api/parcels/:id -> 200", (await call("DELETE", `/api/parcels/${foreignId}`, { token: "token-owner" })).status, 200);
@@ -497,6 +501,19 @@ const run = async () => {
 
   section("17. image upload needs a token");
   check("POST /api/upload-image with no token -> 401", (await call("POST", "/api/upload-image")).status, 401);
+
+  section("17b. a rider application is never nameless");
+  const named = await call("POST", "/api/rider-applications", { token: "token-rider", body: { name: "  Real Name  ", age: "24" } });
+  check("a submitted name is kept", named.data.name, "Real Name");
+
+  /* a firebase email account can have no displayName at all, so the form sends
+     an empty name and the record has to supply one instead */
+  const nameless = await call("POST", "/api/rider-applications", { token: "token-rider", body: { name: "   ", age: "24" } });
+  check("a blank name falls back to the stored account", nameless.data.name, "Rider Guy");
+  check("and it is never an empty string", nameless.data.name.length > 0, true);
+
+  const noNameAtAll = await call("POST", "/api/rider-applications", { token: "token-nameless", body: { age: "24" } });
+  check("an account with no stored name falls back to the address", noNameAtAll.data.name, "nameless");
 
   section("18. a blocked account is refused everywhere, even with a valid token");
   const blockedToken = (await call("GET", "/api/users/me", { token: "token-blocked" })).status;

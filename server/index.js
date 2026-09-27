@@ -765,10 +765,19 @@ app.post("/api/rider-applications", requireAuth, async (req, res) => {
   try {
     const data = req.body;
 
+    /* The form does not ask for a name, so the browser sends whatever the
+       account happens to hold, and a firebase account can hold nothing at all
+       for an email signup. Falling back to the record requireAuth already
+       loaded, then to the address, means an application is never nameless. */
+    const name =
+      String(data.name || "").trim() ||
+      String(req.user.name || "").trim() ||
+      req.auth.email.split("@")[0];
+
     const application = {
       uid: req.auth.uid,
       riderID: data.riderID || (await generateRiderId()),
-      name: data.name,
+      name,
       age: data.age,
       email: req.auth.email,
       region: data.region,

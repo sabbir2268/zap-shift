@@ -311,11 +311,13 @@ const ManageUsers = () => {
                           ৳{user.totalSpent}
                         </td>
 
+                        {/* the column header already says Account, so the
+                            badge does not repeat the kind in front of it */}
                         <td className="px-5 py-4">
                           <StatusBadge
                             kind="account"
                             value={user.accountStatus}
-                            className="shrink-0"
+                            bare
                           />
                         </td>
 

@@ -13,6 +13,7 @@ import {
 import { Link } from "react-router-dom";
 import useAxios from "../../hooks/useAxios";
 import StatusBadge from "../../components/StatusBadge/StatusBadge";
+import { getRiderAge, getRiderName } from "../../utils/riders";
 
 const AdminHome = () => {
   const api = useAxios();
@@ -92,6 +93,12 @@ const AdminHome = () => {
   ]; 
 
   const recentParcels = parcels.slice(0, 5);
+
+  /* the newest applications, so the dashboard shows who is waiting rather than
+     only how many are waiting */
+  const recentRiders = [...applications]
+    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+    .slice(0, 5);
 
   return (
     <section className="mx-auto max-w-6xl">
@@ -249,6 +256,93 @@ const AdminHome = () => {
             Manage Parcels
           </Link>
         </div>
+      </div>
+
+      {/* ================= RECENT RIDERS ================= */}
+      <div className="mt-8 rounded-3xl border border-gray-200 bg-white p-5 shadow-sm md:p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-[var(--foreground)]">
+            Recent Riders
+          </h2>
+
+          <div className="flex gap-2">
+            <Link
+              to="/admin/pending-riders"
+              className="rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:bg-gray-100"
+            >
+              Pending
+            </Link>
+
+            <Link
+              to="/admin/active-riders"
+              className="rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:bg-gray-100"
+            >
+              Active
+            </Link>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <Loader2 size={28} className="animate-spin text-[var(--foreground)]" />
+          </div>
+        ) : recentRiders.length === 0 ? (
+          <div className="rounded-2xl bg-gray-50 p-10 text-center">
+            <Users size={36} className="mx-auto text-[var(--text)]/40" />
+            <p className="mt-3 font-semibold text-[var(--text)]">
+              No rider applications yet
+            </p>
+            <p className="mt-1 text-sm text-[var(--text)]/60">
+              Applications will appear here as they arrive.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-gray-200 text-xs uppercase tracking-wide text-[var(--text)]/50">
+                  <th className="px-3 py-3 font-semibold">Rider</th>
+                  <th className="px-3 py-3 font-semibold">Age</th>
+                  <th className="px-3 py-3 font-semibold">Warehouse</th>
+                  <th className="px-3 py-3 font-semibold">Rider Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentRiders.map((rider) => (
+                  <tr
+                    key={rider._id}
+                    className="border-b border-gray-100 last:border-0"
+                  >
+                    <td className="px-3 py-4">
+                      <p className="font-semibold text-[var(--foreground)]">
+                        {getRiderName(rider)}
+                      </p>
+                      <p className="text-xs text-[var(--text)]/60">
+                        {rider.email}
+                      </p>
+                    </td>
+
+                    <td className="px-3 py-4 text-[var(--text)]">
+                      {getRiderAge(rider) ?? "—"}
+                    </td>
+
+                    <td className="px-3 py-4 text-[var(--text)]">
+                      {rider.warehouse || "—"}
+                    </td>
+
+                    <td className="px-3 py-4">
+                      <StatusBadge
+                        kind="rider"
+                        value={rider.status}
+                        bare
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </section>
   );

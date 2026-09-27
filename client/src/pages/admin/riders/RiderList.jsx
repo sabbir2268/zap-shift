@@ -20,6 +20,7 @@ import {
 import useAxios from "../../../hooks/useAxios";
 import { getStatus, getStatusOptions } from "../../../data/statuses";
 import StatusBadge from "../../../components/StatusBadge/StatusBadge";
+import { getRiderAge, getRiderName } from "../../../utils/riders";
 
 const RIDER_STATUS_OPTIONS = getStatusOptions("rider");
 
@@ -347,9 +348,8 @@ const RiderTable = ({
               <th className="hidden px-4 py-3 font-semibold xl:table-cell">
                 Contact
               </th>
-              <th className="hidden px-4 py-3 font-semibold lg:table-cell">
-                Warehouse
-              </th>
+              <th className="px-4 py-3 font-semibold">Age</th>
+              <th className="px-4 py-3 font-semibold">Warehouse</th>
               <th className="px-4 py-3 font-semibold">Rider Status</th>
               <th className="px-4 py-3 font-semibold text-right">Action</th>
             </tr>
@@ -385,12 +385,12 @@ const RiderTable = ({
                           }
                         `}
                       >
-                        {rider.name?.[0]?.toUpperCase() || "R"}
+                        {getRiderName(rider)[0]?.toUpperCase()}
                       </div>
 
                       <div className="min-w-0">
                         <p className="font-semibold text-[var(--foreground)] truncate">
-                          {rider.name}
+                          {getRiderName(rider)}
                         </p>
                       </div>
                     </div>
@@ -410,8 +410,14 @@ const RiderTable = ({
                     {rider.contact || "—"}
                   </td>
 
-                  <td className="hidden px-4 py-3 lg:table-cell">
-                    {rider.warehouse || "—"}
+                  <td className="px-4 py-3">
+                    {getRiderAge(rider) ?? "—"}
+                  </td>
+
+                  <td className="px-4 py-3">
+                    <span className="text-[var(--text)] truncate">
+                      {rider.warehouse || "—"}
+                    </span>
                   </td>
 
                   {/* Status */}
@@ -607,12 +613,12 @@ const RiderCard = ({
               }
             `}
           >
-            {rider.name?.[0]?.toUpperCase() || "R"}
+            {getRiderName(rider)[0]?.toUpperCase()}
           </div>
 
           <div className="min-w-0">
             <p className="font-semibold text-[var(--foreground)] truncate">
-              {rider.name}
+              {getRiderName(rider)}
             </p>
 
             <p className="text-xs text-[var(--text)] truncate">
@@ -636,7 +642,7 @@ const RiderCard = ({
       <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
         <div>
           <p className="text-[11px] text-[var(--text)]">AGE</p>
-          <p className="font-semibold">{rider.age || "—"}</p>
+          <p className="font-semibold">{getRiderAge(rider) ?? "—"}</p>
         </div>
 
         <div className="min-w-0">
@@ -843,12 +849,12 @@ const RiderModal = ({ rider, onClose, onDone }) => {
                 font-bold
               "
             >
-              {rider.name?.[0]?.toUpperCase() || "R"}
+              {getRiderName(rider)[0]?.toUpperCase()}
             </div>
 
             <div className="min-w-0">
               <h2 className="text-xl font-bold text-[var(--foreground)] truncate">
-                {rider.name}
+                {getRiderName(rider)}
               </h2>
               <p className="text-xs text-[var(--text)] truncate">
                 {rider.email}
@@ -896,7 +902,7 @@ const RiderModal = ({ rider, onClose, onDone }) => {
                 }
               />
 
-              <DetailRow label="Age" value={rider.age || "—"} />
+              <DetailRow label="Age" value={getRiderAge(rider) ?? "—"} />
 
               <DetailRow label="NID No" value={rider.nid || "—"} />
 
