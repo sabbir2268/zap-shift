@@ -287,10 +287,6 @@ const ManageUsers = () => {
                               <p className="font-semibold text-[var(--foreground)] truncate">
                                 {user.name}
                               </p>
-                              <p className="text-xs text-[var(--text)] truncate flex items-center gap-1">
-                                <Mail size={12} />
-                                {user.email}
-                              </p>
                             </div>
                           </div>
                         </td>
