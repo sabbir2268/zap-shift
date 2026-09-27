@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   UserRound,
   Mail,
@@ -18,7 +18,8 @@ import { useForm } from "react-hook-form";
 import useAuth from "../../hooks/useAuth";
 import SocialLogin from "./SocialLogin";
 import useAxios from "../../hooks/useAxios";
-import { getPostAuthPath } from "../../data/admin";
+import usePostAuthPath from "../../hooks/usePostAuthPath";
+import { getPostAuthPath, ROLES } from "../../data/admin";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,11 +30,7 @@ const Register = () => {
   const axiosInstance = useAxios();
 
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const from = location.state?.from?.pathname
-    ? location.state.from.pathname + (location.state.from.search || "")
-    : "/";
+  const { destination, linkState } = usePostAuthPath();
 
   const {
     register,
@@ -42,7 +39,7 @@ const Register = () => {
     formState: { errors },
   } = useForm();
 
-  const { createUser, updateUserProfile, loadProfile } = useAuth();
+  const { createUser, updateUserProfile } = useAuth();
 
   const uploadProfilePic = async () => {
     if (!profileFile) return "";
@@ -50,14 +47,37 @@ const Register = () => {
     const formData = new FormData();
     formData.append("image", profileFile);
 
+    const res = await axiosInstance.post("/api/upload-image", formData);
+    return res.url || "";
+  };
+
+  /*
+   * Runs after the redirect, never in front of it.
+   *
+   * The picture goes to imgbb, which is a third party round trip that regularly
+   * costs seconds, and awaiting it here is what used to leave a brand new user
+   * staring at a success toast on this form. Nothing on the dashboard needs any
+   * of it, the avatar is read from firebase and the role is picked up by the
+   * auth listener on its own.
+   */
+  const saveSignupDetails = async (data) => {
     try {
-      const res = await axiosInstance.post("/api/upload-image", formData);
-      return res.url;
+      const photoURL = await uploadProfilePic();
+
+      await axiosInstance.post("/user", {
+        name: data.name,
+        photoURL,
+        email: data.email,
+        role: "user",
+        created_at: new Date().toISOString(),
+        last_log_in: new Date().toISOString(),
+      });
+
+      await updateUserProfile({ displayName: data.name, photoURL });
     } catch {
-      /* the account is already created at this point, so a failed picture
-         upload must not turn into a failed registration */
-      toast.error("Profile picture could not be uploaded, you can add it later");
-      return "";
+      /* the account itself is already created and usable, so this is a warning
+         rather than a failed sign up */
+      toast.error("Your profile picture could not be saved, you can add it later");
     }
   };
 
@@ -70,36 +90,16 @@ const Register = () => {
     setLoading(true);
 
     createUser(data.email, data.password)
-      .then(async () => {
+      .then(() => {
         toast.success("Account created successfully!");
 
-        /* the upload needs a signed in caller, so it happens once the account
-           exists rather than while the file is picked */
-        const photoURL = await uploadProfilePic();
+        /* a signup that just succeeded has no record yet, so the server can
+           only ever call it a plain account. that makes the landing page known
+           without waiting on a profile fetch, which is what used to delay it. */
+        navigate(getPostAuthPath(ROLES.USER, destination), { replace: true });
 
-        const userInfo = {
-          name: data.name,
-          photoURL,
-          email: data.email,
-          role: "user",
-          created_at: new Date().toISOString(),
-          last_log_in: new Date().toISOString(),
-        };
-
-        await axiosInstance.post("/user", userInfo);
-
-        //update user profile picture in firebase with email, and password
-        updateUserProfile({ displayName: data.name, photoURL })
-          .then(() => {
-            console.log("profile name pic updated");
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-
-        /* the role decides where you land, and only the server knows it */
-        const profile = await loadProfile();
-        navigate(getPostAuthPath(profile?.role, from), { replace: true });
+        /* the record and the picture are saved behind the dashboard */
+        saveSignupDetails(data);
       })
       .catch((error) => {
         toast.error(error.message || "Failed to create account");
@@ -316,7 +316,7 @@ const Register = () => {
           Already have an account?{" "}
           <Link
             to="/login"
-            state={location.state}
+            state={linkState}
             className="font-bold text-[var(--foreground)] underline-offset-4 transition-colors duration-300 hover:text-[var(--secondary)] hover:underline"
           >
             Login

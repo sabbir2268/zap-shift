@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Mail,
   Lock,
@@ -15,6 +15,7 @@ import authImage from "../../assets/authImage.png";
 import { useForm } from "react-hook-form";
 import SocialLogin from "./SocialLogin";
 import useAuth from "../../hooks/useAuth";
+import usePostAuthPath from "../../hooks/usePostAuthPath";
 import { getPostAuthPath } from "../../data/admin";
 
 const Login = () => {
@@ -22,12 +23,8 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-  const location = useLocation();
   const { signIn, loadProfile } = useAuth();
-
-  const from = location.state?.from?.pathname
-    ? location.state.from.pathname + (location.state.from.search || "")
-    : "/";
+  const { destination, linkState } = usePostAuthPath();
 
   const {
     register,
@@ -43,7 +40,7 @@ const Login = () => {
         toast.success("Login successful!");
         /* the role decides where you land, and only the server knows it */
         const profile = await loadProfile();
-        navigate(getPostAuthPath(profile?.role, from), {
+        navigate(getPostAuthPath(profile?.role, destination), {
           replace: true,
         });
       })
@@ -169,7 +166,7 @@ const Login = () => {
           Don&apos;t have an account?{" "}
           <Link
             to="/register"
-            state={location.state}
+            state={linkState}
             className="font-bold text-[var(--foreground)] underline-offset-4 transition-colors duration-300 hover:text-[var(--secondary)] hover:underline"
           >
             Register

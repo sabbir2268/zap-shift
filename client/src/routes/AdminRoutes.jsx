@@ -59,27 +59,4 @@ const AdminRoutes = ({ children }) => {
   return children;
 };
 
-/* Sends the admin away from the user dashboard */
-export const AdminRedirect = ({ children }) => {
-  const { user, loading, isAdmin, roleReady } = useAuth();
-
-  if (loading) {
-    return <span className="loading loading-spinner loading-xl"></span>;
-  }
-
-  if (!user) {
-    return children;
-  }
-
-  if (!roleReady) {
-    return <span className="loading loading-spinner loading-xl"></span>;
-  }
-
-  if (isAdmin) {
-    return <Navigate to="/admin" replace />;
-  }
-
-  return children;
-};
-
 export default AdminRoutes;

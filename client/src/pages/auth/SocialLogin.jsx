@@ -1,20 +1,17 @@
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import useAuth from "./../../hooks/useAuth";
 import useAxios from "../../hooks/useAxios";
+import usePostAuthPath from "../../hooks/usePostAuthPath";
 import { getPostAuthPath } from "../../data/admin";
 
 const SocialLogin = () => {
   const { signInWithGoogle, loadProfile } = useAuth();
 
   const navigate = useNavigate();
-  const location = useLocation();
   const axiosInstance = useAxios();
-
-  const from = location.state?.from?.pathname
-    ? location.state.from.pathname + (location.state.from.search || "")
-    : "/";
+  const { destination } = usePostAuthPath();
 
   const handleGoogleSignIn = () => {
     signInWithGoogle()
@@ -35,7 +32,7 @@ const SocialLogin = () => {
 
         /* the role decides where you land, and only the server knows it */
         const profile = await loadProfile();
-        navigate(getPostAuthPath(profile?.role, from), { replace: true });
+        navigate(getPostAuthPath(profile?.role, destination), { replace: true });
       })
       .catch((error) => {
         toast.error(error.message || "Google login failed");

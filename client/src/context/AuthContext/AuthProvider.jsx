@@ -12,7 +12,7 @@ import {
 } from "firebase/auth";
 import { auth } from "../../firebase/firebase.init";
 import api, { onForbidden } from "../AxiosContext/axiosClient";
-import { ROLES, isAdminRole } from "../../data/admin";
+import { ROLES, isAdminRole, isRiderRole } from "../../data/admin";
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -151,6 +151,7 @@ const AuthProvider = ({ children }) => {
     /* guards must wait for this, otherwise a fresh admin gets bounced out */
     roleReady: !loading && !roleLoading,
     isAdmin: isAdminRole(role),
+    isRider: isRiderRole(role),
     loadProfile,
     createUser,
     signIn,

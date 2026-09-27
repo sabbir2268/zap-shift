@@ -2,13 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import {
   LayoutDashboard,
-  ClipboardList,
-  Bike,
-  UserCheck,
-  Users,
-  Package,
-  CreditCard,
-  ShieldPlus,
+  Truck,
+  UserRound,
   LogOut,
   Menu,
   X,
@@ -18,19 +13,14 @@ import useAuth from "../hooks/useAuth";
 import logo from "../assets/logo.png";
 
 const navItems = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/admin/pending-riders", label: "Pending Rider", icon: ClipboardList },
-  { to: "/admin/active-riders", label: "Active Rider", icon: Bike },
-  { to: "/admin/manage-users", label: "Manage User", icon: Users },
-  { to: "/admin/manage-parcels", label: "Manage Parcel", icon: Package },
-  { to: "/admin/assign-rider", label: "Assign Rider", icon: UserCheck },
-  { to: "/admin/manage-payments", label: "Manage Payment", icon: CreditCard },
-  { to: "/admin/administration", label: "Administration", icon: ShieldPlus },
+  { to: "/rider", label: "Rider Dashboard", icon: LayoutDashboard, end: true },
+  { to: "/rider/deliveries", label: "My Deliveries", icon: Truck },
+  { to: "/rider/profile", label: "My Profile", icon: UserRound },
 ];
 
-const AdminLayout = () => {
+const RiderLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, logOut } = useAuth();
+  const { user, profile, logOut } = useAuth();
 
   const closeDrawer = () => setIsOpen(false);
 
@@ -50,11 +40,9 @@ const AdminLayout = () => {
       .catch((error) => toast.error(error.message || "Failed to log out"));
   };
 
-  const initial = (
-    user?.displayName?.[0] ||
-    user?.email?.[0] ||
-    "A"
-  ).toUpperCase();
+  const rider = profile?.riderInfo || {};
+  const displayName = rider.name || user?.displayName || "Rider";
+  const initial = (displayName || "R").toUpperCase()[0];
 
   return (
     <div className="min-h-screen lg:flex">
@@ -72,7 +60,7 @@ const AdminLayout = () => {
         <Link to="/" className="flex items-center gap-2">
           <img src={logo} alt="ZapShift logo" className="h-9 w-9" />
           <span className="text-xl font-bold text-[var(--secondary)]">
-            Admin
+            Rider
           </span>
         </Link>
 
@@ -103,11 +91,7 @@ const AdminLayout = () => {
       >
         {/* Logo */}
         <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
-          <Link
-            to="/"
-            onClick={closeDrawer}
-            className="flex items-center gap-2"
-          >
+          <Link to="/" onClick={closeDrawer} className="flex items-center gap-2">
             <img src={logo} alt="ZapShift logo" className="h-10 w-10" />
             <span className="text-2xl font-bold text-[var(--secondary)]">
               ZapShift
@@ -123,6 +107,18 @@ const AdminLayout = () => {
             <X size={20} />
           </button>
         </div>
+
+        {/* Rider id badge */}
+        {profile?.riderID && (
+          <div className="border-b border-white/10 px-6 py-4">
+            <p className="text-[11px] uppercase tracking-wide text-white/50">
+              Rider ID
+            </p>
+            <p className="mt-1 font-mono text-sm font-semibold text-[var(--secondary)]">
+              {profile.riderID}
+            </p>
+          </div>
+        )}
 
         {/* Nav links */}
         <nav className="flex-1 space-y-1 overflow-y-auto px-4 py-6">
@@ -157,11 +153,10 @@ const AdminLayout = () => {
             </div>
 
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold">
-                {user?.displayName || user?.email?.split("@")[0] || "Admin"}
+              <p className="truncate text-sm font-semibold">{displayName}</p>
+              <p className="truncate text-xs text-white/60">
+                {user?.email || rider.email}
               </p>
-
-              <p className="truncate text-xs text-white/60">{user?.email}</p>
             </div>
           </div>
 
@@ -184,4 +179,4 @@ const AdminLayout = () => {
   );
 };
 
-export default AdminLayout;
+export default RiderLayout;

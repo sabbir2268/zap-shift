@@ -56,6 +56,9 @@ const ALLOWED_ROLES = Object.values(ROLES);
    client or the id token claims, always read it from the database */
 const isAdmin = (user) => user?.role === ROLES.ADMIN;
 
+/* role of the caller for the rider panel, the same rule, read from the database */
+const isRider = (user) => user?.role === ROLES.RIDER;
+
 /* case insensitive exact email match, so an account cannot be impersonated by
    changing the case of its address */
 const emailMatcher = (email) =>
@@ -134,6 +137,13 @@ const requireRole = (...allowed) => (req, res, next) => {
 
 // the guard for every admin dashboard endpoint
 const adminOnly = [requireAuth, requireRole(ROLES.ADMIN)];
+
+// the guard for every rider dashboard endpoint
+const riderOnly = [requireAuth, requireRole(ROLES.RIDER)];
+
+/* the parcel status values a rider is allowed to move a parcel through. an
+   admin sets any of them, a rider only drives its delivery forward */
+const RIDER_STATUSES = ["picked_up", "in_transit", "delivered", "cancelled"];
 
 app.post("/api/upload-image", requireAuth, upload.single("image"), async (req, res) => {
   try {
@@ -492,6 +502,12 @@ app.put("/api/parcels/:id", requireAuth, async (req, res) => {
 
     if (!isAdmin(req.user)) {
       delete updateData.status;
+
+      /* rider assignment is an admin decision, never a customer one */
+      delete updateData.riderID;
+      delete updateData.riderName;
+      delete updateData.riderEmail;
+      delete updateData.assignedAt;
     }
 
     const result = await parcelsCollection.updateOne(
@@ -531,9 +547,143 @@ app.delete("/api/parcels/:id", ...adminOnly, async (req, res) => {
 
     res.json({ message: "Parcel deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).send({ message: error.message });
   }
 });
+
+/* PATCH assign or unassign the rider on a parcel, admin only.
+   body: { riderID: "RDR-XXXXXXXX" | null } */
+app.patch("/api/parcels/:id/rider", ...adminOnly, async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid parcel id" });
+    }
+
+    const { riderID = null } = req.body || {};
+
+    /* null or an empty string clears the assignment */
+    if (!riderID) {
+      const cleared = await parcelsCollection.updateOne(
+        { _id: new ObjectId(id) },
+        {
+          $set: { updatedAt: new Date() },
+          $unset: { riderID: "", riderName: "", riderEmail: "", assignedAt: "" },
+        }
+      );
+
+      if (cleared.matchedCount === 0) {
+        return res.status(404).json({ message: "Parcel not found" });
+      }
+
+      const updated = await parcelsCollection.findOne({ _id: new ObjectId(id) });
+      return res.json(updated);
+    }
+
+    const rider = await riderApplicationsCollection.findOne({ riderID });
+
+    if (!rider) {
+      return res.status(404).json({ message: "Rider not found" });
+    }
+
+    /* only riders the admin has approved can be put on the road */
+    if (rider.status !== "approved") {
+      return res
+        .status(400)
+        .json({ message: `Rider ${riderID} is not approved` });
+    }
+
+    const result = await parcelsCollection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          riderID: rider.riderID,
+          riderName: rider.name || null,
+          riderEmail: rider.email || null,
+          assignedAt: new Date(),
+          updatedAt: new Date(),
+        },
+      }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: "Parcel not found" });
+    }
+
+    const updated = await parcelsCollection.findOne({ _id: new ObjectId(id) });
+    res.json(updated);
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+});
+
+// ============ RIDER DASHBOARD ============
+
+/* GET the parcels an admin has handed to this rider, newest first.
+   the rider id comes from the caller's own server side record, so a rider can
+   never ask for somebody else's deliveries by sending a different id */
+app.get("/api/rider/parcels", ...riderOnly, async (req, res) => {
+  try {
+    const riderID = req.user.riderID;
+
+    /* approved riders always carry a riderID, but a record that lost it must
+       see an empty list rather than everybody's parcels */
+    if (!riderID) {
+      return res.json([]);
+    }
+
+    const parcels = await parcelsCollection
+      .find({ riderID })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    res.json(parcels);
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+});
+
+/* PATCH move one of this rider's own assigned parcels along its delivery.
+   body: { status: "picked_up" | "in_transit" | "delivered" | "cancelled" } */
+app.patch("/api/rider/parcels/:id/status", ...riderOnly, async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid parcel id" });
+    }
+
+    const { status } = req.body;
+
+    if (!RIDER_STATUSES.includes(status)) {
+      return res.status(400).json({
+        message: `Status must be one of: ${RIDER_STATUSES.join(", ")}`,
+      });
+    }
+
+    const riderID = req.user.riderID;
+
+    if (!riderID) {
+      return res.status(404).json({ message: "No deliveries assigned to you" });
+    }
+
+    /* the rider id is part of the filter, so a parcel that is not theirs is
+       simply not found and nothing outside their own work can be touched */
+    const result = await parcelsCollection.updateOne(
+      { _id: new ObjectId(id), riderID },
+      { $set: { status, updatedAt: new Date() } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: "Parcel not found" });
+    }
+
+    const updated = await parcelsCollection.findOne({ _id: new ObjectId(id) });
+    res.json(updated);
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+});
+
 
 // ============ RIDER APPLICATION ============
 

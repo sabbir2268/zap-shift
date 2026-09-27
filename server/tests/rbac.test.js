@@ -46,6 +46,8 @@ const matches = (doc, filter) =>
 
 const apply = (doc, update) => {
   if (update.$set) Object.assign(doc, clone(update.$set));
+  if (update.$unset)
+    Object.keys(update.$unset).forEach((key) => delete doc[key]);
   return doc;
 };
 
@@ -118,6 +120,8 @@ const parcels = new FakeCollection([
 
 const riderApplications = new FakeCollection([
   { email: "rider@example.com", name: "Rider Guy", status: "pending" },
+  { riderID: "RDR-AAAA1111", email: "approved@example.com", name: "Approved Rider", status: "approved" },
+  { riderID: "RDR-HELD3333", email: "held@example.com", name: "Held Rider", status: "held" },
 ]);
 
 const payments = new FakeCollection([
@@ -246,9 +250,16 @@ const run = async () => {
     ["DELETE", "/api/rider-applications"],
   ];
 
+  /* token-rider owns the rider record with riderID RDR-AAAA1111 */
+  const riderOnlyUrls = [
+    ["GET", "/api/rider/parcels"],
+    ["PATCH", "/api/rider/parcels/" + new ObjectId().toHexString() + "/status"],
+  ];
+
   section("1. no token is rejected everywhere");
   for (const [method, url] of [
     ...adminOnly,
+    ...riderOnlyUrls,
     ["GET", "/api/users/me"],
     ["GET", "/api/parcels"],
     ["POST", "/api/parcels"],
@@ -273,6 +284,16 @@ const run = async () => {
     const r = await call(method, url, { token: "token-rider" });
     check(`${method} ${url} -> 403`, r.status, 403);
   }
+
+  /* token-rider is a rider, so it must not reach the rider panel twice over.
+     the rider endpoints are swept with a plain user instead */
+  section("3b. a plain user is refused by every rider endpoint");
+  for (const [method, url] of riderOnlyUrls) {
+    const r = await call(method, url, { token: "token-stranger" });
+    check(`${method} ${url} -> 403`, r.status, 403);
+  }
+  check("an admin is not a rider", (await call("GET", "/api/rider/parcels", { token: "token-owner" })).status, 403);
+  check("a rider is not an admin", (await call("GET", "/api/users", { token: "token-rider" })).status, 403);
 
   section("4. a user cannot promote themselves to admin");
   const selfPromote = await call("PATCH", `/api/users/${RIDER_ID.toHexString()}/role`, {
@@ -400,7 +421,77 @@ const run = async () => {
   });
   check("a bogus parcel id -> 400", badId.status, 400);
 
-  section("15. image upload needs a token");
+  section("15. rider assignment is an admin only decision");
+  const toAssign = { _id: new ObjectId(), userEmail: "rider@example.com", parcelTitle: "Needs a rider" };
+  parcels.docs.push(toAssign);
+  const toAssignId = toAssign._id.toHexString();
+
+  const assignUrl = `/api/parcels/${toAssignId}/rider`;
+  check("PATCH assign with no token -> 401", (await call("PATCH", assignUrl)).status, 401);
+  check("PATCH assign as a plain user -> 403", (await call("PATCH", assignUrl, { token: "token-rider", body: { riderID: "RDR-AAAA1111" } })).status, 403);
+  check("no rider was written", toAssign.riderID, undefined);
+
+  const assignBlocked = await call("PUT", `/api/parcels/${toAssignId}`, {
+    token: "token-rider",
+    body: { riderID: "RDR-AAAA1111" },
+  });
+  check("a plain user cannot sneak a rider in through PUT -> 200", assignBlocked.status, 200);
+  check("the rider field is still server controlled", toAssign.riderID, undefined);
+
+  const held = await call("PATCH", assignUrl, { token: "token-owner", body: { riderID: "RDR-HELD3333" } });
+  check("a rider that is not approved -> 400", held.status, 400);
+  const ghost = await call("PATCH", assignUrl, { token: "token-owner", body: { riderID: "RDR-NOPE0000" } });
+  check("an unknown rider -> 404", ghost.status, 404);
+
+  const assigned = await call("PATCH", assignUrl, { token: "token-owner", body: { riderID: "RDR-AAAA1111" } });
+  check("an admin can assign an approved rider -> 200", assigned.status, 200);
+  check("riderID is stored", assigned.data.riderID, "RDR-AAAA1111");
+  check("the rider name is stored for display", assigned.data.riderName, "Approved Rider");
+
+  const unassigned = await call("PATCH", assignUrl, { token: "token-owner", body: { riderID: null } });
+  check("an admin can unassign -> 200", unassigned.status, 200);
+  check("riderID is cleared", unassigned.data.riderID, undefined);
+
+  check("PATCH assign on a missing parcel -> 404", (await call("PATCH", `/api/parcels/${new ObjectId().toHexString()}/rider`, { token: "token-owner", body: { riderID: "RDR-AAAA1111" } })).status, 404);
+  check("PATCH assign with a bad id -> 400", (await call("PATCH", "/api/parcels/nope/rider", { token: "token-owner", body: { riderID: "RDR-AAAA1111" } })).status, 400);
+
+  section("16. a rider only sees the parcels assigned to them");
+  const mine = { _id: new ObjectId(), userEmail: "customer@example.com", parcelTitle: "Rider job", status: "pending", riderID: "RDR-AAAA1111" };
+  const notMine = { _id: new ObjectId(), userEmail: "other@example.com", parcelTitle: "Somebody else's job", status: "pending", riderID: "RDR-HELD3333" };
+  const orphan = { _id: new ObjectId(), userEmail: "nobody@example.com", parcelTitle: "Unassigned job", status: "pending" };
+  parcels.docs.push(mine, notMine, orphan);
+
+  const deliveries = await call("GET", "/api/rider/parcels", { token: "token-rider" });
+  check("GET /api/rider/parcels -> 200", deliveries.status, 200);
+  check("only this rider's parcels come back", deliveries.data.map((p) => p.parcelTitle), ["Rider job"]);
+  check("another rider's parcel is not visible", deliveries.data.some((p) => p.parcelTitle === "Somebody else's job"), false);
+  check("an unassigned parcel is not visible", deliveries.data.some((p) => p.parcelTitle === "Unassigned job"), false);
+
+  const statusUrl = (doc) => `/api/rider/parcels/${doc._id.toHexString()}/status`;
+
+  const advanced = await call("PATCH", statusUrl(mine), { token: "token-rider", body: { status: "picked_up" } });
+  check("a rider can move their own parcel -> 200", advanced.status, 200);
+  check("the status is stored", advanced.data.status, "picked_up");
+
+  check("a rider cannot move somebody else's parcel -> 404", (await call("PATCH", statusUrl(notMine), { token: "token-rider", body: { status: "picked_up" } })).status, 404);
+  check("somebody else's parcel is untouched", notMine.status, "pending");
+  check("a rider cannot move an unassigned parcel -> 404", (await call("PATCH", statusUrl(orphan), { token: "token-rider", body: { status: "picked_up" } })).status, 404);
+
+  check("a bogus status -> 400", (await call("PATCH", statusUrl(mine), { token: "token-rider", body: { status: "teleported" } })).status, 400);
+  check("a rider cannot set pending, that is an admin call -> 400", (await call("PATCH", statusUrl(mine), { token: "token-rider", body: { status: "pending" } })).status, 400);
+  check("a bogus parcel id -> 400", (await call("PATCH", "/api/rider/parcels/nope/status", { token: "token-rider", body: { status: "picked_up" } })).status, 400);
+  check("a missing parcel -> 404", (await call("PATCH", `/api/rider/parcels/${new ObjectId().toHexString()}/status`, { token: "token-rider", body: { status: "picked_up" } })).status, 404);
+
+  const delivered = await call("PATCH", statusUrl(mine), { token: "token-rider", body: { status: "delivered" } });
+  check("a rider can finish the job -> 200", delivered.status, 200);
+  check("the parcel reads as delivered", delivered.data.status, "delivered");
+
+  const reassigned = await call("PATCH", `/api/parcels/${mine._id.toHexString()}/rider`, { token: "token-owner", body: { riderID: null } });
+  check("an admin can take the job back -> 200", reassigned.status, 200);
+  const afterUnassign = await call("GET", "/api/rider/parcels", { token: "token-rider" });
+  check("an unassigned parcel leaves the rider queue", afterUnassign.data.length, 0);
+
+  section("17. image upload needs a token");
   check("POST /api/upload-image with no token -> 401", (await call("POST", "/api/upload-image")).status, 401);
 
   console.log(`\n${pass} passed, ${fail} failed\n`);

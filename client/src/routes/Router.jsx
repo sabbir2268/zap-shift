@@ -3,8 +3,10 @@ import RootLayout from "../layouts/RootLayout";
 import AuthLayout from "../layouts/AuthLayout";
 import DashboardLayout from "../layouts/DashboardLayout";
 import AdminLayout from "../layouts/AdminLayout";
+import RiderLayout from "../layouts/RiderLayout";
 import PrivateRoutes from "./PrivateRoutes";
-import AdminRoutes, { AdminRedirect } from "./AdminRoutes";
+import AdminRoutes from "./AdminRoutes";
+import RiderRoutes, { DashboardRedirect } from "./RoleRoutes";
 import Home from "../pages/home/Home";
 import Coverage from "../pages/coverage/Coverage";
 import Service from "../pages/service/Service";
@@ -25,8 +27,12 @@ import PendingRiders from "../pages/admin/riders/PendingRiders";
 import ActiveRiders from "../pages/admin/riders/ActiveRiders";
 import ManageUsers from "../pages/admin/manageUsers/ManageUsers";
 import ManageParcels from "../pages/admin/manageParcels/ManageParcels";
+import AssignRider from "../pages/admin/assignRider/AssignRider";
 import ManagePayments from "../pages/admin/managePayments/ManagePayments";
 import Administration from "../pages/admin/administration/Administration";
+import RiderHome from "../pages/rider/RiderHome";
+import MyDeliveries from "../pages/rider/MyDeliveries";
+import RiderProfile from "../pages/rider/RiderProfile";
 
 export const router = createBrowserRouter([
   {
@@ -50,9 +56,9 @@ export const router = createBrowserRouter([
     path: "/dashboard",
     element: (
       <PrivateRoutes>
-        <AdminRedirect>
+        <DashboardRedirect>
           <DashboardLayout />
-        </AdminRedirect>
+        </DashboardRedirect>
       </PrivateRoutes>
     ),
     children: [
@@ -84,8 +90,24 @@ export const router = createBrowserRouter([
       { path: "active-riders", element: <ActiveRiders /> },
       { path: "manage-users", element: <ManageUsers /> },
       { path: "manage-parcels", element: <ManageParcels /> },
+      { path: "assign-rider", element: <AssignRider /> },
       { path: "manage-payments", element: <ManagePayments /> },
       { path: "administration", element: <Administration /> },
+    ],
+  },
+  {
+    path: "/rider",
+    element: (
+      <PrivateRoutes>
+        <RiderRoutes>
+          <RiderLayout />
+        </RiderRoutes>
+      </PrivateRoutes>
+    ),
+    children: [
+      { index: true, element: <RiderHome /> },
+      { path: "deliveries", element: <MyDeliveries /> },
+      { path: "profile", element: <RiderProfile /> },
     ],
   },
   {

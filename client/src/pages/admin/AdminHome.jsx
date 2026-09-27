@@ -89,7 +89,7 @@ const AdminHome = () => {
     { label: "Pending", value: countByStatus("pending"), icon: Clock },
     { label: "In Transit", value: countByStatus("in_transit"), icon: Truck },
     { label: "Delivered", value: countByStatus("delivered"), icon: PackageCheck },
-  ];
+  ]; 
 
   const recentParcels = parcels.slice(0, 5);
 

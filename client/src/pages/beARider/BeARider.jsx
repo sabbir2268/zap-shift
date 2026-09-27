@@ -16,7 +16,7 @@ const REGION_WAREHOUSES = {
 
 const BeARider = () => {
   const api = useAxios();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -34,12 +34,13 @@ const BeARider = () => {
     const riderData = {
       ...data,
       uid: user?.uid,
-      name: user?.displayName,
+      /* the form does not ask for a name, the account already knows it, and
+         firebase can be missing a displayName for social accounts */
+      name: user?.displayName || profile?.name || "",
       email: user?.email,
       status: "pending",
       created_at: new Date().toISOString(),
     };
-    console.log("riderData", riderData);
 
     setSubmitting(true);
 
@@ -79,19 +80,6 @@ const BeARider = () => {
             </h2>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              {/* Name */}
-              <div>
-                <label className="block mb-2 font-medium">Your Name</label>
-
-                <input
-                  type="text"
-                  value={user?.displayName || ""}
-                  readOnly
-                  required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-100 cursor-not-allowed text-gray-600"
-                />
-              </div>
-
               {/* Age */}
               <div>
                 <label className="block mb-2 font-medium">Your Age</label>

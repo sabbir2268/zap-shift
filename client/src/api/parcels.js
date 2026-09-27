@@ -26,7 +26,19 @@ const useParcels = () => {
     [api]
   );
 
-  return { getParcels, getParcel, createParcel, updateParcel, deleteParcel };
+  const assignRider = useCallback(
+    (id, riderID) => api.patch(`/api/parcels/${id}/rider`, { riderID }),
+    [api]
+  );
+
+  return {
+    getParcels,
+    getParcel,
+    createParcel,
+    updateParcel,
+    deleteParcel,
+    assignRider,
+  };
 };
 
 export default useParcels;
