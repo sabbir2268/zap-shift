@@ -13,7 +13,10 @@ const Navbar = () => {
   const mobileDropdownRef = useRef(null);
   const userMenuRef = useRef(null);
 
-  const { user, role } = useAuth();
+  const { user, role, roleReady } = useAuth();
+
+  /* the arrow must not point at the wrong dashboard before the role is known */
+  const dashboardPath = roleReady ? getDashboardPath(role) : null;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -142,9 +145,10 @@ const Navbar = () => {
                 <>
                   <LogoutButton />
 
-                  <Link
-                    to={getDashboardPath(user, role)}
-                    className="
+                  {dashboardPath && (
+                    <Link
+                      to={dashboardPath}
+                      className="
                       w-10
                       h-10
                       rounded-full
@@ -158,9 +162,10 @@ const Navbar = () => {
                       transition-all
                       duration-200
                     "
-                  >
-                    <ArrowUpRight className="w-5 h-5" />
-                  </Link>
+                    >
+                      <ArrowUpRight className="w-5 h-5" />
+                    </Link>
+                  )}
                 </>
               ) : (
                 <>
@@ -224,9 +229,9 @@ const Navbar = () => {
               </div>
 
               {/* Arrow Button */}
-              {user && (
+              {user && dashboardPath && (
                 <Link
-                  to={getDashboardPath(user, role)}
+                  to={dashboardPath}
                   className="
                     w-9
                     h-9

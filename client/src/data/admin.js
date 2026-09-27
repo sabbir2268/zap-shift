@@ -1,16 +1,23 @@
-export const ADMIN_EMAIL = "zapshiftadmin@gmail.com";
+/* the roles this system knows about */
+export const ROLES = {
+  USER: "user",
+  RIDER: "rider",
+  ADMIN: "admin",
+};
 
-/* email comparison is case and whitespace insensitive */
-export const isAdminEmail = (email) =>
-  (email || "").trim().toLowerCase() === ADMIN_EMAIL;
+export const ADMIN_ROLE = ROLES.ADMIN;
 
-/* the owner account, or anyone promoted to admin on the administration page */
-export const isAdminUser = (user, role) =>
-  isAdminEmail(user?.email) || role === "admin";
+/*
+ * Access is decided by the role only. The role comes from the server, which
+ * reads it from the database, so no hardcoded email and nothing the browser
+ * sends can grant access to the admin dashboard.
+ */
+export const isAdminRole = (role) => role === ADMIN_ROLE;
 
-export const getDashboardPath = (user, role) =>
-  isAdminUser(user, role) ? "/admin" : "/dashboard";
+/* where the arrow in the navbar points, once the role is known */
+export const getDashboardPath = (role) =>
+  isAdminRole(role) ? "/admin" : "/dashboard";
 
 /* where to send someone right after they authenticate */
-export const getPostAuthPath = (email, from) =>
-  isAdminEmail(email) ? "/admin" : from || "/";
+export const getPostAuthPath = (role, from) =>
+  isAdminRole(role) ? "/admin" : from || "/";

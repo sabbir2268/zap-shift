@@ -23,7 +23,7 @@ const Login = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn } = useAuth();
+  const { signIn, loadProfile } = useAuth();
 
   const from = location.state?.from?.pathname
     ? location.state.from.pathname + (location.state.from.search || "")
@@ -39,9 +39,11 @@ const Login = () => {
     setLoading(true);
 
     signIn(data.email, data.password)
-      .then((userCredential) => {
+      .then(async () => {
         toast.success("Login successful!");
-        navigate(getPostAuthPath(userCredential?.user?.email, from), {
+        /* the role decides where you land, and only the server knows it */
+        const profile = await loadProfile();
+        navigate(getPostAuthPath(profile?.role, from), {
           replace: true,
         });
       })

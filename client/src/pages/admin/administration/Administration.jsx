@@ -13,20 +13,20 @@ import {
 } from "lucide-react";
 import useAxios from "../../../hooks/useAxios";
 import useAuth from "../../../hooks/useAuth";
-import { ADMIN_EMAIL, isAdminEmail } from "../../../data/admin";
+import { ROLES } from "../../../data/admin";
 
-const ROLES = [
-  { value: "user", label: "User", icon: UserRound, className: "bg-gray-100 text-gray-700" },
-  { value: "rider", label: "Rider", icon: Bike, className: "bg-blue-100 text-blue-700" },
-  { value: "admin", label: "Admin", icon: ShieldCheck, className: "bg-[var(--secondary)] text-[var(--foreground)]" },
+const ROLE_OPTIONS = [
+  { value: ROLES.USER, label: "User", icon: UserRound, className: "bg-gray-100 text-gray-700" },
+  { value: ROLES.RIDER, label: "Rider", icon: Bike, className: "bg-blue-100 text-blue-700" },
+  { value: ROLES.ADMIN, label: "Admin", icon: ShieldCheck, className: "bg-[var(--secondary)] text-[var(--foreground)]" },
 ];
 
 const getRoleMeta = (role) =>
-  ROLES.find((item) => item.value === role) || ROLES[0];
+  ROLE_OPTIONS.find((item) => item.value === role) || ROLE_OPTIONS[0];
 
 const Administration = () => {
   const api = useAxios();
-  const { user: currentUser } = useAuth();
+  const { profile } = useAuth();
 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -237,11 +237,10 @@ const Administration = () => {
 
                 <tbody>
                   {filtered.map((item) => {
-                    const role = item.role || "user";
+                    const role = item.role || ROLES.USER;
                     const meta = getRoleMeta(role);
                     const busy = workingId === item._id;
-                    const isOwner = isAdminEmail(item.email);
-                    const isSelf = item.email === currentUser?.email;
+                    const isSelf = item._id === profile?._id;
 
                     return (
                       <tr
@@ -283,13 +282,13 @@ const Administration = () => {
                             {meta.label}
                           </span>
 
-                          {isOwner && (
+                          {isSelf && (
                             <p className="mt-1 text-[10px] text-[var(--text)]">
-                              Owner account
+                              Owner of this account
                             </p>
                           )}
 
-                          {role === "rider" && (
+                          {role === ROLES.RIDER && (
                             <p className="mt-1 text-[10px] text-[var(--text)]">
                               Admin not allowed
                             </p>
@@ -298,9 +297,9 @@ const Administration = () => {
 
                         {/* Action */}
                         <td className="px-4 py-3 text-right">
-                          {isOwner || isSelf ? (
+                          {isSelf ? (
                             <span className="text-xs text-[var(--text)]">
-                              {isOwner ? "Protected" : "That's you"}
+                              That&apos;s you
                             </span>
                           ) : (
                             <select
@@ -321,11 +320,11 @@ const Administration = () => {
                                 disabled:cursor-not-allowed
                               "
                             >
-                              {ROLES.map((option) => (
+                              {ROLE_OPTIONS.map((option) => (
                                 <option
                                   key={option.value}
                                   value={option.value}
-                                  disabled={option.value === "admin" && role === "rider"}
+                                  disabled={option.value === ROLES.ADMIN && role === ROLES.RIDER}
                                 >
                                   {option.label}
                                 </option>
@@ -344,9 +343,9 @@ const Administration = () => {
 
         <p className="mt-6 flex items-start gap-2 text-xs text-[var(--text)]">
           <UserCheck size={14} className="mt-0.5 shrink-0" />
-          Role changes take effect on the user&apos;s next page load, the owner
-          account {ADMIN_EMAIL} can never be demoted from this page, and a rider
-          cannot be given the admin role.
+          Only accounts with the admin role can open this page or change a role.
+          You cannot change your own role, the last admin cannot be demoted, and
+          a rider cannot be given the admin role.
         </p>
       </div>
     </section>

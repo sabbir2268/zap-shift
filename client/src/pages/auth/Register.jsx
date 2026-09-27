@@ -17,7 +17,6 @@ import authImage from "../../assets/authImage.png";
 import { useForm } from "react-hook-form";
 import useAuth from "../../hooks/useAuth";
 import SocialLogin from "./SocialLogin";
-import axios from "axios";
 import useAxios from "../../hooks/useAxios";
 import { getPostAuthPath } from "../../data/admin";
 
@@ -25,6 +24,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [profileFile, setProfileFile] = useState(null);
   const [profilePic, setProfilePic] = useState("");
   const axiosInstance = useAxios();
 
@@ -42,10 +42,27 @@ const Register = () => {
     formState: { errors },
   } = useForm();
 
-  const { createUser, updateUserProfile } = useAuth();
+  const { createUser, updateUserProfile, loadProfile } = useAuth();
+
+  const uploadProfilePic = async () => {
+    if (!profileFile) return "";
+
+    const formData = new FormData();
+    formData.append("image", profileFile);
+
+    try {
+      const res = await axiosInstance.post("/api/upload-image", formData);
+      return res.url;
+    } catch {
+      /* the account is already created at this point, so a failed picture
+         upload must not turn into a failed registration */
+      toast.error("Profile picture could not be uploaded, you can add it later");
+      return "";
+    }
+  };
 
   const onSubmit = (data) => {
-    if (!profilePic) {
+    if (!profileFile) {
       toast.error("Please upload your profile picture");
       return;
     }
@@ -53,27 +70,26 @@ const Register = () => {
     setLoading(true);
 
     createUser(data.email, data.password)
-      .then(async() => {
+      .then(async () => {
         toast.success("Account created successfully!");
-        //update userinfo in the db
+
+        /* the upload needs a signed in caller, so it happens once the account
+           exists rather than while the file is picked */
+        const photoURL = await uploadProfilePic();
+
         const userInfo = {
           name: data.name,
-          photoURL: profilePic,
-          email : data.email,
-          role: 'user',
-          created_at : new Date().toISOString(),
-          last_log_in: new Date().toISOString()
-        }
+          photoURL,
+          email: data.email,
+          role: "user",
+          created_at: new Date().toISOString(),
+          last_log_in: new Date().toISOString(),
+        };
 
-        const userRes = await axiosInstance.post('/user', userInfo);
-        console.log(userRes);
+        await axiosInstance.post("/user", userInfo);
 
         //update user profile picture in firebase with email, and password
-        const userProfile = {
-          displayName: data.name,
-          photoURL: profilePic,
-        };
-        updateUserProfile(userProfile)
+        updateUserProfile({ displayName: data.name, photoURL })
           .then(() => {
             console.log("profile name pic updated");
           })
@@ -81,7 +97,9 @@ const Register = () => {
             console.log(error);
           });
 
-        navigate(getPostAuthPath(data.email, from), { replace: true });
+        /* the role decides where you land, and only the server knows it */
+        const profile = await loadProfile();
+        navigate(getPostAuthPath(profile?.role, from), { replace: true });
       })
       .catch((error) => {
         toast.error(error.message || "Failed to create account");
@@ -91,23 +109,12 @@ const Register = () => {
       });
   };
 
-  const handleImageUpload = async (e) => {
+  const handleImageUpload = (e) => {
     const image = e.target.files[0];
     if (!image) return;
 
-    const formData = new FormData();
-    formData.append("image", image);
-
-    try {
-      const res = await axios.post(
-        "http://localhost:3000/api/upload-image",
-        formData,
-      );
-      setProfilePic(res.data.url);
-      console.log(res.data.url);
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Image upload failed");
-    }
+    setProfileFile(image);
+    setProfilePic(image.name);
   };
 
   return (

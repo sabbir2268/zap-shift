@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { AuthContext } from "./AuthContext";
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
-  reauthenticateWithRedirect,
+  signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
   updateProfile,
+  onAuthStateChanged,
+  onIdTokenChanged,
 } from "firebase/auth";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase.init";
-import api from "../AxiosContext/axiosClient";
-import { isAdminUser } from "../../data/admin";
+import api, { onForbidden } from "../AxiosContext/axiosClient";
+import { ROLES, isAdminRole } from "../../data/admin";
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -21,6 +21,32 @@ const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
   const [roleLoading, setRoleLoading] = useState(false);
+  const profileRef = useRef(null);
+
+  /*
+   * The role is only ever read from the server, which reads it from the
+   * database. Nothing that arrives from the browser is trusted here.
+   */
+  const loadProfile = useCallback(async () => {
+    try {
+      const data = await api.get("/api/users/me");
+      profileRef.current = data;
+      setProfile(data);
+      return data;
+    } catch (error) {
+      /* no record for this account, so all it can ever be is a plain user */
+      if (error.status === 404) {
+        const plain = { role: ROLES.USER };
+        profileRef.current = plain;
+        setProfile(plain);
+        return plain;
+      }
+
+      /* a dropped connection or an expired token is not a role change, so keep
+         whatever we already know rather than throwing away a real admin */
+      return profileRef.current || { role: ROLES.USER };
+    }
+  }, []);
 
   const createUser = (email, password) => {
     setLoading(true);
@@ -38,6 +64,8 @@ const AuthProvider = ({ children }) => {
 
   const logOut = () => {
     setLoading(true);
+    profileRef.current = null;
+    setProfile(null);
     return signOut(auth).finally(() => setLoading(false));
   };
 
@@ -48,15 +76,14 @@ const AuthProvider = ({ children }) => {
     );
   };
 
-  const updateUserProfile = profileInfo =>{
+  const updateUserProfile = (profileInfo) => {
     return updateProfile(auth.currentUser, profileInfo);
-  }
+  };
 
   // observer
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      console.log("user in the auth state change", currentUser);
       setLoading(false);
     });
 
@@ -68,39 +95,63 @@ const AuthProvider = ({ children }) => {
   /* load the signed in user's record so their role is available app wide */
   useEffect(() => {
     if (!user) {
+      profileRef.current = null;
       setProfile(null);
       setRoleLoading(false);
       return;
     }
 
     let cancelled = false;
+
     setRoleLoading(true);
 
-    api
-      .get("/api/users/me")
-      .then((data) => {
-        if (!cancelled) setProfile(data);
-      })
-      .catch(() => {
-        /* account has no record yet, treat it as a plain user */
-        if (!cancelled) setProfile({ role: "user" });
-      })
-      .finally(() => {
-        if (!cancelled) setRoleLoading(false);
-      });
+    loadProfile().finally(() => {
+      if (!cancelled) setRoleLoading(false);
+    });
 
     return () => {
       cancelled = true;
     };
-  }, [user]);
+  }, [user, loadProfile]);
+
+  /*
+   * A token refresh can mean a role change, so re-read the role whenever the
+   * id token changes. This is what makes a demotion take effect without a
+   * full page reload, and what makes an expired token transparent.
+   */
+  useEffect(() => {
+    if (!user) return;
+
+    const unSubscribe = onIdTokenChanged(auth, (currentUser) => {
+      if (currentUser) loadProfile();
+    });
+
+    return () => {
+      unSubscribe();
+    };
+  }, [user, loadProfile]);
+
+  /*
+   * If the server rejects a request as forbidden, the role we hold is stale,
+   * most likely it was just taken away. Re-read it so the guards react.
+   */
+  useEffect(() => {
+    if (!user) return;
+
+    return onForbidden(() => loadProfile());
+  }, [user, loadProfile]);
+
+  const role = profile?.role;
 
   const authInfo = {
     user,
     loading,
     profile,
-    role: profile?.role,
+    role,
+    /* guards must wait for this, otherwise a fresh admin gets bounced out */
     roleReady: !loading && !roleLoading,
-    isAdmin: isAdminUser(user, profile?.role),
+    isAdmin: isAdminRole(role),
+    loadProfile,
     createUser,
     signIn,
     logOut,

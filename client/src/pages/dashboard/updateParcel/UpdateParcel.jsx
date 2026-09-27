@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { ArrowLeft, Loader2, Save, SquarePen } from "lucide-react";
 import useTrackingUpdate from "../../../hooks/useTrackingUpdate";
+import useAuth from "../../../hooks/useAuth";
 import { DELIVERY_STATUS, PAYMENT_STATUS } from "../../../data/parcelStatuses";
 
 const STATUS_OPTIONS = Object.entries(DELIVERY_STATUS).map(([value, item]) => ({
@@ -31,6 +32,7 @@ const UpdateParcel = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { updateTracking } = useTrackingUpdate();
+  const { isAdmin } = useAuth();
 
   const parcel = location.state?.parcel;
 
@@ -156,10 +158,13 @@ const UpdateParcel = () => {
             />
           </Field>
 
+          {/* the server only lets an admin move a parcel through the delivery
+              statuses, so the field is read only for everyone else */}
           <Field label="Delivery Status" full>
             <select
-              className={inputClass}
+              className={`${inputClass} disabled:cursor-not-allowed disabled:opacity-60`}
               value={form.status}
+              disabled={!isAdmin}
               onChange={setField("status")}
             >
               {STATUS_OPTIONS.map((option) => (
@@ -168,6 +173,12 @@ const UpdateParcel = () => {
                 </option>
               ))}
             </select>
+
+            {!isAdmin && (
+              <p className="mt-1 text-xs text-[var(--text)]">
+                Only an admin can change the delivery status.
+              </p>
+            )}
           </Field>
 
           <Field label="Payment Status" full>

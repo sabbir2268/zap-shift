@@ -39,7 +39,103 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-app.post("/api/upload-image", upload.single("image"), async (req, res) => {
+// ==================== AUTHENTICATION & AUTHORIZATION ====================
+
+// the roles that exist in this system, "admin" is the only one that unlocks
+// the admin dashboard
+const ROLES = {
+  USER: "user",
+  RIDER: "rider",
+  ADMIN: "admin",
+};
+
+// roles an admin is allowed to hand out
+const ALLOWED_ROLES = Object.values(ROLES);
+
+/* role of the caller, as stored on the server. never trust the role that the
+   client or the id token claims, always read it from the database */
+const isAdmin = (user) => user?.role === ROLES.ADMIN;
+
+/* case insensitive exact email match, so an account cannot be impersonated by
+   changing the case of its address */
+const emailMatcher = (email) =>
+  new RegExp(`^${String(email).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i");
+
+/* narrow a filter down to the caller's own rows. admins keep full visibility,
+   everybody else is pinned to their own account no matter what they ask for */
+const scopeToOwner = (req, filter = {}, field = "userEmail") =>
+  isAdmin(req.user) ? filter : { ...filter, [field]: emailMatcher(req.auth.email) };
+
+/*
+ * Authentication. Verifies the Firebase id token, then loads the caller's own
+ * database record so that authorization is always decided by the role stored
+ * server side. A token on its own only proves *who* someone is.
+ */
+const requireAuth = async (req, res, next) => {
+  const [scheme, token] = (req.headers.authorization || "").split(" ");
+
+  if (!/^Bearer$/i.test(scheme) || !token) {
+    return res.status(401).json({ message: "Unauthorized Access" });
+  }
+
+  let decoded;
+
+  try {
+    // the second argument also rejects tokens of deleted or disabled accounts
+    decoded = await getAuth().verifyIdToken(token, true);
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
+
+  if (!decoded.email) {
+    return res.status(403).json({ message: "This account has no email address" });
+  }
+
+  if (!userCollection) {
+    return res.status(503).json({ message: "Database unavailable" });
+  }
+
+  const email = decoded.email.toLowerCase();
+  const uid = decoded.uid;
+
+  const record = await userCollection.findOne(
+    { $or: [{ uid }, { email }] },
+    { projection: { password: 0 } }
+  );
+
+  req.decoded = decoded;
+  req.auth = { uid, email, emailVerified: decoded.email_verified === true };
+  // an account with no record yet is always a plain user, never an admin
+  req.user = record
+    ? { ...record, email, role: record.role || ROLES.USER }
+    : { uid, email, role: ROLES.USER, pendingRegistration: true };
+  req.isAdmin = isAdmin(req.user);
+
+  next();
+};
+
+/*
+ * Authorization. Runs after requireAuth and rejects anyone whose stored role is
+ * not on the allow list. Mount it as requireRole("admin") on admin only routes.
+ */
+const requireRole = (...allowed) => (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized Access" });
+  }
+
+  if (!allowed.includes(req.user.role)) {
+    return res.status(403).json({
+      message: "You do not have permission to perform this action",
+    });
+  }
+
+  next();
+};
+
+// the guard for every admin dashboard endpoint
+const adminOnly = [requireAuth, requireRole(ROLES.ADMIN)];
+
+app.post("/api/upload-image", requireAuth, upload.single("image"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: "No image file provided" });
@@ -110,39 +206,6 @@ run().then(() => {
   });
 });
 
-// custom middleware to verify token  (authentication)
-const verifyFBToken = async (req, res, next) => {
-  const authHeaders = req.headers.authorization;
-  if (!authHeaders) {
-    return res.status(401).send({ message: "Unauthorized Access" });
-  }
-  const token = authHeaders.split(" ")[1];
-  if (!token) {
-    return res.status(401).send({ message: "Unauthorized Access" });
-  }
-  // verify token
-  try {
-    const decoded = await getAuth().verifyIdToken(token);
-    req.decoded = decoded;
-    next();
-  } 
-  catch (error) {
-    return res.status(403).send({ message: "forbidden Access" });
-  }
-};
-
-// verify user (authorization) use that api contains only data of that user
-const verifyUser = (req, res, next) => {
-  const email = req.params.email || req.query.email;
-
-  if (!email || req.decoded.email !== email) {
-    return res.status(403).send({
-      message: "Forbidden Access"
-    });
-  }
-
-  next();
-};
 
 // generate a unique rider id like RDR-1A2B3C4D
 // ids are reserved on the application, so that collection is the one to check
@@ -213,20 +276,24 @@ app.get("/", (req, res) => {
 });
 
 //=============User CRUD===============
-app.post("/user", verifyFBToken, async (req, res) => {
+app.post("/user", requireAuth, async (req, res) => {
   try {
-    const email = req.body.email;
+    const email = req.auth.email;
     const userExist = await userCollection.findOne({ email });
     if (userExist) {
       return res.status(200).send({ message: "user already exists" });
     }
 
-    // role and rider id are decided by the server, not the client
+    /* the record is written field by field on purpose. role, rider id and the
+       rider block come from the server, so a crafted request body can never
+       hand itself the admin role */
     const user = {
-      ...req.body,
-      uid: req.decoded?.uid || req.body.uid || "",
+      uid: req.auth.uid,
       email,
-      role: "user",
+      name: req.body.name || "",
+      phone: req.body.phone || "",
+      photoURL: req.body.photoURL || "",
+      role: ROLES.USER,
       riderID: null,
       created_at: req.body.created_at || new Date().toISOString(),
       last_log_in: new Date().toISOString(),
@@ -239,16 +306,11 @@ app.post("/user", verifyFBToken, async (req, res) => {
   }
 });
 
-// roles an admin is allowed to hand out
-const ALLOWED_ROLES = ["user", "rider", "admin"];
-
 /* the signed in user's own record, used by the client to read their role */
-app.get("/api/users/me", verifyFBToken, async (req, res) => {
+app.get("/api/users/me", requireAuth, async (req, res) => {
   try {
-    const email = req.decoded?.email;
-
     const user = await userCollection.findOne(
-      { email },
+      { $or: [{ uid: req.auth.uid }, { email: req.auth.email }] },
       { projection: { password: 0 } }
     );
 
@@ -258,12 +320,12 @@ app.get("/api/users/me", verifyFBToken, async (req, res) => {
 
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).send({ message: error.message });
   }
 });
 
 // GET all users, for the admin administration page
-app.get("/api/users", verifyFBToken, async (req, res) => {
+app.get("/api/users", ...adminOnly, async (req, res) => {
   try {
     const users = await userCollection
       .find({}, { projection: { password: 0 } })
@@ -276,8 +338,8 @@ app.get("/api/users", verifyFBToken, async (req, res) => {
   }
 });
 
-// PATCH change a user's role
-app.patch("/api/users/:id/role", verifyFBToken, async (req, res) => {
+// PATCH change a role, admin only
+app.patch("/api/users/:id/role", ...adminOnly, async (req, res) => {
   try {
     const { id } = req.params;
     const { role } = req.body;
@@ -292,21 +354,42 @@ app.patch("/api/users/:id/role", verifyFBToken, async (req, res) => {
       });
     }
 
-    const target = await userCollection.findOne({ _id: new ObjectId(id) });
+    const targetId = new ObjectId(id);
+    const target = await userCollection.findOne({ _id: targetId });
 
     if (!target) {
       return res.status(404).json({ message: "User not found" });
     }
 
+    /* no self promotion, and no way to lock yourself out of the panel */
+    if (targetId.equals(req.user._id)) {
+      return res.status(403).json({
+        message: "You cannot change your own role",
+      });
+    }
+
     // a rider is not allowed to hold the admin role
-    if (target.role === "rider" && role === "admin") {
+    if (target.role === ROLES.RIDER && role === ROLES.ADMIN) {
       return res.status(403).json({
         message: "A rider cannot be set as admin",
       });
     }
 
-    const result = await userCollection.updateOne(
-      { _id: new ObjectId(id) },
+    // never remove the last admin, that would lock everyone out of the panel
+    if (target.role === ROLES.ADMIN && role !== ROLES.ADMIN) {
+      const { count } = await userCollection.countDocuments({
+        role: ROLES.ADMIN,
+      });
+
+      if (count <= 1) {
+        return res.status(403).json({
+          message: "The last admin cannot be demoted",
+        });
+      }
+    }
+
+    await userCollection.updateOne(
+      { _id: targetId },
       {
         $set: {
           role,
@@ -315,7 +398,10 @@ app.patch("/api/users/:id/role", verifyFBToken, async (req, res) => {
       }
     );
 
-    const updated = await userCollection.findOne({ _id: new ObjectId(id) });
+    const updated = await userCollection.findOne(
+      { _id: targetId },
+      { projection: { password: 0 } }
+    );
 
     res.json(updated);
   } catch (error) {
@@ -325,55 +411,62 @@ app.patch("/api/users/:id/role", verifyFBToken, async (req, res) => {
 
 // ============ PARCEL CRUD ============
 
-// GET all parcels
-app.get("/api/parcels", verifyFBToken, async (req, res) => {
-  // console.log("headers in parcels",req.headers);
+/* GET parcels. an admin sees the whole platform, everybody else is pinned to
+   their own parcels and any ?email they pass is ignored */
+app.get("/api/parcels", requireAuth, async (req, res) => {
   try {
     const { email } = req.query;
-    const filter = email ? { userEmail: email } : {};
+
+    const filter = isAdmin(req.user) && email
+      ? { userEmail: emailMatcher(email) }
+      : scopeToOwner(req);
+
     const parcels = await parcelsCollection
       .find(filter)
       .sort({ createdAt: -1 })
       .toArray();
     res.json(parcels);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).send({ message: error.message });
   }
 });
 
-// GET single parcel
-app.get("/api/parcels/:id", verifyFBToken,async (req, res) => {
+// GET single parcel, own parcels only unless you are an admin
+app.get("/api/parcels/:id", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
-    const { email } = req.query;
 
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid parcel id" });
     }
 
-    const filter = { _id: new ObjectId(id) };
-    if (email) filter.userEmail = email;
+    const parcel = await parcelsCollection.findOne(
+      scopeToOwner(req, { _id: new ObjectId(id) })
+    );
 
-    const parcel = await parcelsCollection.findOne(filter);
-
+    /* 404 rather than 403, so the response does not confirm that someone
+       else's parcel exists */
     if (!parcel) {
       return res.status(404).json({ message: "Parcel not found" });
     }
 
     res.json(parcel);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).send({ message: error.message });
   }
 });
 
-// POST create parcel
-app.post("/api/parcels", verifyFBToken,  async (req, res) => {
+// POST create parcel, always recorded against the signed in account
+app.post("/api/parcels", requireAuth, async (req, res) => {
   try {
     const data = req.body;
 
+    const { _id, createdAt, updatedAt, userEmail, ...rest } = data;
+
     const parcel = {
-      ...data,
-      status: data.status || "pending",
+      ...rest,
+      userEmail: req.auth.email,
+      status: isAdmin(req.user) ? data.status || "pending" : "pending",
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -382,23 +475,28 @@ app.post("/api/parcels", verifyFBToken,  async (req, res) => {
 
     res.status(201).json({ _id: result.insertedId, ...parcel });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).send({ message: error.message });
   }
 });
 
-// PUT update parcel
-app.put("/api/parcels/:id", verifyFBToken,  async (req, res) => {
+// PUT update parcel, own parcels only unless you are an admin
+app.put("/api/parcels/:id", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid parcel id" });
     }
 
-    const { _id, createdAt, ...updateData } = req.body;
+    // ownership, id and timestamps stay under server control
+    const { _id, createdAt, userEmail, ...updateData } = req.body;
+
+    if (!isAdmin(req.user)) {
+      delete updateData.status;
+    }
 
     const result = await parcelsCollection.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { ...updateData, updatedAt: new Date() } },
+      scopeToOwner(req, { _id: new ObjectId(id) }),
+      { $set: { ...updateData, updatedAt: new Date() } }
     );
 
     if (result.matchedCount === 0) {
@@ -411,12 +509,12 @@ app.put("/api/parcels/:id", verifyFBToken,  async (req, res) => {
 
     res.json(updated);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).send({ message: error.message });
   }
 });
 
-// DELETE parcel
-app.delete("/api/parcels/:id", verifyFBToken,  async (req, res) => {
+// DELETE parcel, admin only
+app.delete("/api/parcels/:id", ...adminOnly, async (req, res) => {
   try {
     const { id } = req.params;
     if (!ObjectId.isValid(id)) {
@@ -439,8 +537,8 @@ app.delete("/api/parcels/:id", verifyFBToken,  async (req, res) => {
 
 // ============ RIDER APPLICATION ============
 
-// GET all rider applications
-app.get("/api/rider-applications", verifyFBToken,  async (req, res) => {
+// GET all rider applications, admin only
+app.get("/api/rider-applications", ...adminOnly, async (req, res) => {
   try {
     const applications = await riderApplicationsCollection
       .find()
@@ -448,27 +546,28 @@ app.get("/api/rider-applications", verifyFBToken,  async (req, res) => {
       .toArray();
     res.json(applications);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).send({ message: error.message });
   }
 });
 
-// POST create rider application
-app.post("/api/rider-applications",verifyFBToken,  async (req, res) => {
+// POST apply to become a rider, always filed under the signed in account
+app.post("/api/rider-applications", requireAuth, async (req, res) => {
   try {
     const data = req.body;
 
     const application = {
-      uid: req.decoded?.uid || data.uid || "",
+      uid: req.auth.uid,
       riderID: data.riderID || (await generateRiderId()),
       name: data.name,
       age: data.age,
-      email: data.email,
+      email: req.auth.email,
       region: data.region,
       nid: data.nid,
       contact: data.contact,
       warehouse: data.warehouse,
       subscribeEmail: data.subscribeEmail || "",
-      status: data.status || "pending",
+      // only an admin can decide the outcome, an applicant always starts pending
+      status: "pending",
       createdAt: new Date(),
     };
 
@@ -476,12 +575,12 @@ app.post("/api/rider-applications",verifyFBToken,  async (req, res) => {
 
     res.status(201).json({ _id: result.insertedId, ...application });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).send({ message: error.message });
   }
 });
 
-// PATCH update rider application status
-app.patch("/api/rider-applications/:id", verifyFBToken, async (req, res) => {
+// PATCH update rider application status, admin only. approving promotes the user
+app.patch("/api/rider-applications/:id", ...adminOnly, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -529,8 +628,8 @@ app.patch("/api/rider-applications/:id", verifyFBToken, async (req, res) => {
   }
 });
 
-// DELETE all rider applications
-app.delete("/api/rider-applications", verifyFBToken,  async (req, res) => {
+// DELETE all rider applications, admin only
+app.delete("/api/rider-applications", ...adminOnly, async (req, res) => {
   try {
     const result = await riderApplicationsCollection.deleteMany({});
     res.json({
@@ -544,11 +643,14 @@ app.delete("/api/rider-applications", verifyFBToken,  async (req, res) => {
 
 // ============ PAYMENT HISTORY ============
 
-// GET payment history
-app.get("/api/payments", verifyFBToken,   async (req, res) => {
+/* GET payments. an admin sees every payment, everybody else only their own */
+app.get("/api/payments", requireAuth, async (req, res) => {
   try {
     const { email } = req.query;
-    const filter = email ? { userEmail: email } : {};
+
+    const filter = isAdmin(req.user) && email
+      ? { userEmail: emailMatcher(email) }
+      : scopeToOwner(req);
 
     const payments = await paymentsCollection
       .find(filter)
@@ -560,31 +662,54 @@ app.get("/api/payments", verifyFBToken,   async (req, res) => {
   }
 });
 
-// POST create payment record
-app.post("/api/payments", verifyFBToken,   async (req, res) => {
+// POST create payment record, always recorded against the signed in account
+app.post("/api/payments", requireAuth, async (req, res) => {
   try {
     const data = req.body;
 
+    const { _id, createdAt, userEmail, ...rest } = data;
+
     const payment = {
-      ...data,
-      status: data.status || "paid",
+      ...rest,
+      userEmail: req.auth.email,
+      status: "paid",
       createdAt: new Date(),
     };
 
     const result = await paymentsCollection.insertOne(payment);
-    console.log(result);
 
     res.status(201).json({ _id: result.insertedId, ...payment });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).send({ message: error.message });
   }
 });
 
 // ============ Payment Intend ============
 
 
-app.post("/create-payment-intent", verifyFBToken,  async (req, res) => {
-  const amountInCents = req.body.amountInCents;
+/* the amount always comes from the stored parcel, never from the request body,
+   otherwise anyone could charge a customer one cent */
+app.post("/create-payment-intent", requireAuth, async (req, res) => {
+  const parcelId = req.body?.parcelInfo?._id;
+
+  if (!ObjectId.isValid(parcelId)) {
+    return res.status(400).send({ message: "Invalid parcel id" });
+  }
+
+  const parcel = await parcelsCollection.findOne(
+    scopeToOwner(req, { _id: new ObjectId(parcelId) })
+  );
+
+  if (!parcel) {
+    return res.status(404).send({ message: "Parcel not found" });
+  }
+
+  const amountInCents = Math.round(Number(parcel.totalCost) * 100);
+
+  if (!Number.isFinite(amountInCents) || amountInCents <= 0) {
+    return res.status(400).send({ message: "Parcel has no valid amount" });
+  }
+
   try {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,
