@@ -7,7 +7,7 @@ import PrivateRoutes from "./PrivateRoutes";
 import AdminRoutes, { AdminRedirect } from "./AdminRoutes";
 import Home from "../pages/home/Home";
 import Coverage from "../pages/coverage/Coverage";
-import Service from "../pages/service/service";
+import Service from "../pages/service/Service";
 import BeARider from "../pages/beARider/BeARider";
 import DashboardHome from "../pages/dashboard/DashboardHome";
 import SendParcel from "../pages/dashboard/sendParcel/SendParcel";

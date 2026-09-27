@@ -6,7 +6,7 @@ import useAxios from "../../hooks/useAxios";
 import { getPostAuthPath } from "../../data/admin";
 
 const SocialLogin = () => {
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle, loadProfile } = useAuth();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -18,7 +18,7 @@ const SocialLogin = () => {
 
   const handleGoogleSignIn = () => {
     signInWithGoogle()
-      .then(async(result) => {
+      .then(async (result) => {
         toast.success("Login successful!");
         const user = result.user;
 
@@ -31,10 +31,11 @@ const SocialLogin = () => {
           last_log_in: new Date().toISOString(),
         };
 
-        const res = await axiosInstance.post('/user', userInfo);
-        console.log("user update info", res);
+        await axiosInstance.post("/user", userInfo);
 
-        navigate(getPostAuthPath(user.email, from), { replace: true });
+        /* the role decides where you land, and only the server knows it */
+        const profile = await loadProfile();
+        navigate(getPostAuthPath(profile?.role, from), { replace: true });
       })
       .catch((error) => {
         toast.error(error.message || "Google login failed");
