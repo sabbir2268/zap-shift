@@ -162,6 +162,9 @@ const MyParcels = () => {
  * A row action keeps its icon at every width and only grows a label once there
  * is room for one, so a phone gets four reachable buttons instead of a row of
  * wrapped text. The title carries the meaning either way.
+ *
+ * Each button fills its cell, so a short label like "Paid" never leaves the
+ * widest one in the row ragged.
  */
 const ACTION_TONES = {
   plain: "border-gray-200 text-[var(--foreground)] hover:bg-gray-100",
@@ -176,8 +179,9 @@ const RowAction = ({ icon, label, tone = "plain", ...rest }) => (
     title={label}
     aria-label={label}
     className={`
+      w-full
       inline-flex items-center justify-center gap-2
-      rounded-xl border py-2 px-3
+      rounded-xl border py-2 px-2 lg:px-3
       text-sm font-semibold
       transition
       disabled:cursor-not-allowed disabled:opacity-60
@@ -217,7 +221,7 @@ const ParcelTable = ({
               </th>
               <th className="px-4 py-3 font-semibold">Cost</th>
               <th className="px-4 py-3 font-semibold">Status</th>
-              <th className="px-4 py-3 font-semibold text-right">Action</th>
+              <th className="px-4 py-3 font-semibold text-center">Action</th>
             </tr>
           </thead>
 
@@ -313,7 +317,7 @@ const ParcelTable = ({
                   </td>
 
                   <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="grid grid-cols-4 items-center gap-2">
                       <RowAction
                         icon={<Eye size={16} />}
                         label="View Details"
