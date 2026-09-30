@@ -7,10 +7,43 @@ import {
   CalendarDays,
   ReceiptText,
   Loader2,
+  CalendarClock,
+  Clock,
+  Hourglass,
 } from "lucide-react";
 import useAxios from "../../../hooks/useAxios";
 import useAuth from "../../../hooks/useAuth";
 import StatusBadge from "../../../components/StatusBadge/StatusBadge";
+
+/*
+ * A promised window per status rather than a real arrival date, which the
+ * backend has no schedule to calculate. Anything unrecognised falls back to the
+ * waiting window so the card is never left without an answer.
+ */
+const ETA = {
+  pending: {
+    window: "2 to 4 business days",
+    note: "Counted from the day a rider is assigned to this parcel",
+  },
+  picked_up: {
+    window: "Within 24 hours",
+    note: "Counted from the pickup scan",
+  },
+  in_transit: {
+    window: "Today, before 8:00 PM",
+    note: "On the way to the receiver",
+  },
+  delivered: {
+    window: "Delivered",
+    note: "This parcel has already reached the receiver",
+  },
+  cancelled: {
+    window: "Cancelled",
+    note: "This parcel is no longer being delivered",
+  },
+};
+
+const getEta = (status) => ETA[status] || ETA.pending;
 
 const TrackParcel = () => {
   const api = useAxios();
@@ -176,10 +209,105 @@ const TrackParcel = () => {
                 value={`৳ ${parcel.totalCost}`}
               />
             </div>
+
+            {/* Delivery agent, and the status that agent has reached */}
+            <DeliveryAgent parcel={parcel} />
+
+            {/* Estimated delivery, a static window for the current status */}
+            <EstimatedDelivery parcel={parcel} />
           </div>
         )}
       </div>
     </section>
+  );
+};
+
+const SectionTitle = ({ children }) => (
+  <p className="text-xs font-semibold uppercase tracking-wide text-[var(--text)]/50">
+    {children}
+  </p>
+);
+
+/* the rider name and id the admin wrote onto the parcel, or the honest answer
+   that nobody has taken it yet */
+const DeliveryAgent = ({ parcel }) => (
+  <div className="border-t border-gray-100 px-6 py-5">
+    <SectionTitle>Delivery Agent</SectionTitle>
+
+    {parcel.riderID ? (
+      <div className="mt-3 flex items-center gap-3">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--secondary)] font-bold text-[var(--foreground)]">
+          {(parcel.riderName || parcel.riderID)[0].toUpperCase()}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-semibold text-[var(--foreground)]">
+            {parcel.riderName || parcel.riderID}
+          </p>
+          <p className="text-xs text-[var(--text)]/60">
+            {parcel.riderID}
+            {parcel.assignedAt
+              ? ` · assigned ${new Date(parcel.assignedAt).toLocaleDateString()}`
+              : ""}
+          </p>
+        </div>
+
+        {/* the section names the kind, so the badge stays bare */}
+        <StatusBadge
+          kind="delivery"
+          value={parcel.status}
+          bare
+          className="shrink-0"
+        />
+      </div>
+    ) : (
+      <div className="mt-3 flex items-center gap-3 rounded-2xl border border-dashed border-gray-300 px-4 py-3">
+        <Hourglass size={18} className="shrink-0 text-[var(--text)]/50" />
+
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-[var(--foreground)]">
+            No rider assigned yet
+          </p>
+          <p className="text-xs text-[var(--text)]/60">
+            An admin assigns an approved rider once this parcel is ready to
+            move.
+          </p>
+        </div>
+      </div>
+    )}
+  </div>
+);
+
+const EstimatedDelivery = ({ parcel }) => {
+  const eta = getEta(parcel.status);
+  const paused = !parcel.riderID && parcel.status !== "cancelled";
+
+  return (
+    <div className="border-t border-gray-100 px-6 py-5">
+      <SectionTitle>Estimated Delivery</SectionTitle>
+
+      <div className="mt-3 flex items-start gap-3">
+        <CalendarClock
+          size={17}
+          className="mt-0.5 shrink-0 text-[var(--text)]/50"
+        />
+
+        <div className="min-w-0">
+          <p className="font-semibold text-[var(--foreground)]">
+            {eta.window}
+          </p>
+          <p className="text-xs text-[var(--text)]/60">{eta.note}</p>
+
+          {/* the window only starts counting once a rider holds the parcel */}
+          {paused && (
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-amber-700">
+              <Clock size={13} />
+              Paused until a rider is assigned
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 
