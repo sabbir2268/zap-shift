@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
 import riderImage from "../../assets/big-deliveryman.png";
@@ -16,7 +16,7 @@ const REGION_WAREHOUSES = {
 
 const BeARider = () => {
   const api = useAxios();
-  const { user, profile } = useAuth();
+  const { user, profile, loadProfile } = useAuth();
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -30,13 +30,32 @@ const BeARider = () => {
     setValue("warehouse", "");
   }, [selectedRegion, setValue]);
 
+  /* a signup saves its record behind the redirect, and the auth profile is read
+     the moment the account appears, so that first read can land before the
+     record exists and come back with no name at all. ask once more. */
+  const retriedProfile = useRef(false);
+
+  useEffect(() => {
+    if (user?.displayName || profile?.name || retriedProfile.current) return;
+
+    retriedProfile.current = true;
+    loadProfile();
+  }, [user, profile, loadProfile]);
+
+  /* the account is the only source of a name, and an email signup can leave
+     firebase without a displayName, so the address is the last resort */
+  const accountName =
+    user?.displayName?.trim() ||
+    profile?.name?.trim() ||
+    user?.email?.split("@")[0]?.trim() ||
+    "";
+
   const onSubmit = (data) => {
     const riderData = {
       ...data,
       uid: user?.uid,
-      /* the form does not ask for a name, the account already knows it, and
-         firebase can be missing a displayName for social accounts */
-      name: user?.displayName || profile?.name || "",
+      /* the name field is read only and mirrors the account */
+      name: accountName,
       email: user?.email,
       status: "pending",
       created_at: new Date().toISOString(),
@@ -80,6 +99,19 @@ const BeARider = () => {
             </h2>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              {/* Name */}
+              <div>
+                <label className="block mb-2 font-medium">Your Name</label>
+
+                <input
+                  type="text"
+                  value={accountName}
+                  readOnly
+                  required
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-100 cursor-not-allowed text-gray-600"
+                />
+              </div>
+
               {/* Age */}
               <div>
                 <label className="block mb-2 font-medium">Your Age</label>

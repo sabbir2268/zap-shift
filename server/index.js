@@ -765,10 +765,11 @@ app.post("/api/rider-applications", requireAuth, async (req, res) => {
   try {
     const data = req.body;
 
-    /* The form does not ask for a name, so the browser sends whatever the
-       account happens to hold, and a firebase account can hold nothing at all
-       for an email signup. Falling back to the record requireAuth already
-       loaded, then to the address, means an application is never nameless. */
+    /* The name field on the form only mirrors the account, so the browser sends
+       whatever the account happens to hold, and a firebase account can hold
+       nothing at all for an email signup. Falling back to the record
+       requireAuth already loaded, then to the address, means an application is
+       never nameless. */
     const name =
       String(data.name || "").trim() ||
       String(req.user.name || "").trim() ||
