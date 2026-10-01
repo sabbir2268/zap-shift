@@ -162,6 +162,10 @@ const RIDER_STATUSES = ["picked_up", "in_transit", "delivered", "cancelled"];
    which parcels are booked and matched to a rider but have not moved yet */
 const RIDER_ASSIGNED_STATUS = "rider_assigned";
 
+/* the smallest amount a rider may take out in one go. a cashout below this is
+   refused on the server, so the rule holds however the request was made */
+const MIN_CASHOUT = 110;
+
 app.post("/api/upload-image", requireAuth, upload.single("image"), async (req, res) => {
   try {
     if (!req.file) {
@@ -205,6 +209,7 @@ const dbName = process.env.DB_NAME || "zapShift";
 let parcelsCollection;
 let riderApplicationsCollection;
 let paymentsCollection;
+let cashoutsCollection;
 let userCollection;
 
 async function run() {
@@ -221,7 +226,17 @@ async function run() {
     parcelsCollection = db.collection("parcels");
     riderApplicationsCollection = db.collection("riderApplications");
     paymentsCollection = db.collection("payments");
+    cashoutsCollection = db.collection("cashouts");
     userCollection = db.collection("users");
+
+    /* every cashout lookup is by rider, newest first. the index only makes those
+       reads fast, so a database that refuses to build it is logged and left
+       alone rather than taking the whole server down with it */
+    try {
+      await cashoutsCollection.createIndex({ riderID: 1, createdAt: -1 });
+    } catch (error) {
+      console.warn("cashouts index not created:", error.message);
+    }
   } catch (error) {
     console.error("MongoDB connection error:", error);
   }
@@ -251,6 +266,13 @@ const generateRiderId = async () => {
   throw new Error("Could not generate a unique rider id");
 };
 
+/* The hub a rider works out of. The application form used to call this field
+   `warehouse`, so applications written before the rename still carry the old
+   name. Both are read here and the answer is always stored as `serviceCenter`,
+   so one name is used from here on. */
+const getApplicationServiceCenter = (application) =>
+  application?.serviceCenter || application?.warehouse || null;
+
 // promote an approved applicant to role "rider" and give them a rider id
 const promoteToRider = async (application) => {
   const user = await userCollection.findOne(
@@ -265,8 +287,20 @@ const promoteToRider = async (application) => {
     return { promoted: false, reason: "no user record" };
   }
 
+  const serviceCenter = getApplicationServiceCenter(application);
+
   // already a rider, never hand out a second id
   if (user.role === "rider" && user.riderID) {
+    /* the snapshot is still topped up when it is missing the service center, so
+       a rider approved before the field existed picks it up the moment an admin
+       approves their application again */
+    if (serviceCenter && !user.riderInfo?.serviceCenter) {
+      await userCollection.updateOne(
+        { _id: user._id },
+        { $set: { "riderInfo.serviceCenter": serviceCenter } }
+      );
+    }
+
     return { promoted: false, reason: "already a rider", riderID: user.riderID };
   }
 
@@ -290,7 +324,7 @@ const promoteToRider = async (application) => {
           /* where the rider works out of. every earning is measured against this
              service center, so it is snapshotted here rather than looked up each
              time a parcel is read */
-          serviceCenter: application.serviceCenter,
+          serviceCenter,
         },
       },
     }
@@ -723,7 +757,7 @@ const getRiderLocation = (user) => {
 
   return {
     region: riderInfo.region || null,
-    serviceCenter: riderInfo.serviceCenter || null,
+    serviceCenter: riderInfo.serviceCenter || riderInfo.warehouse || null,
   };
 };
 
@@ -799,7 +833,17 @@ app.patch("/api/rider/parcels/:id/status", ...riderOnly, async (req, res) => {
        simply not found and nothing outside their own work can be touched */
     const result = await parcelsCollection.updateOne(
       { _id: new ObjectId(id), riderID },
-      { $set: { status, updatedAt: new Date() } }
+      {
+        $set: {
+          status,
+          updatedAt: new Date(),
+          /* the moment the parcel was actually handed over is stamped once and
+             kept. the earnings page groups money by day, week, month and year,
+             and a delivery that moves again later must not change which day it
+             was earned on */
+          ...(status === "delivered" ? { deliveredAt: new Date() } : {}),
+        },
+      }
     );
 
     if (result.matchedCount === 0) {
@@ -819,6 +863,143 @@ app.patch("/api/rider/parcels/:id/status", ...riderOnly, async (req, res) => {
 });
 
 
+// ============ RIDER CASHOUT ============
+
+/*
+ * A rider's money, worked out on the server.
+ *
+ * Earned is the sum of the earnings on every parcel this rider actually
+ * delivered, cashed out is the sum of the cashouts already on their record, and
+ * the wallet is what is left of one after the other. Nothing here comes from the
+ * request, so a rider cannot ask for money they have not earned or take the same
+ * money twice.
+ */
+const getRiderMoney = async (user) => {
+  const riderID = user?.riderID;
+
+  if (!riderID) {
+    return { earned: 0, cashedOut: 0, wallet: 0, minCashout: MIN_CASHOUT };
+  }
+
+  const rider = getRiderLocation(user);
+
+  const parcels = await parcelsCollection.find({ riderID }).toArray();
+
+  const earned = parcels.reduce((total, parcel) => {
+    const earning = getEarning(parcel, rider);
+
+    return total + (earning.settled ? Number(earning.amount) || 0 : 0);
+  }, 0);
+
+  const cashouts = await cashoutsCollection.find({ riderID }).toArray();
+
+  const cashedOut = cashouts.reduce(
+    (total, cashout) => total + (Number(cashout.amount) || 0),
+    0
+  );
+
+  return {
+    earned,
+    cashedOut,
+    /* the wallet can never read below zero. if a delivery is ever cancelled after
+       it was counted, the floor stops the balance going backwards */
+    wallet: Math.max(0, earned - cashedOut),
+    minCashout: MIN_CASHOUT,
+  };
+};
+
+/* GET this rider's own cashout history and the figures behind it */
+app.get("/api/rider/cashouts", ...riderOnly, async (req, res) => {
+  try {
+    const riderID = req.user.riderID;
+
+    if (!riderID) {
+      return res.json({
+        records: [],
+        earned: 0,
+        cashedOut: 0,
+        wallet: 0,
+        minCashout: MIN_CASHOUT,
+      });
+    }
+
+    const [records, money] = await Promise.all([
+      cashoutsCollection
+        .find({ riderID })
+        .sort({ createdAt: -1 })
+        .toArray(),
+      getRiderMoney(req.user),
+    ]);
+
+    res.json({ records, ...money });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+});
+
+/* POST take money out of the wallet, rider only.
+   body: { amount: 110 }
+   the amount leaves the wallet because the balance is earned minus every cashout
+   on the record, so a cashout needs no separate balance to keep in step */
+app.post("/api/rider/cashouts", ...riderOnly, async (req, res) => {
+  try {
+    const riderID = req.user.riderID;
+
+    if (!riderID) {
+      return res.status(404).json({ message: "No rider record for this account" });
+    }
+
+    const amount = Number(req.body?.amount);
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return res.status(400).json({ message: "Enter an amount greater than zero" });
+    }
+
+    /* money is stored in whole taka, so a fraction is refused rather than quietly
+       rounded into an amount nobody asked for */
+    const whole = Math.round(amount);
+
+    if (whole !== amount) {
+      return res.status(400).json({ message: "Cashout must be a whole number" });
+    }
+
+    if (whole < MIN_CASHOUT) {
+      return res.status(400).json({
+        message: `The smallest cashout is ${MIN_CASHOUT} taka`,
+      });
+    }
+
+    const money = await getRiderMoney(req.user);
+
+    if (whole > money.wallet) {
+      return res.status(400).json({
+        message: `That is more than you have in your wallet. You can cash out ${money.wallet} taka`,
+      });
+    }
+
+    const record = {
+      riderID,
+      riderEmail: req.auth.email,
+      amount: whole,
+      /* there is no payout provider wired up, so a cashout is recorded as money
+         taken out rather than money requested. wiring a provider in later means
+         moving this to "requested" and settling it on the provider's webhook */
+      status: "paid",
+      createdAt: new Date(),
+    };
+
+    const result = await cashoutsCollection.insertOne(record);
+
+    res.status(201).json({
+      record: { _id: result.insertedId, ...record },
+      ...(await getRiderMoney(req.user)),
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+});
+
+
 // ============ RIDER APPLICATION ============
 
 // GET all rider applications, admin only
@@ -828,7 +1009,15 @@ app.get("/api/rider-applications", ...adminOnly, async (req, res) => {
       .find()
       .sort({ createdAt: -1 })
       .toArray();
-    res.json(applications);
+
+    /* older applications kept the hub under `warehouse`, so it is restated as
+       `serviceCenter` on the way out. the admin pages only ever read one name */
+    res.json(
+      applications.map((application) => ({
+        ...application,
+        serviceCenter: getApplicationServiceCenter(application),
+      }))
+    );
   } catch (error) {
     res.status(500).send({ message: error.message });
   }

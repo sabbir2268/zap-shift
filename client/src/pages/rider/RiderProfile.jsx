@@ -12,6 +12,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
+import { getRiderServiceCenter } from "../../data/rider";
 import StatusBadge from "../../components/StatusBadge/StatusBadge";
 
 const RiderProfile = () => {
@@ -100,7 +101,7 @@ const RiderProfile = () => {
             <DetailRow
               icon={<Warehouse size={15} />}
               label="Service Center"
-              value={rider.serviceCenter || "—"}
+              value={getRiderServiceCenter(rider) || "—"}
             />
 
             <DetailRow

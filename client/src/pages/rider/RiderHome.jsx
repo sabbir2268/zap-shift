@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
 import useRiderDeliveries from "../../hooks/useRiderDeliveries";
+import { getRiderServiceCenter } from "../../data/rider";
 import StatusBadge from "../../components/StatusBadge/StatusBadge";
 
 const RiderHome = () => {
@@ -130,7 +131,7 @@ const RiderHome = () => {
               Service Center
             </p>
             <p className="truncate text-lg font-bold text-[var(--foreground)]">
-              {rider.serviceCenter || "—"}
+              {getRiderServiceCenter(rider) || "—"}
             </p>
           </div>
         </div>
