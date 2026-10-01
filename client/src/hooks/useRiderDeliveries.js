@@ -51,6 +51,7 @@ const pendingAmount = (parcel) => {
    truck has carried to the destination center is back at the start of the
    rider's part of the journey, waiting to be collected from that center */
 const NEXT_STATUS = {
+  rider_assigned: { status: "picked_up", label: "Mark Picked Up" },
   pending: { status: "picked_up", label: "Mark Picked Up" },
   picked_up: { status: "in_transit", label: "Start Delivery" },
   in_transit: { status: "delivered", label: "Mark Delivered" },
@@ -58,6 +59,7 @@ const NEXT_STATUS = {
 };
 
 export const canCancel = (status) =>
+  status === "rider_assigned" ||
   status === "pending" ||
   status === "picked_up" ||
   status === "in_transit" ||
@@ -118,6 +120,7 @@ const useRiderDeliveries = () => {
 
     return {
       total: parcels.length,
+      assigned: byStatus("rider_assigned"),
       pending: byStatus("pending"),
       pickedUp: byStatus("picked_up"),
       inTransit: byStatus("in_transit"),

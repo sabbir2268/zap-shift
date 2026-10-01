@@ -51,7 +51,13 @@ const RiderHome = () => {
   ];
 
   const upcoming = parcels.filter((parcel) =>
-    ["pending", "picked_up", "in_transit"].includes(parcel.status)
+    [
+      "rider_assigned",
+      "pending",
+      "picked_up",
+      "in_transit",
+      "transferred",
+    ].includes(parcel.status)
   );
 
   return (

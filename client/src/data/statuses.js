@@ -24,6 +24,14 @@ export const DELIVERY_STATUS = {
     className: "bg-yellow-100 text-yellow-800",
     dot: "bg-yellow-400",
   },
+  /* booked and given to a rider, but the rider has not collected it yet. it sits
+     between the sender handing the parcel in and the rider picking it up, so the
+     two ends of a delivery are not squashed into one step */
+  rider_assigned: {
+    label: "Rider Assigned",
+    className: "bg-indigo-100 text-indigo-800",
+    dot: "bg-indigo-400",
+  },
   picked_up: {
     label: "Picked Up",
     className: "bg-blue-100 text-blue-800",

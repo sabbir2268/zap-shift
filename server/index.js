@@ -157,6 +157,11 @@ const riderOnly = [requireAuth, requireRole(ROLES.RIDER)];
    admin sets any of them, a rider only drives its delivery forward */
 const RIDER_STATUSES = ["picked_up", "in_transit", "delivered", "cancelled"];
 
+/* the delivery status a parcel sits at between the sender handing it in and the
+   rider collecting it. it is a step of its own so an admin can see at a glance
+   which parcels are booked and matched to a rider but have not moved yet */
+const RIDER_ASSIGNED_STATUS = "rider_assigned";
+
 app.post("/api/upload-image", requireAuth, upload.single("image"), async (req, res) => {
   try {
     if (!req.file) {
@@ -616,6 +621,8 @@ app.delete("/api/parcels/:id", ...adminOnly, async (req, res) => {
 });
 
 /* PATCH assign or unassign the rider on a parcel, admin only.
+   the assignment is stored with the rider's name and the time it happened, so a
+   parcel always says who was given it and when, not just their rider id.
    body: { riderID: "RDR-XXXXXXXX" | null } */
 app.patch("/api/parcels/:id/rider", ...adminOnly, async (req, res) => {
   try {
@@ -626,19 +633,29 @@ app.patch("/api/parcels/:id/rider", ...adminOnly, async (req, res) => {
 
     const { riderID = null } = req.body || {};
 
+    const existing = await parcelsCollection.findOne({ _id: new ObjectId(id) });
+
+    if (!existing) {
+      return res.status(404).json({ message: "Parcel not found" });
+    }
+
     /* null or an empty string clears the assignment */
     if (!riderID) {
-      const cleared = await parcelsCollection.updateOne(
+      /* a parcel that was only waiting on a rider goes back to waiting for one.
+         a parcel that is already moving keeps the status it has, so unassigning
+         never throws away how far it has got */
+      const requeued = existing.status === RIDER_ASSIGNED_STATUS;
+
+      await parcelsCollection.updateOne(
         { _id: new ObjectId(id) },
         {
-          $set: { updatedAt: new Date() },
+          $set: {
+            ...(requeued ? { status: "pending" } : {}),
+            updatedAt: new Date(),
+          },
           $unset: { riderID: "", riderName: "", riderEmail: "", assignedAt: "" },
         }
       );
-
-      if (cleared.matchedCount === 0) {
-        return res.status(404).json({ message: "Parcel not found" });
-      }
 
       const updated = await parcelsCollection.findOne({ _id: new ObjectId(id) });
       return res.json(updated);
@@ -657,7 +674,7 @@ app.patch("/api/parcels/:id/rider", ...adminOnly, async (req, res) => {
         .json({ message: `Rider ${riderID} is not approved` });
     }
 
-    const result = await parcelsCollection.updateOne(
+    await parcelsCollection.updateOne(
       { _id: new ObjectId(id) },
       {
         $set: {
@@ -666,13 +683,15 @@ app.patch("/api/parcels/:id/rider", ...adminOnly, async (req, res) => {
           riderEmail: rider.email || null,
           assignedAt: new Date(),
           updatedAt: new Date(),
+          /* a parcel still in the booking queue moves on to waiting for its
+             rider. one already on the road keeps the status it has, so putting a
+             different rider on a moving parcel does not restart the job */
+          ...(existing.status === "pending"
+            ? { status: RIDER_ASSIGNED_STATUS }
+            : {}),
         },
       }
     );
-
-    if (result.matchedCount === 0) {
-      return res.status(404).json({ message: "Parcel not found" });
-    }
 
     const updated = await parcelsCollection.findOne({ _id: new ObjectId(id) });
     res.json(updated);

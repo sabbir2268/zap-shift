@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+﻿import React, { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import {
   Package,
@@ -20,17 +20,13 @@ import {
 import useAxios from "../../../hooks/useAxios";
 import StatusBadge from "../../../components/StatusBadge/StatusBadge";
 
-const normalize = (value) => String(value || "").trim().toLowerCase();
-
 const ManageParcels = () => {
   const api = useAxios();
 
   const [parcels, setParcels] = useState([]);
-  const [riders, setRiders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [confirmTarget, setConfirmTarget] = useState(null);
-  const [assignTarget, setAssignTarget] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [query, setQuery] = useState("");
 
@@ -38,13 +34,9 @@ const ManageParcels = () => {
     setLoading(true);
 
     try {
-      const [parcelData, riderData] = await Promise.all([
-        api.get("/api/parcels"),
-        api.get("/api/rider-applications").catch(() => []),
-      ]);
+      const data = await api.get("/api/parcels");
 
-      setParcels(Array.isArray(parcelData) ? parcelData : []);
-      setRiders(Array.isArray(riderData) ? riderData : []);
+      setParcels(Array.isArray(data) ? data : []);
     } catch (error) {
       toast.error(error.message || "Failed to load parcels");
     } finally {
@@ -55,12 +47,6 @@ const ManageParcels = () => {
   useEffect(() => {
     loadParcels();
   }, [loadParcels]);
-
-  /* only approved riders can be put on the road */
-  const approvedRiders = useMemo(
-    () => riders.filter((rider) => rider.status === "approved"),
-    [riders]
-  );
 
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
@@ -96,29 +82,6 @@ const ManageParcels = () => {
       toast.error(error.message || "Failed to delete parcel");
     } finally {
       setDeletingId(null);
-    }
-  };
-
-  const handleAssign = async (parcel, riderID) => {
-    setAssignTarget(null);
-
-    try {
-      const updated = await api.patch(`/api/parcels/${parcel._id}/rider`, {
-        riderID,
-      });
-
-      setParcels((prev) =>
-        prev.map((item) => (item._id === parcel._id ? updated : item))
-      );
-      setSelected((prev) => (prev?._id === parcel._id ? updated : prev));
-
-      toast.success(
-        riderID
-          ? `Rider ${riderID} assigned to ${parcel.parcelTitle || "parcel"}!`
-          : "Rider unassigned!"
-      );
-    } catch (error) {
-      toast.error(error.message || "Failed to assign rider");
     }
   };
 
@@ -201,10 +164,8 @@ const ManageParcels = () => {
         ) : (
           <ParcelTable
             parcels={filtered}
-            riderCount={approvedRiders.length}
             deletingId={deletingId}
             onView={(parcel) => setSelected(parcel)}
-            onAssign={(parcel) => setAssignTarget(parcel)}
             onDelete={(parcel) => setConfirmTarget(parcel)}
           />
         )}
@@ -212,15 +173,6 @@ const ManageParcels = () => {
 
       {selected && (
         <ParcelModal parcel={selected} onClose={() => setSelected(null)} />
-      )}
-
-      {assignTarget && (
-        <AssignRiderModal
-          parcel={assignTarget}
-          riders={approvedRiders}
-          onAssign={(riderID) => handleAssign(assignTarget, riderID)}
-          onClose={() => setAssignTarget(null)}
-        />
       )}
 
       {confirmTarget && (
@@ -235,25 +187,13 @@ const ManageParcels = () => {
   );
 };
 
-const ParcelTable = ({
-  parcels,
-  riderCount,
-  deletingId,
-  onView,
-  onAssign,
-  onDelete,
-}) => {
+const ParcelTable = ({ parcels, deletingId, onView, onDelete }) => {
   return (
     <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden">
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-3 border-b border-gray-100 px-5 py-3">
         <span className="text-xs font-semibold text-[var(--text)]">
           {parcels.length} parcel{parcels.length === 1 ? "" : "s"}
-        </span>
-
-        <span className="flex items-center gap-1.5 text-xs text-[var(--text)]">
-          <Bike size={13} />
-          {riderCount} approved rider{riderCount === 1 ? "" : "s"}
         </span>
       </div>
 
@@ -310,7 +250,7 @@ const ParcelTable = ({
                         <p className="text-[11px] text-[var(--text)] truncate">
                           {parcel.createdAt
                             ? new Date(parcel.createdAt).toLocaleString()
-                            : "—"}
+                            : "â€”"}
                         </p>
                       </div>
                     </div>
@@ -319,7 +259,7 @@ const ParcelTable = ({
                   {/* Account owner */}
                   <td className="hidden px-4 py-3 lg:table-cell">
                     <span className="text-[var(--text)] truncate block max-w-[180px]">
-                      {parcel.userEmail || "—"}
+                      {parcel.userEmail || "â€”"}
                     </span>
 
                     <span className="text-[11px] text-[var(--text)]/70">
@@ -332,20 +272,20 @@ const ParcelTable = ({
                   {/* Pickup */}
                   <td className="px-4 py-3">
                     <p className="font-semibold truncate max-w-[150px]">
-                      {parcel.senderName || "—"}
+                      {parcel.senderName || "â€”"}
                     </p>
                     <p className="text-[11px] text-[var(--text)] truncate max-w-[150px]">
-                      {parcel.senderRegion || "—"}
+                      {parcel.senderRegion || "â€”"}
                     </p>
                   </td>
 
                   {/* Delivery */}
                   <td className="px-4 py-3">
                     <p className="font-semibold truncate max-w-[150px]">
-                      {parcel.receiverName || "—"}
+                      {parcel.receiverName || "â€”"}
                     </p>
                     <p className="text-[11px] text-[var(--text)] truncate max-w-[150px]">
-                      {parcel.receiverRegion || "—"}
+                      {parcel.receiverRegion || "â€”"}
                     </p>
                   </td>
 
@@ -354,7 +294,7 @@ const ParcelTable = ({
                     {parcel.riderID ? (
                       <>
                         <p className="font-semibold truncate max-w-[150px]">
-                          {parcel.riderName || "—"}
+                          {parcel.riderName || "â€”"}
                         </p>
                         <p className="text-[11px] text-[var(--text)] font-mono truncate max-w-[150px]">
                           {parcel.riderID}
@@ -371,14 +311,14 @@ const ParcelTable = ({
                   <td className="hidden px-4 py-3 xl:table-cell">
                     <span className="flex items-center gap-1 whitespace-nowrap">
                       <Scale size={14} />
-                      {parcel.weight ? `${parcel.weight} KG` : "—"}
+                      {parcel.weight ? `${parcel.weight} KG` : "â€”"}
                     </span>
                   </td>
 
                   {/* Cost */}
                   <td className="px-4 py-3">
                     <span className="flex items-center gap-1 whitespace-nowrap font-medium">
-                      <ReceiptText size={14} />৳{parcel.totalCost ?? "—"}
+                      <ReceiptText size={14} />à§³{parcel.totalCost ?? "â€”"}
                     </span>
                   </td>
 
@@ -420,23 +360,6 @@ const ParcelTable = ({
 
                       <button
                         type="button"
-                        onClick={() => onAssign(parcel)}
-                        title={parcel.riderID ? "Change Rider" : "Assign Rider"}
-                        className="
-                          w-9 h-9
-                          rounded-lg
-                          border border-blue-200
-                          flex items-center justify-center
-                          text-blue-600
-                          hover:bg-blue-50
-                          transition
-                        "
-                      >
-                        <Bike size={15} />
-                      </button>
-
-                      <button
-                        type="button"
                         onClick={() => onDelete(parcel)}
                         disabled={deleting}
                         title="Delete"
@@ -465,218 +388,6 @@ const ParcelTable = ({
             })}
           </tbody>
         </table>
-      </div>
-    </div>
-  );
-};
-
-const AssignRiderModal = ({ parcel, riders, onAssign, onClose }) => {
-  /* The rider who delivers a parcel is the one based in the region it is being
-     delivered to, so those riders are listed first. a rider from another region
-     is still listed, they would just be covering the whole route themselves */
-  const isNear = (rider) =>
-    normalize(rider?.region) === normalize(parcel?.receiverRegion);
-
-  const orderedRiders = [...riders].sort(
-    (a, b) => Number(isNear(b)) - Number(isNear(a))
-  );
-
-  return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center px-4">
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      <div
-        className="
-          relative
-          w-full
-          max-w-lg
-          max-h-[85vh]
-          flex flex-col
-          bg-white
-          rounded-3xl
-          shadow-2xl
-        "
-      >
-        <div className="h-2 bg-blue-500 rounded-t-3xl shrink-0" />
-
-        <div className="p-6 overflow-y-auto">
-          <button
-            type="button"
-            onClick={onClose}
-            className="
-              absolute
-              right-4
-              top-5
-              w-9 h-9
-              rounded-full
-              bg-gray-100
-              flex items-center justify-center
-              text-gray-500
-              hover:bg-gray-200
-              transition
-            "
-          >
-            <X size={18} />
-          </button>
-
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-              <Bike size={21} />
-            </div>
-
-            <div className="min-w-0">
-              <h2 className="text-xl font-bold text-[var(--foreground)]">
-                Assign Rider
-              </h2>
-              <p className="text-xs text-[var(--text)] truncate">
-                {parcel.parcelTitle || "Untitled"}
-              </p>
-            </div>
-          </div>
-
-          {/* Route reminder */}
-          <div className="mt-4 flex items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm">
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] text-[var(--text)]">PICKUP</p>
-              <p className="font-semibold truncate">{parcel.senderRegion}</p>
-            </div>
-
-            <Truck size={17} className="text-[var(--text)] shrink-0" />
-
-            <div className="min-w-0 flex-1 text-right">
-              <p className="text-[11px] text-[var(--text)]">DELIVERY</p>
-              <p className="font-semibold truncate">
-                {parcel.receiverRegion}
-              </p>
-            </div>
-          </div>
-
-          {/* Riders */}
-          <div className="mt-4 rounded-2xl border border-gray-200 overflow-hidden">
-            <div className="flex items-center gap-2 px-4 py-3 bg-gray-100">
-              <Bike size={16} />
-              <span className="font-semibold text-sm">Approved Riders</span>
-
-              <span className="ml-auto text-xs text-[var(--text)]">
-                {orderedRiders.filter(isNear).length} in{" "}
-                {parcel.receiverRegion || "the delivery region"} of{" "}
-                {riders.length}
-              </span>
-            </div>
-
-            {riders.length === 0 ? (
-              <p className="p-4 text-sm text-[var(--text)]">
-                No approved riders available. Approve a rider application first.
-              </p>
-            ) : (
-              <div className="max-h-64 overflow-y-auto divide-y divide-gray-100">
-                {orderedRiders.map((rider) => {
-                  const isCurrent = rider.riderID === parcel.riderID;
-
-                  return (
-                    <button
-                      key={rider.riderID}
-                      type="button"
-                      disabled={isCurrent}
-                      onClick={() => onAssign(rider.riderID)}
-                      className="
-                        w-full
-                        px-4 py-3
-                        flex
-                        items-center
-                        gap-3
-                        text-left
-                        hover:bg-blue-50/60
-                        transition
-                        disabled:cursor-not-allowed
-                        disabled:bg-blue-50
-                      "
-                    >
-                      <div className="w-9 h-9 rounded-full bg-[var(--secondary)] text-[var(--foreground)] flex items-center justify-center shrink-0 font-bold text-xs">
-                        {rider.name?.[0]?.toUpperCase() || "R"}
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-[var(--foreground)] truncate">
-                          {rider.name}
-                        </p>
-
-                        <p className="text-[11px] text-[var(--text)] font-mono truncate">
-                          {rider.riderID}
-                        </p>
-
-                        <p className="text-[11px] text-[var(--text)] truncate">
-                          {[
-                            rider.region,
-                            rider.serviceCenter,
-                            rider.contact,
-                          ]
-                            .filter(Boolean)
-                            .join(" • ") || "—"}
-                        </p>
-                      </div>
-
-                      {isNear(rider) && (
-                        <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-                          In region
-                        </span>
-                      )}
-
-                      <span className="text-xs font-semibold text-blue-600 shrink-0">
-                        {isCurrent ? "Assigned" : "Assign"}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 px-6 pb-6">
-          <button
-            type="button"
-            onClick={onClose}
-            className="
-              flex-1
-              rounded-xl
-              border
-              border-gray-200
-              py-2.5
-              text-sm
-              font-semibold
-              text-[var(--foreground)]
-              hover:bg-gray-100
-              transition
-            "
-          >
-            Cancel
-          </button>
-
-          {parcel.riderID && (
-            <button
-              type="button"
-              onClick={() => onAssign(null)}
-              className="
-                flex-1
-                rounded-xl
-                border
-                border-red-200
-                py-2.5
-                text-sm
-                font-semibold
-                text-red-500
-                hover:bg-red-50
-                transition
-              "
-            >
-              Unassign
-            </button>
-          )}
-        </div>
       </div>
     </div>
   );
@@ -747,7 +458,7 @@ const ParcelModal = ({ parcel, onClose }) => {
               <p className="text-xs text-[var(--text)]">
                 {parcel.createdAt
                   ? new Date(parcel.createdAt).toLocaleString()
-                  : "—"}
+                  : "â€”"}
               </p>
             </div>
           </div>
@@ -771,7 +482,7 @@ const ParcelModal = ({ parcel, onClose }) => {
 
               <DetailRow
                 label="Weight"
-                value={parcel.weight ? `${parcel.weight} KG` : "—"}
+                value={parcel.weight ? `${parcel.weight} KG` : "â€”"}
               />
 
               <DetailRow
@@ -798,17 +509,17 @@ const ParcelModal = ({ parcel, onClose }) => {
 
               <DetailRow
                 label="Delivery Cost"
-                value={`৳ ${parcel.productDeliveryCost ?? "—"}`}
+                value={`à§³ ${parcel.productDeliveryCost ?? "â€”"}`}
               />
 
               <DetailRow
                 label="Service Charge"
-                value={`৳ ${parcel.serviceCharge ?? "—"}`}
+                value={`à§³ ${parcel.serviceCharge ?? "â€”"}`}
               />
 
               <DetailRow
                 label="Total Cost"
-                value={`৳ ${parcel.totalCost ?? "—"}`}
+                value={`à§³ ${parcel.totalCost ?? "â€”"}`}
               />
 
               <DetailRow
@@ -830,7 +541,7 @@ const ParcelModal = ({ parcel, onClose }) => {
 
               <DetailRow
                 label="Rider Contact"
-                value={parcel.riderEmail || "—"}
+                value={parcel.riderEmail || "â€”"}
               />
             </div>
           </div>
@@ -843,7 +554,7 @@ const ParcelModal = ({ parcel, onClose }) => {
             </div>
 
             <div className="p-4 space-y-3">
-              <DetailRow label="Account" value={parcel.userEmail || "—"} />
+              <DetailRow label="Account" value={parcel.userEmail || "â€”"} />
 
               <DetailRow
                 label="Name"
@@ -874,14 +585,14 @@ const ParcelModal = ({ parcel, onClose }) => {
 
               <DetailRow
                 label="Service Center"
-                value={parcel.senderServiceCenter || "—"}
+                value={parcel.senderServiceCenter || "â€”"}
               />
 
-              <DetailRow label="Address" value={parcel.senderAddress || "—"} />
+              <DetailRow label="Address" value={parcel.senderAddress || "â€”"} />
 
               <DetailRow
                 label="Pickup Instruction"
-                value={parcel.pickupInstruction || "—"}
+                value={parcel.pickupInstruction || "â€”"}
               />
             </div>
           </div>
@@ -923,17 +634,17 @@ const ParcelModal = ({ parcel, onClose }) => {
 
               <DetailRow
                 label="Service Center"
-                value={parcel.receiverServiceCenter || "—"}
+                value={parcel.receiverServiceCenter || "â€”"}
               />
 
               <DetailRow
                 label="Address"
-                value={parcel.receiverAddress || "—"}
+                value={parcel.receiverAddress || "â€”"}
               />
 
               <DetailRow
                 label="Delivery Instruction"
-                value={parcel.deliveryInstruction || "—"}
+                value={parcel.deliveryInstruction || "â€”"}
               />
             </div>
           </div>

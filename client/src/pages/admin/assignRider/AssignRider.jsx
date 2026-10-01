@@ -14,6 +14,7 @@ import {
   Loader2,
   UserCheck,
   CheckCircle2,
+  Clock,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
@@ -268,9 +269,22 @@ const ParcelTable = ({ parcels, riderCount, assigningId, onAssign }) => {
                         </p>
 
                         {parcel.riderID ? (
-                          <p className="text-[11px] text-green-600 font-medium truncate">
-                            {parcel.riderName || parcel.riderID}
-                          </p>
+                          <>
+                            <p className="text-[11px] text-green-600 font-medium truncate flex items-center gap-1">
+                              <UserCheck size={10} />
+                              {parcel.riderName || parcel.riderID}
+                            </p>
+
+                            {parcel.assignedAt ? (
+                              <p className="text-[11px] text-[var(--text)] truncate flex items-center gap-1">
+                                <Clock size={10} />
+                                Assigned{" "}
+                                {new Date(
+                                  parcel.assignedAt
+                                ).toLocaleString()}
+                              </p>
+                            ) : null}
+                          </>
                         ) : null}
                       </div>
                     </div>
@@ -296,7 +310,29 @@ const ParcelTable = ({ parcels, riderCount, assigningId, onAssign }) => {
 
                   {/* Action */}
                   <td className="px-4 py-3">
-                    <div className="flex items-center justify-end">
+                    <div className="flex items-center justify-end gap-2">
+                      {/* an assigned parcel says so, rather than still offering
+                          an assign button as though nobody had been given it */}
+                      {parcel.riderID ? (
+                        <span
+                          className="
+                            inline-flex
+                            items-center
+                            gap-1.5
+                            rounded-xl
+                            border border-green-200
+                            bg-green-50
+                            px-3 py-2
+                            text-sm
+                            font-semibold
+                            text-green-700
+                          "
+                        >
+                          <CheckCircle2 size={15} />
+                          Assigned
+                        </span>
+                      ) : null}
+
                       <button
                         type="button"
                         onClick={() => onAssign(parcel)}
@@ -459,6 +495,13 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
                 <p className="text-sm font-semibold text-green-900 truncate">
                   {parcel.riderName || "—"}
                 </p>
+
+                {parcel.assignedAt ? (
+                  <p className="text-[11px] text-green-700 truncate flex items-center gap-1">
+                    <Clock size={10} />
+                    {new Date(parcel.assignedAt).toLocaleString()}
+                  </p>
+                ) : null}
               </div>
 
               <button

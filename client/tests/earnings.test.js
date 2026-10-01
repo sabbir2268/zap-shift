@@ -185,6 +185,15 @@ test("a parcel waiting on the truck is not money in hand yet", () => {
   assert.equal(earning.amount, 80);
 });
 
+test("a parcel booked to a rider is not money in hand yet", () => {
+  /* rider_assigned means the rider has been given the job, not that they have
+     delivered anything */
+  const earning = getEarning(parcel({ status: "rider_assigned" }), RIDER);
+
+  assert.equal(earning.settled, false);
+  assert.equal(earning.status, "pending");
+});
+
 test("a cancelled delivery is called out and kept out of the money", () => {
   const earning = getEarning(parcel({ status: "cancelled" }), RIDER);
 

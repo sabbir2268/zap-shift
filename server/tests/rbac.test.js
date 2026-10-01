@@ -430,7 +430,7 @@ const run = async () => {
   check("a bogus parcel id -> 400", badId.status, 400);
 
   section("15. rider assignment is an admin only decision");
-  const toAssign = { _id: new ObjectId(), userEmail: "rider@example.com", parcelTitle: "Needs a rider" };
+  const toAssign = { _id: new ObjectId(), userEmail: "rider@example.com", parcelTitle: "Needs a rider", status: "pending" };
   parcels.docs.push(toAssign);
   const toAssignId = toAssign._id.toHexString();
 
@@ -455,10 +455,25 @@ const run = async () => {
   check("an admin can assign an approved rider -> 200", assigned.status, 200);
   check("riderID is stored", assigned.data.riderID, "RDR-AAAA1111");
   check("the rider name is stored for display", assigned.data.riderName, "Approved Rider");
+  check("the time it was assigned is stored", Boolean(assigned.data.assignedAt), true);
+  check("a booked parcel moves to rider assigned", assigned.data.status, "rider_assigned");
+
+  const stillMoving = await call("PATCH", assignUrl, { token: "token-owner", body: { riderID: "RDR-AAAA1111" } });
+  check("reassigning a rider already on the job -> 200", stillMoving.status, 200);
+  check("a parcel on the road keeps its status", stillMoving.data.status, "rider_assigned");
 
   const unassigned = await call("PATCH", assignUrl, { token: "token-owner", body: { riderID: null } });
   check("an admin can unassign -> 200", unassigned.status, 200);
   check("riderID is cleared", unassigned.data.riderID, undefined);
+  check("the assignment time is cleared", unassigned.data.assignedAt, undefined);
+  check("a parcel that was only waiting is back to pending", unassigned.data.status, "pending");
+
+  const moving = { _id: new ObjectId(), userEmail: "rider@example.com", parcelTitle: "On the road", status: "in_transit" };
+  parcels.docs.push(moving);
+  const movingUrl = `/api/parcels/${moving._id.toHexString()}/rider`;
+  await call("PATCH", movingUrl, { token: "token-owner", body: { riderID: "RDR-AAAA1111" } });
+  const takenBack = await call("PATCH", movingUrl, { token: "token-owner", body: { riderID: null } });
+  check("unassigning a parcel already moving keeps it in transit", takenBack.data.status, "in_transit");
 
   check("PATCH assign on a missing parcel -> 404", (await call("PATCH", `/api/parcels/${new ObjectId().toHexString()}/rider`, { token: "token-owner", body: { riderID: "RDR-AAAA1111" } })).status, 404);
   check("PATCH assign with a bad id -> 400", (await call("PATCH", "/api/parcels/nope/rider", { token: "token-owner", body: { riderID: "RDR-AAAA1111" } })).status, 400);
