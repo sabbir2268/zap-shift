@@ -65,9 +65,20 @@ const RiderHome = () => {
       {/* ================= WELCOME ================= */}
       <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[var(--foreground)]">
-            Rider Dashboard
-          </h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-2xl md:text-3xl font-bold text-[var(--foreground)]">
+              Rider Dashboard
+            </h1>
+
+            {rider.name ? (
+              <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold text-[var(--foreground)]">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--secondary)] text-[11px] font-bold text-[var(--foreground)]">
+                  {rider.name.charAt(0).toUpperCase()}
+                </span>
+                {rider.name}
+              </span>
+            ) : null}
+          </div>
 
           <p className="mt-1 text-[var(--text)]/70">
             Here is what you are delivering today.
