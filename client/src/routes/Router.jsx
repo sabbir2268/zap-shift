@@ -33,7 +33,7 @@ import Administration from "../pages/admin/administration/Administration";
 import RiderHome from "../pages/rider/RiderHome";
 import MyDeliveries from "../pages/rider/MyDeliveries";
 import RiderProfile from "../pages/rider/RiderProfile";
-import Cashout from "../pages/rider/Cashout";
+import MyEarnings from "../pages/rider/MyEarnings";
 
 export const router = createBrowserRouter([
   {
@@ -108,7 +108,10 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <RiderHome /> },
       { path: "deliveries", element: <MyDeliveries /> },
-      { path: "cashout", element: <Cashout /> },
+      { path: "earnings", element: <MyEarnings /> },
+      /* the old cashout address still opens the earnings page, so a link that
+         predates the rename is not a dead end */
+      { path: "cashout", element: <MyEarnings /> },
       { path: "profile", element: <RiderProfile /> },
     ],
   },

@@ -402,6 +402,11 @@ Legend: **own** means the record is scoped to the caller, **admin** means the
 | `POST` | `/api/parcels` | signed in | Create a parcel, owner is taken from the token |
 | `PUT` | `/api/parcels/:id` | own, admin sees any | Update a parcel, delivery status is admin only |
 | `DELETE` | `/api/parcels/:id` | **admin** | Delete a parcel |
+| `PATCH` | `/api/parcels/:id/rider` | **admin** | Assign or clear a rider, refused unless the parcel is `paid` |
+| `GET` | `/api/rider/parcels` | rider | The parcels assigned to this rider, each carrying its server worked out earning |
+| `PATCH` | `/api/rider/parcels/:id/status` | rider, own parcels only | Move a delivery along, stamps `deliveredAt` on the way in |
+| `GET` | `/api/rider/cashouts` | rider | This rider's cashout history and the wallet figures behind it |
+| `POST` | `/api/rider/cashouts` | rider | Take money out of the wallet, 110 taka minimum and never more than the wallet holds |
 | `GET` | `/api/rider-applications` | **admin** | Every rider application |
 | `POST` | `/api/rider-applications` | signed in | Apply to be a rider, always starts `pending` |
 | `PATCH` | `/api/rider-applications/:id` | **admin** | Set application status, approving issues a rider id |
@@ -524,6 +529,35 @@ Only `pending`, `in_transit` and `delivered` are counted in the dashboard
 breakdowns. Cancelling a parcel from **My Parcels** deletes the record outright
 rather than setting `cancelled`.
 
+### Rider earnings and cashout
+
+A rider earns when a parcel is delivered, never before. The amount and the tier
+are worked out on the server (`server/earnings.js`) and shipped on every parcel,
+so the browser is only ever told the figure.
+
+The earnings page at `/rider/earnings` keeps four numbers apart:
+
+| Figure | What it is |
+| --- | --- |
+| Total Earning | Every delivered delivery, all time |
+| Pending | What the deliveries still open are worth, not money in hand |
+| In Wallet | Earned money that has not been cashed out |
+| Cashed Out | The sum of the cashouts already on the rider's record |
+
+The wallet is never stored. It is `earned` from the rider's own delivered parcels
+minus every cashout in the `cashouts` collection, so a cashout cannot be spent
+twice and cancelling a delivery can never leave a balance behind that was never
+earned.
+
+A cashout is refused by the server unless it is a whole number of at least 110
+taka and no more than the wallet holds. The same rule is checked in the form, so
+the rider is told what is wrong before the request is sent.
+
+Underneath the four figures the same earned money is split by when it was earned:
+today, this week (from Sunday), this month and this year. The day comes from
+`deliveredAt`, which the server stamps once when a rider marks a parcel
+delivered.
+
 ### Coverage map
 
 `/coverage` renders 64 branches from `client/src/data/branches.js` on a Leaflet
@@ -535,7 +569,7 @@ to that branch and opens its popup. The shipped coordinates are placeholders.
 
 ## Data model
 
-Four MongoDB collections in the `zapShift` database.
+Five MongoDB collections in the `zapShift` database.
 
 ### `users`
 
@@ -563,7 +597,9 @@ Four MongoDB collections in the `zapShift` database.
 | `receiverName`, `receiverContact`, `receiverRegion`, `receiverServiceCenter`, `receiverAddress`, `deliveryInstruction` | Delivery side |
 | `productDeliveryCost`, `serviceCharge`, `totalCost` | Calculated at booking |
 | `status` | Delivery status, admin controlled |
-| `paymentStatus` | `unpaid` or `paid` |
+| `paymentStatus` | `unpaid` or `paid`, a rider is only ever assigned to a `paid` parcel |
+| `riderID`, `riderName`, `riderEmail`, `assignedAt` | Written by the admin assignment endpoint |
+| `deliveredAt` | Stamped once when a rider marks the parcel delivered, this is the day the earning is grouped under |
 | `createdAt`, `updatedAt` | Dates |
 
 ### `riderApplications`
@@ -578,6 +614,12 @@ allocate one and a rider keeps the same id for life.
 
 `userEmail`, `userName`, `parcelId`, `parcelTitle`, `amount`,
 `transactionId`, `paymentMethod`, `status`, `createdAt`.
+
+### `cashouts`
+
+`riderID`, `riderEmail`, `amount`, `status` (`paid`), `createdAt`. The server holds
+the balance as earned money from delivered parcels minus every cashout in this
+collection, so the wallet is never a number to edit by hand.
 
 ---
 
@@ -650,8 +692,10 @@ Honest list of what is not finished.
 - **The three banner images are around 740 KB each**, about 2.2 MB of PNG in
   the bundle, and nothing in the app lazy-loads them.
 - **No client tests**, and the server has no unit tests, only the access suite.
-- **The rider role has no dashboard.** Riders get the user dashboard plus a
-  rider id, but no dedicated workspace.
+- **A cashout does not move real money.** The wallet, the 110 taka minimum and
+  the history are all real and enforced on the server, but there is no payout
+  provider behind them, so a cashout is recorded as `paid` rather than sent to a
+  mobile wallet or bank account.
 
 ---
 

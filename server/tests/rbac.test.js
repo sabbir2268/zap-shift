@@ -67,12 +67,16 @@ class FakeCollection {
   }
   find(filter) {
     const rows = this.docs.filter((d) => matches(d, filter));
-    return {
+    /* the real cursor answers to both sort() and toArray() on its own, so the
+       fake does too */
+    const cursor = {
       sort: (spec) => {
         const [key, dir] = Object.entries(spec)[0];
-        return { toArray: async () => clone(rows.sort(sortBy(key, dir))) };
+        return { ...cursor, toArray: async () => clone(rows.sort(sortBy(key, dir))) };
       },
+      toArray: async () => clone(rows),
     };
+    return cursor;
   }
   async insertOne(doc) {
     const _id = doc._id || new ObjectId();
@@ -133,11 +137,14 @@ const payments = new FakeCollection([
   { userEmail: "rider@example.com", amount: 250, status: "paid" },
 ]);
 
+const cashouts = new FakeCollection([]);
+
 const collections = {
   users,
   parcels,
   riderApplications,
   payments,
+  cashouts,
 };
 
 const mongoStub = {
@@ -430,9 +437,16 @@ const run = async () => {
   check("a bogus parcel id -> 400", badId.status, 400);
 
   section("15. rider assignment is an admin only decision");
-  const toAssign = { _id: new ObjectId(), userEmail: "rider@example.com", parcelTitle: "Needs a rider", status: "pending" };
+  const toAssign = { _id: new ObjectId(), userEmail: "rider@example.com", parcelTitle: "Needs a rider", status: "pending", paymentStatus: "paid" };
   parcels.docs.push(toAssign);
   const toAssignId = toAssign._id.toHexString();
+
+  /* money first. a parcel nobody has paid for must never reach a rider */
+  const unpaid = { _id: new ObjectId(), userEmail: "rider@example.com", parcelTitle: "Unpaid job", status: "pending", paymentStatus: "unpaid" };
+  parcels.docs.push(unpaid);
+  const unpaidUrl = `/api/parcels/${unpaid._id.toHexString()}/rider`;
+  check("assigning a rider to an unpaid parcel -> 400", (await call("PATCH", unpaidUrl, { token: "token-owner", body: { riderID: "RDR-AAAA1111" } })).status, 400);
+  check("and no rider is written on it", unpaid.riderID, undefined);
 
   const assignUrl = `/api/parcels/${toAssignId}/rider`;
   check("PATCH assign with no token -> 401", (await call("PATCH", assignUrl)).status, 401);
@@ -468,7 +482,7 @@ const run = async () => {
   check("the assignment time is cleared", unassigned.data.assignedAt, undefined);
   check("a parcel that was only waiting is back to pending", unassigned.data.status, "pending");
 
-  const moving = { _id: new ObjectId(), userEmail: "rider@example.com", parcelTitle: "On the road", status: "in_transit" };
+  const moving = { _id: new ObjectId(), userEmail: "rider@example.com", parcelTitle: "On the road", status: "in_transit", paymentStatus: "paid" };
   parcels.docs.push(moving);
   const movingUrl = `/api/parcels/${moving._id.toHexString()}/rider`;
   await call("PATCH", movingUrl, { token: "token-owner", body: { riderID: "RDR-AAAA1111" } });
@@ -561,6 +575,47 @@ const run = async () => {
   check("a non boolean flag -> 400", (await call("PATCH", `/api/users/${BLOCKED_ID.toHexString()}/block`, { token: "token-owner", body: { blocked: "yes" } })).status, 400);
   check("a bogus user id -> 400", (await call("PATCH", "/api/users/nope/block", { token: "token-owner", body: { blocked: true } })).status, 400);
   check("a missing user -> 404", (await call("PATCH", `/api/users/${new ObjectId().toHexString()}/block`, { token: "token-owner", body: { blocked: true } })).status, 404);
+
+  section("22. a rider's wallet only holds money they earned");
+  /* a delivered job on the rider's own queue. no riderInfo on the account, so the
+     earning falls to the lowest tier and a 200 fee pays 65% of it */
+  const done = { _id: new ObjectId(), userEmail: "customer@example.com", parcelTitle: "Done job", status: "delivered", riderID: "RDR-AAAA1111", productDeliveryCost: 200, deliveredAt: new Date() };
+  parcels.docs.push(done);
+
+  check("GET cashouts with no token -> 401", (await call("GET", "/api/rider/cashouts")).status, 401);
+  check("a plain user cannot read a wallet -> 403", (await call("GET", "/api/rider/cashouts", { token: "token-stranger" })).status, 403);
+  check("a plain user cannot cash out -> 403", (await call("POST", "/api/rider/cashouts", { token: "token-stranger", body: { amount: 110 } })).status, 403);
+
+  const wallet = await call("GET", "/api/rider/cashouts", { token: "token-rider" });
+  check("GET cashouts -> 200", wallet.status, 200);
+  check("delivered work is earned money", wallet.data.earned, 130);
+  check("nothing has been taken out yet", wallet.data.cashedOut, 0);
+  check("and it all sits in the wallet", wallet.data.wallet, 130);
+  check("the smallest cashout is 110", wallet.data.minCashout, 110);
+
+  check("a cashout under the minimum -> 400", (await call("POST", "/api/rider/cashouts", { token: "token-rider", body: { amount: 109 } })).status, 400);
+  check("a cashout with no amount -> 400", (await call("POST", "/api/rider/cashouts", { token: "token-rider", body: {} })).status, 400);
+  check("a negative cashout -> 400", (await call("POST", "/api/rider/cashouts", { token: "token-rider", body: { amount: -500 } })).status, 400);
+  check("a fraction of a taka -> 400", (await call("POST", "/api/rider/cashouts", { token: "token-rider", body: { amount: 110.5 } })).status, 400);
+  check("more than the wallet holds -> 400", (await call("POST", "/api/rider/cashouts", { token: "token-rider", body: { amount: 500 } })).status, 400);
+
+  const taken = await call("POST", "/api/rider/cashouts", { token: "token-rider", body: { amount: 110 } });
+  check("a cashout at the minimum -> 201", taken.status, 201);
+  check("the amount is recorded", taken.data.record.amount, 110);
+  check("it is money out, not money requested", taken.data.record.status, "paid");
+  check("the wallet drops by what was taken", taken.data.wallet, 20);
+  check("and the total taken out rises to match", taken.data.cashedOut, 110);
+
+  /* 20 taka is all that is left, so the minimum can no longer be met */
+  check("a second cashout the wallet cannot cover -> 400", (await call("POST", "/api/rider/cashouts", { token: "token-rider", body: { amount: 110 } })).status, 400);
+
+  /* another rider's cashout must never show up on this rider's history */
+  cashouts.docs.push({ riderID: "RDR-HELD3333", amount: 900, status: "paid", createdAt: new Date() });
+
+  const history = await call("GET", "/api/rider/cashouts", { token: "token-rider" });
+  check("the history lists this rider's own cashouts", history.data.records.length, 1);
+  check("and nobody else's", history.data.cashedOut, 110);
+  check("the wallet figure survives a reload", history.data.wallet, 20);
 
   console.log(`\n${pass} passed, ${fail} failed\n`);
   process.exit(fail === 0 ? 0 : 1);

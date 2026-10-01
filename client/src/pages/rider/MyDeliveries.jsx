@@ -191,11 +191,11 @@ const MyDeliveries = () => {
               Refresh
             </button>
 
-            {/* jumps to the cashout screen, which is where the money the rider
-                has actually earned can be drawn down */}
+            {/* jumps to the earnings page, which is where the money the rider has
+                actually earned is kept and drawn down */}
             <button
               type="button"
-              onClick={() => navigate("/rider/cashout")}
+              onClick={() => navigate("/rider/earnings")}
               className="
                 px-6 py-3
                 rounded-full
@@ -210,7 +210,7 @@ const MyDeliveries = () => {
               "
             >
               <Banknote size={16} />
-              Cashout
+              My Earnings
             </button>
           </div>
         </div>

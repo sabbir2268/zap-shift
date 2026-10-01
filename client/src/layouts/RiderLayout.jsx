@@ -16,7 +16,7 @@ import logo from "../assets/logo.png";
 const navItems = [
   { to: "/rider", label: "Rider Dashboard", icon: LayoutDashboard, end: true },
   { to: "/rider/deliveries", label: "My Deliveries", icon: Truck },
-  { to: "/rider/cashout", label: "Cashout", icon: Wallet },
+  { to: "/rider/earnings", label: "My Earnings", icon: Wallet },
   { to: "/rider/profile", label: "My Profile", icon: UserRound },
 ];
 

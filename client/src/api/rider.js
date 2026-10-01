@@ -15,7 +15,21 @@ const useRider = () => {
     [api]
   );
 
-  return { getDeliveries, updateDeliveryStatus };
+  /* the rider's own cashout history, and the wallet figures behind it. the server
+     decides what is in the wallet, so the client only sends an amount */
+  const getCashouts = useCallback(() => api.get("/api/rider/cashouts"), [api]);
+
+  const requestCashout = useCallback(
+    (amount) => api.post("/api/rider/cashouts", { amount }),
+    [api]
+  );
+
+  return {
+    getDeliveries,
+    updateDeliveryStatus,
+    getCashouts,
+    requestCashout,
+  };
 };
 
 export default useRider;
