@@ -15,6 +15,7 @@ import {
   UserCheck,
   CheckCircle2,
   Clock,
+  Lock,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
@@ -25,6 +26,11 @@ const normalize = (value) => String(value || "").trim().toLowerCase();
 
 /* only approved riders are on the road, held ones are not available */
 const isActiveRider = (rider) => rider.status === "approved";
+
+/* a parcel only becomes assignable once its payment is confirmed. the server
+   refuses the assignment anyway, this is here so the admin is told before they
+   pick a rider rather than after */
+const isPaid = (parcel) => parcel?.paymentStatus === "paid";
 
 /* A rider is matched on where the parcel is going, not where it came from. A
    parcel going to another region is carried to the destination service center by
@@ -93,6 +99,12 @@ const AssignRider = () => {
   }, [parcels, query]);
 
   const handleAssign = async (parcel, riderID) => {
+    if (riderID && !isPaid(parcel)) {
+      toast.error("Payment is not confirmed for this parcel");
+      setAssignTarget(null);
+      return;
+    }
+
     setAssigningId(parcel._id);
     setAssignTarget(null);
 
@@ -199,7 +211,15 @@ const AssignRider = () => {
             parcels={filtered}
             riderCount={activeRiders.length}
             assigningId={assigningId}
-            onAssign={(parcel) => setAssignTarget(parcel)}
+            onAssign={(parcel) => {
+              if (!isPaid(parcel)) {
+                toast.error(
+                  "Payment is not confirmed for this parcel. It cannot be assigned to a rider yet."
+                );
+                return;
+              }
+              setAssignTarget(parcel);
+            }}
           />
         )}
       </div>
@@ -229,6 +249,12 @@ const ParcelTable = ({ parcels, riderCount, assigningId, onAssign }) => {
           <Bike size={13} />
           {riderCount} active rider{riderCount === 1 ? "" : "s"}
         </span>
+
+        {/* the rule the page is built around, said out loud once */}
+        <span className="flex items-center gap-1.5 text-xs text-amber-700">
+          <Lock size={13} />
+          Only paid parcels can be assigned
+        </span>
       </div>
 
       <div className="overflow-x-auto">
@@ -237,6 +263,7 @@ const ParcelTable = ({ parcels, riderCount, assigningId, onAssign }) => {
             <tr className="border-b border-gray-200 text-xs uppercase tracking-wide text-[var(--text)]/50">
               <th className="px-4 py-3 font-semibold">Parcel</th>
               <th className="px-4 py-3 font-semibold">Date</th>
+              <th className="px-4 py-3 font-semibold">Payment</th>
               <th className="px-4 py-3 font-semibold">Delivery Status</th>
               <th className="px-4 py-3 font-semibold text-right">Action</th>
             </tr>
@@ -245,6 +272,7 @@ const ParcelTable = ({ parcels, riderCount, assigningId, onAssign }) => {
           <tbody>
             {parcels.map((parcel) => {
               const assigning = assigningId === parcel._id;
+              const paid = isPaid(parcel);
 
               return (
                 <tr
@@ -299,6 +327,15 @@ const ParcelTable = ({ parcels, riderCount, assigningId, onAssign }) => {
                     </span>
                   </td>
 
+                  {/* Payment, the gate on being able to assign anyone at all */}
+                  <td className="px-4 py-3">
+                    <StatusBadge
+                      kind="payment"
+                      value={parcel.paymentStatus}
+                      bare
+                    />
+                  </td>
+
                   {/* Status */}
                   <td className="px-4 py-3">
                     <StatusBadge
@@ -311,6 +348,28 @@ const ParcelTable = ({ parcels, riderCount, assigningId, onAssign }) => {
                   {/* Action */}
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
+                      {/* an unpaid parcel says why it is locked instead of quietly offering an
+                          assign button that the server will turn down */}
+                      {!paid ? (
+                        <span
+                          className="
+                            inline-flex
+                            items-center
+                            gap-1.5
+                            rounded-xl
+                            border border-amber-200
+                            bg-amber-50
+                            px-3 py-2
+                            text-sm
+                            font-semibold
+                            text-amber-700
+                          "
+                        >
+                          <Lock size={15} />
+                          Unpaid, not assignable
+                        </span>
+                      ) : null}
+
                       {/* an assigned parcel says so, rather than still offering
                           an assign button as though nobody had been given it */}
                       {parcel.riderID ? (
@@ -336,7 +395,12 @@ const ParcelTable = ({ parcels, riderCount, assigningId, onAssign }) => {
                       <button
                         type="button"
                         onClick={() => onAssign(parcel)}
-                        disabled={assigning}
+                        disabled={assigning || !paid}
+                        title={
+                          paid
+                            ? "Assign a rider"
+                            : "Payment must be confirmed before a rider can be assigned"
+                        }
                         className="
                           inline-flex
                           items-center

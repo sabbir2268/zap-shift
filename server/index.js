@@ -661,6 +661,16 @@ app.patch("/api/parcels/:id/rider", ...adminOnly, async (req, res) => {
       return res.json(updated);
     }
 
+    /* the money has to be in before anyone carries the parcel. a parcel that has
+       not been paid for stays unassigned, so it can never reach a rider and be
+       delivered for free */
+    if (existing.paymentStatus !== "paid") {
+      return res.status(400).json({
+        message:
+          "Payment is not confirmed for this parcel. Ask the customer to pay before assigning a rider.",
+      });
+    }
+
     const rider = await riderApplicationsCollection.findOne({ riderID });
 
     if (!rider) {
