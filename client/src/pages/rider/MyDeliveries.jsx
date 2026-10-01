@@ -363,8 +363,12 @@ const DeliveryTable = ({
                 Weight
               </th>
               <th className="hidden px-4 py-3 font-semibold lg:table-cell">
+                Delivery Charge
+              </th>
+              <th className="hidden px-4 py-3 font-semibold lg:table-cell">
                 Earning
               </th>
+              <th className="px-4 py-3 font-semibold">Payment</th>
               <th className="px-4 py-3 font-semibold">Delivery Status</th>
               <th className="px-4 py-3 font-semibold text-right">Action</th>
             </tr>
@@ -374,6 +378,12 @@ const DeliveryTable = ({
             {parcels.map((parcel) => {
               const step = nextStep(parcel);
               const busy = workingId === parcel._id;
+              /* the earning carries the fee already worked out, so it is the
+                 safer of the two when the parcel has no charge of its own */
+              const deliveryCharge =
+                Number(parcel.productDeliveryCost) ||
+                Number(getEarning(parcel)?.fee) ||
+                0;
 
               return (
                 <tr
@@ -390,6 +400,14 @@ const DeliveryTable = ({
                       <div className="min-w-0">
                         <p className="font-semibold text-[var(--foreground)] truncate max-w-[200px]">
                           {parcel.parcelTitle || "Untitled"}
+                        </p>
+
+                        {/* who is getting this parcel, kept next to the parcel
+                            name so it stays visible on small screens where the
+                            delivery column is hidden */}
+                        <p className="text-xs text-[var(--text)] truncate max-w-[200px] flex items-center gap-1">
+                          <User size={11} className="shrink-0" />
+                          {parcel.receiverName || "—"}
                         </p>
 
                         <p className="text-[11px] text-[var(--text)] font-mono truncate flex items-center gap-1">
@@ -428,10 +446,34 @@ const DeliveryTable = ({
                     </span>
                   </td>
 
+                  {/* Delivery charge, the fee the rider's share is worked out from. it is
+                      shipped on the parcel and echoed back on the earning, so the
+                      number here is the one the server used */}
+                  <td className="hidden px-4 py-3 lg:table-cell">
+                    {deliveryCharge ? (
+                      <span className="flex items-center gap-1 whitespace-nowrap font-medium">
+                        <Banknote size={14} />
+                        {taka(deliveryCharge)}
+                      </span>
+                    ) : (
+                      <span className="text-[var(--text)]">—</span>
+                    )}
+                  </td>
+
                   {/* Earning, worked out server side against the rider's own
                       service center */}
                   <td className="hidden px-4 py-3 lg:table-cell">
                     <EarningCell parcel={parcel} />
+                  </td>
+
+                  {/* Payment, so a rider can see the parcel has been paid for before
+                      they carry it */}
+                  <td className="px-4 py-3">
+                    <StatusBadge
+                      kind="payment"
+                      value={parcel.paymentStatus}
+                      bare
+                    />
                   </td>
 
                   {/* Status */}
