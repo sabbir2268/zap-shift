@@ -6,6 +6,7 @@ const crypto = require("crypto");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const admin = require("firebase-admin");
 const { getAuth } = require("firebase-admin/auth");
+const { getEarning } = require("./earnings.js");
 
 dotenv.config();
 
@@ -281,7 +282,10 @@ const promoteToRider = async (application) => {
           region: application.region,
           nid: application.nid,
           contact: application.contact,
-          warehouse: application.warehouse,
+          /* where the rider works out of. every earning is measured against this
+             service center, so it is snapshotted here rather than looked up each
+             time a parcel is read */
+          serviceCenter: application.serviceCenter,
         },
       },
     }
@@ -679,6 +683,40 @@ app.patch("/api/parcels/:id/rider", ...adminOnly, async (req, res) => {
 
 // ============ RIDER DASHBOARD ============
 
+/* the service center a rider works out of, read from their own server side
+   record. this is what every earning is measured against, so it is never taken
+   from the request. a record that never had a service center yields null and the
+   earning rules fall back to the lowest tier */
+const getRiderLocation = (user) => {
+  const riderInfo = user?.riderInfo;
+
+  if (!riderInfo) return null;
+
+  return {
+    region: riderInfo.region || null,
+    serviceCenter: riderInfo.serviceCenter || null,
+  };
+};
+
+/*
+ * Stamps the earning onto one of a rider's own parcels.
+ *
+ * The amount, the percentage and the tier are all decided here, so the client is
+ * only ever handed a figure it did not work out itself. The service center and
+ * region the parcel is being delivered to come back too, because the rider
+ * needs to see why a delivery paid what it paid.
+ */
+const withEarning = (parcel, rider) => {
+  if (!parcel) return parcel;
+
+  return {
+    ...parcel,
+    riderServiceCenter: rider?.serviceCenter || null,
+    riderRegion: rider?.region || null,
+    earning: getEarning(parcel, rider),
+  };
+};
+
 /* GET the parcels an admin has handed to this rider, newest first.
    the rider id comes from the caller's own server side record, so a rider can
    never ask for somebody else's deliveries by sending a different id */
@@ -697,7 +735,9 @@ app.get("/api/rider/parcels", ...riderOnly, async (req, res) => {
       .sort({ createdAt: -1 })
       .toArray();
 
-    res.json(parcels);
+    const rider = getRiderLocation(req.user);
+
+    res.json(parcels.map((parcel) => withEarning(parcel, rider)));
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
@@ -738,7 +778,12 @@ app.patch("/api/rider/parcels/:id/status", ...riderOnly, async (req, res) => {
     }
 
     const updated = await parcelsCollection.findOne({ _id: new ObjectId(id) });
-    res.json(updated);
+
+    /* the earning is recomputed here rather than copied from the document,
+       because a rider only earns once the parcel is actually delivered. the
+       client swaps this response into its list, so the amount has to be right
+       at the moment the status changes */
+    res.json(withEarning(updated, getRiderLocation(req.user)));
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
@@ -784,7 +829,9 @@ app.post("/api/rider-applications", requireAuth, async (req, res) => {
       region: data.region,
       nid: data.nid,
       contact: data.contact,
-      warehouse: data.warehouse,
+      /* the service center the applicant wants to work from. it decides what
+         they are paid on every parcel */
+      serviceCenter: data.serviceCenter,
       subscribeEmail: data.subscribeEmail || "",
       // only an admin can decide the outcome, an applicant always starts pending
       status: "pending",

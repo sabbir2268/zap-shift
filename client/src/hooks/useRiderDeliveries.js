@@ -2,16 +2,66 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import useRider from "../api/rider";
 
+/* What a rider earns on a delivery, read from the parcel rather than worked out
+   here. The server decides the tier and the amount and ships both on every
+   parcel, because a rider's pay is money and the browser is not the place to
+   calculate it. A parcel booked before earnings existed carries no `earning`
+   object, so every read below tolerates its absence. */
+export const getEarning = (parcel) => parcel?.earning || null;
+
+/* the tiers, mirrored from the server so the table can label a rate it is given
+   rather than hard coding the number in the view */
+const EARNING_TIERS = {
+  same_center: {
+    label: "Same service center",
+    className: "bg-blue-100 text-blue-800",
+  },
+  same_region: {
+    label: "Same region",
+    className: "bg-emerald-100 text-emerald-800",
+  },
+};
+
+export const getEarningTier = (tier) =>
+  EARNING_TIERS[tier] || {
+    label: "Unrated",
+    className: "bg-gray-100 text-gray-700",
+  };
+
+/* the money a rider has actually earned, which is only the delivered deliveries.
+   anything still open is shown on the row but is not money in hand, so it is
+   kept out of the total */
+const settledAmount = (parcel) => {
+  const earning = getEarning(parcel);
+
+  return earning?.settled ? Number(earning.amount) || 0 : 0;
+};
+
+/* the money the open deliveries will pay once they land */
+const pendingAmount = (parcel) => {
+  const earning = getEarning(parcel);
+
+  if (!earning || earning.settled || earning.status === "cancelled") return 0;
+
+  return Number(earning.amount) || 0;
+};
+
 /* the one step a rider may take next on a parcel, a delivered or cancelled
-   parcel is closed and the rider gets no further buttons on it */
+   parcel is closed and the rider gets no further buttons on it. a parcel the
+   truck has carried to the destination center is back at the start of the
+   rider's part of the journey, waiting to be collected from that center */
 const NEXT_STATUS = {
   pending: { status: "picked_up", label: "Mark Picked Up" },
   picked_up: { status: "in_transit", label: "Start Delivery" },
   in_transit: { status: "delivered", label: "Mark Delivered" },
+  transferred: { status: "picked_up", label: "Collect from Center" },
 };
 
 export const canCancel = (status) =>
-  status === "pending" || status === "picked_up" || status === "in_transit";
+  status === "pending" ||
+  status === "picked_up" ||
+  status === "in_transit" ||
+  status === "transferred";
 
 /*
  * Loads the parcels assigned to the signed in rider and moves them along their
@@ -76,11 +126,23 @@ const useRiderDeliveries = () => {
     };
   }, [parcels]);
 
+  /* the money split, so the dashboard and the deliveries page read the same
+     totals. settled is earned money, pending is what the open deliveries are
+     worth, and the two are kept apart so an undelivered parcel is never added up
+     as though it had been paid */
+  const earnings = useMemo(() => {
+    const settled = parcels.reduce((sum, parcel) => sum + settledAmount(parcel), 0);
+    const pending = parcels.reduce((sum, parcel) => sum + pendingAmount(parcel), 0);
+
+    return { settled, pending, total: settled + pending };
+  }, [parcels]);
+
   return {
     parcels,
     loading,
     workingId,
     counts,
+    earnings,
     loadDeliveries,
     setStatus,
     nextStep: (parcel) => NEXT_STATUS[parcel.status] || null,

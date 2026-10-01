@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import {
@@ -17,7 +17,10 @@ import {
 } from "lucide-react";
 import useAxios from "../../../hooks/useAxios";
 import useAuth from "../../../hooks/useAuth";
-
+import {
+  SERVICE_CENTER_REGIONS,
+  getServiceCentersByRegion,
+} from "../../../data/serviceCenters.js";
 
 const SendParcel = () => {
   const api = useAxios();
@@ -33,6 +36,7 @@ const SendParcel = () => {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -42,21 +46,33 @@ const SendParcel = () => {
 
   const senderRegion = watch("senderRegion");
   const receiverRegion = watch("receiverRegion");
+  const senderServiceCenter = watch("senderServiceCenter");
   const weight = watch("weight");
 
-  // Example service centers
-  const serviceCenters = {
-    Dhaka: ["Dhaka Central", "Mirpur", "Uttara", "Dhanmondi", "Savar"],
-    Chattogram: ["Chattogram Central", "Agrabad", "Pahartali"],
-    Rajshahi: ["Rajshahi Central", "Boalia", "Motihar"],
-    Khulna: ["Khulna Central", "Sonadanga", "Khalishpur"],
-    Barishal: ["Barishal Central", "Kotwali"],
-    Sylhet: ["Sylhet Central", "Zindabazar"],
-    Rangpur: ["Rangpur Central", "Mahiganj"],
-    Mymensingh: ["Mymensingh Central", "Sadar"],
-  };
+  const regions = SERVICE_CENTER_REGIONS;
 
-  const regions = Object.keys(serviceCenters);
+  /* the centers inside whichever region was picked, for the pickup list */
+  const senderCenters = useMemo(
+    () => getServiceCentersByRegion(senderRegion),
+    [senderRegion]
+  );
+
+  const receiverCenters = useMemo(
+    () => getServiceCentersByRegion(receiverRegion),
+    [receiverRegion]
+  );
+
+  /* a center from the region just left behind must not survive a region change,
+     or a sender could book a pickup in one region and a delivery in another with
+     the two fields still carrying stale values */
+  useEffect(() => {
+    if (
+      senderServiceCenter &&
+      !getServiceCentersByRegion(senderRegion).includes(senderServiceCenter)
+    ) {
+      setValue("senderServiceCenter", "");
+    }
+  }, [senderRegion, senderServiceCenter, setValue]);
 
   // DELIVERY COST CALCULATION
   const calculateDeliveryCost = () => {
@@ -284,7 +300,7 @@ const SendParcel = () => {
                       ? "Select service center"
                       : "Select region first"
                   }
-                  options={senderRegion ? serviceCenters[senderRegion] : []}
+                  options={senderCenters}
                   register={register}
                   required
                   disabled={!senderRegion}
@@ -372,7 +388,7 @@ const SendParcel = () => {
                       ? "Select service center"
                       : "Select region first"
                   }
-                  options={receiverRegion ? serviceCenters[receiverRegion] : []}
+                  options={receiverCenters}
                   register={register}
                   required
                   disabled={!receiverRegion}
@@ -497,6 +513,7 @@ const InputField = ({
   register,
   required = false,
   disabled = false,
+  readOnly = false,
   error,
 }) => {
   return (
@@ -518,6 +535,7 @@ const InputField = ({
           type={type}
           placeholder={placeholder}
           disabled={disabled}
+          readOnly={readOnly}
           {...register(name, {
             required: required ? `${label} is required` : false,
 
@@ -838,6 +856,12 @@ const ParcelDetails = ({
 
               <p className="text-xs text-[var(--text)] truncate">
                 {submittedData.senderRegion}
+              </p>
+
+              {/* the pickup center, which decides what the assigned rider is
+                  paid */}
+              <p className="text-[11px] text-[var(--text)]/70 truncate">
+                {submittedData.senderServiceCenter}
               </p>
             </div>
 

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Package,
   RefreshCw,
@@ -15,13 +16,123 @@ import {
   Clock,
   Bike,
   Loader2,
+  Wallet,
+  Banknote,
+  Hourglass,
+  CircleSlash,
+  Building2,
 } from "lucide-react";
-import useRiderDeliveries, { canCancel } from "../../hooks/useRiderDeliveries";
+import useRiderDeliveries, {
+  canCancel,
+  getEarning,
+  getEarningTier,
+} from "../../hooks/useRiderDeliveries";
 import StatusBadge from "../../components/StatusBadge/StatusBadge";
 
+/* money is in taka and is stored as a whole number, so it is formatted once here
+   rather than with a currency symbol typed at every call site */
+const taka = (amount) => `৳ ${Number(amount || 0).toLocaleString("en-US")}`;
+
+/* The two earning tiers, shown above the table so a rider can read the whole
+   rule set on one screen instead of working it out from a single row. A rider
+   only carries the final leg inside their own region, so there is no lower tier
+   for a delivery further away than that. The rates here are the same numbers the
+   server pays out with, a test in client/tests/earnings.test.js holds the two to
+   each other. */
+const EARNING_LEGEND = [
+  { tier: "same_center", label: "Same service center", rate: "80%" },
+  { tier: "same_region", label: "Same region", rate: "65%" },
+];
+
+/* one of the summary cards above the table */
+const EarningCard = ({ icon, label, amount, hint, tone }) => {
+  const toneClass = {
+    green: "border-green-200 bg-green-50",
+    amber: "border-amber-200 bg-amber-50",
+    plain: "border-gray-200 bg-white",
+  }[tone];
+
+  return (
+    <div className={`rounded-2xl border p-4 ${toneClass}`}>
+      <div className="flex items-center gap-2 text-[var(--text)]">
+        {icon}
+        <span className="text-xs font-semibold uppercase tracking-wide">
+          {label}
+        </span>
+      </div>
+
+      <p className="mt-2 text-2xl font-bold text-[var(--foreground)]">
+        {amount}
+      </p>
+
+      <p className="mt-1 text-[11px] text-[var(--text)]">{hint}</p>
+    </div>
+  );
+};
+
+/* the earning on one delivery, with the tier that decided it. a parcel booked
+   before earnings existed, or cancelled, has nothing to show and says so rather
+   than rendering a zero that reads like a real payout */
+const EarningCell = ({ parcel }) => {
+  const earning = getEarning(parcel);
+
+  if (!earning || !earning.amount) {
+    return <span className="text-xs text-[var(--text)]">—</span>;
+  }
+
+  const tier = getEarningTier(earning.tier);
+  const isCancelled = earning.status === "cancelled";
+
+  if (isCancelled) {
+    return (
+      <div className="flex items-center gap-2">
+        <CircleSlash size={14} className="text-red-400 shrink-0" />
+        <div>
+          <p className="font-semibold text-[var(--text)] line-through">
+            {taka(earning.amount)}
+          </p>
+          <p className="text-[11px] text-[var(--text)]">Cancelled</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <p
+        className={`font-semibold ${
+          earning.settled
+            ? "text-green-700"
+            : "text-[var(--foreground)]"
+        }`}
+      >
+        {taka(earning.amount)}
+        {!earning.settled && (
+          <span className="ml-1.5 text-[10px] font-medium uppercase tracking-wide text-amber-600">
+            Pending
+          </span>
+        )}
+      </p>
+
+      <p className="text-[11px] text-[var(--text)]">
+        {tier.label} · {earning.rate * 100}% of {taka(earning.fee)}
+      </p>
+    </div>
+  );
+};
+
 const MyDeliveries = () => {
-  const { parcels, loading, workingId, loadDeliveries, setStatus, nextStep } =
-    useRiderDeliveries();
+  const {
+    parcels,
+    loading,
+    workingId,
+    earnings,
+    loadDeliveries,
+    setStatus,
+    nextStep,
+  } = useRiderDeliveries();
+
+  const navigate = useNavigate();
 
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(null);
@@ -60,24 +171,48 @@ const MyDeliveries = () => {
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={loadDeliveries}
-            className="
-              px-6 py-3
-              rounded-full
-              bg-[var(--foreground)]
-              text-[var(--secondary)]
-              font-semibold
-              hover:bg-[var(--primary)]
-              hover:text-[var(--foreground)]
-              transition-all duration-300
-              flex items-center gap-2
-            "
-          >
-            <RefreshCw size={16} />
-            Refresh
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={loadDeliveries}
+              className="
+                px-6 py-3
+                rounded-full
+                bg-[var(--foreground)]
+                text-[var(--secondary)]
+                font-semibold
+                hover:bg-[var(--primary)]
+                hover:text-[var(--foreground)]
+                transition-all duration-300
+                flex items-center gap-2
+              "
+            >
+              <RefreshCw size={16} />
+              Refresh
+            </button>
+
+            {/* jumps to the cashout screen, which is where the money the rider
+                has actually earned can be drawn down */}
+            <button
+              type="button"
+              onClick={() => navigate("/rider/cashout")}
+              className="
+                px-6 py-3
+                rounded-full
+                border border-[var(--foreground)]
+                bg-transparent
+                text-[var(--foreground)]
+                font-semibold
+                hover:bg-[var(--foreground)]
+                hover:text-[var(--secondary)]
+                transition-all duration-300
+                flex items-center gap-2
+              "
+            >
+              <Banknote size={16} />
+              Cashout
+            </button>
+          </div>
         </div>
 
         {/* Search */}
@@ -104,6 +239,35 @@ const MyDeliveries = () => {
               outline-none
               focus:border-[var(--foreground)]
             "
+          />
+        </div>
+
+        {/* What the rider has made so far, and what the open deliveries are
+            still worth. Settled and pending are shown apart on purpose, only a
+            delivered parcel counts as money in hand */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <EarningCard
+            icon={<Banknote size={18} />}
+            label="Earned"
+            amount={taka(earnings.settled)}
+            hint="From delivered parcels"
+            tone="green"
+          />
+
+          <EarningCard
+            icon={<Hourglass size={18} />}
+            label="Pending"
+            amount={taka(earnings.pending)}
+            hint="From deliveries still open"
+            tone="amber"
+          />
+
+          <EarningCard
+            icon={<Wallet size={18} />}
+            label="Total"
+            amount={taka(earnings.total)}
+            hint="Earned plus pending, all deliveries"
+            tone="plain"
           />
         </div>
 
@@ -173,6 +337,15 @@ const DeliveryTable = ({
           <Bike size={13} />
           Assigned to you
         </span>
+
+        <span className="flex items-center gap-1.5 text-xs text-[var(--text)]">
+          <Building2 size={13} />
+          {EARNING_LEGEND.map((entry) => (
+            <span key={entry.tier} className="flex items-center gap-1">
+              {entry.label} {entry.rate}
+            </span>
+          ))}
+        </span>
       </div>
 
       <div className="overflow-x-auto">
@@ -188,6 +361,9 @@ const DeliveryTable = ({
               </th>
               <th className="hidden px-4 py-3 font-semibold xl:table-cell">
                 Weight
+              </th>
+              <th className="hidden px-4 py-3 font-semibold lg:table-cell">
+                Earning
               </th>
               <th className="px-4 py-3 font-semibold">Delivery Status</th>
               <th className="px-4 py-3 font-semibold text-right">Action</th>
@@ -250,6 +426,12 @@ const DeliveryTable = ({
                       <Scale size={14} />
                       {parcel.weight ? `${parcel.weight} KG` : "—"}
                     </span>
+                  </td>
+
+                  {/* Earning, worked out server side against the rider's own
+                      service center */}
+                  <td className="hidden px-4 py-3 lg:table-cell">
+                    <EarningCell parcel={parcel} />
                   </td>
 
                   {/* Status */}
@@ -426,6 +608,72 @@ const DeliveryModal = ({ parcel, onClose }) => (
           </div>
         </div>
 
+        {/* Earning, so the rider can see what the delivery pays and which tier
+            decided it rather than taking the figure on trust */}
+        {getEarning(parcel) && (
+          <div className="mt-4 rounded-2xl border border-gray-200 overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-3 bg-gray-100">
+              <Wallet size={16} />
+              <span className="font-semibold text-sm">Your Earning</span>
+            </div>
+
+            <div className="p-4 space-y-3">
+              <DetailRow
+                label="Delivery Fee"
+                value={taka(getEarning(parcel).fee)}
+              />
+
+              <DetailRow
+                label="Earning Tier"
+                value={
+                  <span
+                    className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${
+                      getEarningTier(getEarning(parcel).tier).className
+                    }`}
+                  >
+                    {getEarningTier(getEarning(parcel).tier).label}
+                  </span>
+                }
+              />
+
+              <DetailRow
+                label="Your Share"
+                value={
+                  <span className="font-semibold">
+                    {getEarning(parcel).rate * 100}% of the delivery fee
+                  </span>
+                }
+              />
+
+              <DetailRow
+                label="You Earn"
+                value={
+                  <span
+                    className={`text-base font-bold ${
+                      getEarning(parcel).settled
+                        ? "text-green-700"
+                        : "text-[var(--foreground)]"
+                    }`}
+                  >
+                    {taka(getEarning(parcel).amount)}
+                    {!getEarning(parcel).settled &&
+                      getEarning(parcel).status !== "cancelled" && (
+                        <span className="ml-1.5 text-[10px] font-medium uppercase tracking-wide text-amber-600">
+                          Pending
+                        </span>
+                      )}
+                    {getEarning(parcel).status === "cancelled" && (
+                      <span className="ml-1.5 text-[10px] font-medium uppercase tracking-wide text-red-500">
+                        Cancelled
+                      </span>
+                    )}
+                  </span>
+                }
+              />
+            </div>
+          </div>
+        )}
+
         {/* Pickup */}
         <div className="mt-4 rounded-2xl border border-gray-200 overflow-hidden">
           <div className="flex items-center gap-2 px-4 py-3 bg-gray-100">
@@ -437,9 +685,14 @@ const DeliveryModal = ({ parcel, onClose }) => (
             <DetailRow label="Name" value={parcel.senderName || "—"} />
             <DetailRow label="Contact" value={parcel.senderContact || "—"} />
             <DetailRow label="Region" value={parcel.senderRegion || "—"} />
+            {/* the center the parcel is collected from */}
             <DetailRow
-              label="Service Center"
-              value={parcel.senderServiceCenter || "—"}
+              label="Pickup Center"
+              value={
+                <span className="flex items-center justify-end gap-1">
+                  <Building2 size={13} /> {parcel.senderServiceCenter || "—"}
+                </span>
+              }
             />
             <DetailRow label="Address" value={parcel.senderAddress || "—"} />
             <DetailRow
@@ -460,6 +713,8 @@ const DeliveryModal = ({ parcel, onClose }) => (
             <DetailRow label="Name" value={parcel.receiverName || "—"} />
             <DetailRow label="Contact" value={parcel.receiverContact || "—"} />
             <DetailRow label="Region" value={parcel.receiverRegion || "—"} />
+            {/* the center the parcel is delivered to. it decides the earning
+                tier on this row */}
             <DetailRow
               label="Service Center"
               value={parcel.receiverServiceCenter || "—"}

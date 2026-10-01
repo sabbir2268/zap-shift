@@ -20,6 +20,8 @@ import {
 import useAxios from "../../../hooks/useAxios";
 import StatusBadge from "../../../components/StatusBadge/StatusBadge";
 
+const normalize = (value) => String(value || "").trim().toLowerCase();
+
 const ManageParcels = () => {
   const api = useAxios();
 
@@ -469,6 +471,16 @@ const ParcelTable = ({
 };
 
 const AssignRiderModal = ({ parcel, riders, onAssign, onClose }) => {
+  /* The rider who delivers a parcel is the one based in the region it is being
+     delivered to, so those riders are listed first. a rider from another region
+     is still listed, they would just be covering the whole route themselves */
+  const isNear = (rider) =>
+    normalize(rider?.region) === normalize(parcel?.receiverRegion);
+
+  const orderedRiders = [...riders].sort(
+    (a, b) => Number(isNear(b)) - Number(isNear(a))
+  );
+
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center px-4">
       <div
@@ -549,6 +561,8 @@ const AssignRiderModal = ({ parcel, riders, onAssign, onClose }) => {
               <span className="font-semibold text-sm">Approved Riders</span>
 
               <span className="ml-auto text-xs text-[var(--text)]">
+                {orderedRiders.filter(isNear).length} in{" "}
+                {parcel.receiverRegion || "the delivery region"} of{" "}
                 {riders.length}
               </span>
             </div>
@@ -559,7 +573,7 @@ const AssignRiderModal = ({ parcel, riders, onAssign, onClose }) => {
               </p>
             ) : (
               <div className="max-h-64 overflow-y-auto divide-y divide-gray-100">
-                {riders.map((rider) => {
+                {orderedRiders.map((rider) => {
                   const isCurrent = rider.riderID === parcel.riderID;
 
                   return (
@@ -597,13 +611,19 @@ const AssignRiderModal = ({ parcel, riders, onAssign, onClose }) => {
                         <p className="text-[11px] text-[var(--text)] truncate">
                           {[
                             rider.region,
-                            rider.warehouse,
+                            rider.serviceCenter,
                             rider.contact,
                           ]
                             .filter(Boolean)
                             .join(" • ") || "—"}
                         </p>
                       </div>
+
+                      {isNear(rider) && (
+                        <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                          In region
+                        </span>
+                      )}
 
                       <span className="text-xs font-semibold text-blue-600 shrink-0">
                         {isCurrent ? "Assigned" : "Assign"}

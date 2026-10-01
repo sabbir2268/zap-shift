@@ -548,7 +548,7 @@ Four MongoDB collections in the `zapShift` database.
 | `role` | `user`, `rider` or `admin` |
 | `riderID` | `RDR-XXXXXXXX`, eight hex characters, reserved when the rider applies |
 | `riderSince` | When the application was approved |
-| `riderInfo` | Snapshot of the application, including NID and warehouse |
+| `riderInfo` | Snapshot of the application, including NID and service center |
 | `created_at`, `last_log_in`, `updated_at` | ISO strings and dates |
 
 ### `parcels`
@@ -569,7 +569,7 @@ Four MongoDB collections in the `zapShift` database.
 ### `riderApplications`
 
 `uid`, `riderID`, `name`, `age`, `email`, `region`, `nid`, `contact`,
-`warehouse`, `subscribeEmail`, `status`, `createdAt`, `updatedAt`. The rider id
+`serviceCenter`, `subscribeEmail`, `status`, `createdAt`, `updatedAt`. The rider id
 is reserved when the application is created, in the form `RDR-XXXXXXXX` where
 the eight characters are random uppercase hex, so approving never has to
 allocate one and a rider keeps the same id for life.

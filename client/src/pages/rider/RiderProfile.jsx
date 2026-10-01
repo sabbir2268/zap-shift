@@ -99,8 +99,8 @@ const RiderProfile = () => {
 
             <DetailRow
               icon={<Warehouse size={15} />}
-              label="Warehouse"
-              value={rider.warehouse || "—"}
+              label="Service Center"
+              value={rider.serviceCenter || "—"}
             />
 
             <DetailRow

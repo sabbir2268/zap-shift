@@ -10,7 +10,7 @@ import {
   Hash,
   MapPin,
   Phone,
-  Warehouse,
+  Building2,
   Loader2,
   UserCheck,
   CheckCircle2,
@@ -25,7 +25,10 @@ const normalize = (value) => String(value || "").trim().toLowerCase();
 /* only approved riders are on the road, held ones are not available */
 const isActiveRider = (rider) => rider.status === "approved";
 
-/* a rider can take a parcel when their division is the pickup division */
+/* A rider is matched on where the parcel is going, not where it came from. A
+   parcel going to another region is carried to the destination service center by
+   a company truck, and the rider who hands it over is the customer is already
+   based in that region, so a rider from the pickup region cannot deliver it. */
 const servesRegion = (rider, region) =>
   normalize(rider.region) === normalize(region);
 
@@ -122,8 +125,8 @@ const AssignRider = () => {
               Assign Rider
             </h1>
             <p className="mt-3 text-[var(--text)] leading-7">
-              Pick a parcel and hand it to an active rider near the pickup
-              region.
+              Pick a parcel and hand it to an active rider based in the region
+              it is being delivered to.
             </p>
           </div>
 
@@ -343,32 +346,32 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
 
   const matchesQuery = (rider) =>
     !term ||
-    [rider.name, rider.riderID, rider.contact, rider.warehouse, rider.email]
+    [rider.name, rider.riderID, rider.contact, rider.serviceCenter, rider.email]
       .filter(Boolean)
       .some((value) => value.toLowerCase().includes(term));
 
-  /* riders whose division is the pickup division come first, everyone else
-     stays available behind the toggle so a parcel is never stranded */
+  /* riders based in the region the parcel is delivered to come first, everyone
+     else stays available behind the toggle so a parcel is never stranded */
   const nearRiders = riders.filter(
-    (rider) => servesRegion(rider, parcel.senderRegion) && matchesQuery(rider)
+    (rider) => servesRegion(rider, parcel.receiverRegion) && matchesQuery(rider)
   );
   const farRiders = riders.filter(
-    (rider) => !servesRegion(rider, parcel.senderRegion) && matchesQuery(rider)
+    (rider) => !servesRegion(rider, parcel.receiverRegion) && matchesQuery(rider)
   );
 
   /* a search is an explicit request, so it reaches across every region */
   const groups = useMemo(() => {
     const list = showAll || term ? farRiders : [];
 
-    const byWarehouse = new Map();
+    const byCenter = new Map();
 
     list.forEach((rider) => {
-      const key = rider.warehouse || "Unassigned warehouse";
-      if (!byWarehouse.has(key)) byWarehouse.set(key, []);
-      byWarehouse.get(key).push(rider);
+      const key = rider.serviceCenter || "Unassigned service center";
+      if (!byCenter.has(key)) byCenter.set(key, []);
+      byCenter.get(key).push(rider);
     });
 
-    return [...byWarehouse.entries()];
+    return [...byCenter.entries()];
   }, [farRiders, showAll, term]);
 
   return (
@@ -491,7 +494,7 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search rider by name, id, contact or warehouse"
+              placeholder="Search rider by name, id, contact or service center"
               className="
                 w-full
                 rounded-full
@@ -512,7 +515,7 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
             <div className="flex items-center gap-2 px-4 py-3 bg-gray-100">
               <Bike size={16} />
               <span className="font-semibold text-sm">
-                Active riders in {parcel.senderRegion || "this region"}
+                Active riders in {parcel.receiverRegion || "this region"}
               </span>
 
               <span className="ml-auto rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
@@ -525,8 +528,9 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
                 {term
                   ? "No active rider matches your search."
                   : `No active rider is based in ${
-                      parcel.senderRegion || "this region"
-                    } yet.`}
+                      parcel.receiverRegion || "this region"
+                    } yet. A rider from another region would have to cover the
+                    whole route.`}
               </p>
             ) : (
               <div className="max-h-72 overflow-y-auto divide-y divide-gray-100">
@@ -570,18 +574,18 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
               </button>
 
               {showAll &&
-                groups.map(([warehouse, list]) => (
+                groups.map(([center, list]) => (
                   <div
-                    key={warehouse}
+                    key={center}
                     className="border-t border-orange-100"
                   >
                     <div className="flex items-center gap-2 px-4 py-2 bg-orange-50/60">
-                      <Warehouse
+                      <Building2
                         size={13}
                         className="text-orange-600 shrink-0"
                       />
                       <span className="text-xs font-semibold text-orange-800 truncate">
-                        {warehouse}
+                        {center}
                       </span>
 
                       <span className="ml-auto text-xs text-orange-600">
@@ -660,16 +664,21 @@ const RiderRow = ({ rider, current, onAssign }) => (
       </p>
 
       <p className="text-[11px] text-[var(--text)] truncate flex items-center gap-1">
-        {rider.region ? <MapPin size={10} /> : null}
+        <MapPin size={10} />
         {rider.region || "—"}
-        {rider.contact ? (
-          <>
-            <span className="text-[var(--text)]/40">•</span>
-            <Phone size={10} />
-            {rider.contact}
-          </>
-        ) : null}
       </p>
+
+      <p className="text-[11px] text-[var(--text)] truncate flex items-center gap-1">
+        <Building2 size={10} />
+        {rider.serviceCenter || "—"}
+      </p>
+
+      {rider.contact ? (
+        <p className="text-[11px] text-[var(--text)] truncate flex items-center gap-1">
+          <Phone size={10} />
+          {rider.contact}
+        </p>
+      ) : null}
     </div>
 
     <span className="text-xs font-semibold text-blue-600 shrink-0">

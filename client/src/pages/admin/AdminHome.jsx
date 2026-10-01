@@ -303,7 +303,7 @@ const AdminHome = () => {
                 <tr className="border-b border-gray-200 text-xs uppercase tracking-wide text-[var(--text)]/50">
                   <th className="px-3 py-3 font-semibold">Rider</th>
                   <th className="px-3 py-3 font-semibold">Age</th>
-                  <th className="px-3 py-3 font-semibold">Warehouse</th>
+                  <th className="px-3 py-3 font-semibold">Service Center</th>
                   <th className="px-3 py-3 font-semibold">Rider Status</th>
                 </tr>
               </thead>
@@ -327,7 +327,7 @@ const AdminHome = () => {
                     </td>
 
                     <td className="px-3 py-4 text-[var(--text)]">
-                      {rider.warehouse || "—"}
+                      {rider.serviceCenter || "—"}
                     </td>
 
                     <td className="px-3 py-4">

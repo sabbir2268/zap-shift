@@ -34,6 +34,15 @@ export const DELIVERY_STATUS = {
     className: "bg-purple-100 text-purple-800",
     dot: "bg-purple-400",
   },
+  /* A parcel going to another region is not carried the whole way by one rider.
+     A company truck takes it to the service center nearest the customer and it
+     waits there to be picked up by a rider based in that region, so this status
+     is the truck leg and the parcel is still on its way. */
+  transferred: {
+    label: "Transferred",
+    className: "bg-cyan-100 text-cyan-800",
+    dot: "bg-cyan-400",
+  },
   delivered: {
     label: "Delivered",
     className: "bg-green-100 text-green-800",

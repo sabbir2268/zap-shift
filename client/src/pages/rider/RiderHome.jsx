@@ -110,10 +110,10 @@ const RiderHome = () => {
 
           <div className="min-w-0">
             <p className="text-xs font-medium text-[var(--text)]/60">
-              Warehouse
+              Service Center
             </p>
             <p className="truncate text-lg font-bold text-[var(--foreground)]">
-              {rider.warehouse || "—"}
+              {rider.serviceCenter || "—"}
             </p>
           </div>
         </div>

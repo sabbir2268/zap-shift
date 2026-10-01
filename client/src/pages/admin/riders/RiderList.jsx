@@ -113,7 +113,7 @@ const RiderList = ({
         application.name,
         application.email,
         application.uid,
-        application.warehouse,
+        application.serviceCenter,
       ]
         .filter(Boolean)
         .some((value) => value.toLowerCase().includes(term))
@@ -185,7 +185,7 @@ const RiderList = ({
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by name, email, uid or warehouse"
+              placeholder="Search by name, email, uid or service center"
               className="
                 w-full
                 rounded-full
@@ -349,7 +349,7 @@ const RiderTable = ({
                 Contact
               </th>
               <th className="px-4 py-3 font-semibold">Age</th>
-              <th className="px-4 py-3 font-semibold">Warehouse</th>
+              <th className="px-4 py-3 font-semibold">Service Center</th>
               <th className="px-4 py-3 font-semibold">Rider Status</th>
               <th className="px-4 py-3 font-semibold text-right">Action</th>
             </tr>
@@ -416,7 +416,7 @@ const RiderTable = ({
 
                   <td className="px-4 py-3">
                     <span className="text-[var(--text)] truncate">
-                      {rider.warehouse || "—"}
+                      {rider.serviceCenter || "—"}
                     </span>
                   </td>
 
@@ -661,10 +661,10 @@ const RiderCard = ({
         </div>
       </div>
 
-      {/* Warehouse */}
+      {/* Service Center */}
       <div className="mt-4 flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-2 text-sm">
         <Truck size={15} className="text-[var(--text)]" />
-        <span className="truncate">{rider.warehouse || "—"}</span>
+        <span className="truncate">{rider.serviceCenter || "—"}</span>
       </div>
 
       {/* Actions */}
@@ -925,10 +925,10 @@ const RiderModal = ({ rider, onClose, onDone }) => {
               />
 
               <DetailRow
-                label="Warehouse"
+                label="Service Center"
                 value={
                   <span className="flex items-center gap-1">
-                    <Truck size={13} /> {rider.warehouse || "—"}
+                    <Truck size={13} /> {rider.serviceCenter || "—"}
                   </span>
                 }
               />

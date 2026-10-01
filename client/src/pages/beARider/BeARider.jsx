@@ -4,15 +4,10 @@ import { useForm } from "react-hook-form";
 import riderImage from "../../assets/big-deliveryman.png";
 import useAxios from "../../hooks/useAxios";
 import useAuth from "../../hooks/useAuth";
-
-/* Warehouses a rider can pick, grouped by the region they belong to */
-const REGION_WAREHOUSES = {
-  Dhaka: ["Dhaka Warehouse", "Gazipur Warehouse", "Savar Warehouse"],
-  Chattogram: ["Chattogram Warehouse", "Cox's Bazar Warehouse"],
-  Khulna: ["Khulna Warehouse", "Jessore Warehouse"],
-  Rajshahi: ["Rajshahi Warehouse", "Rangpur Warehouse"],
-  Sylhet: ["Sylhet Warehouse", "Moulvibazar Warehouse"],
-};
+import {
+  SERVICE_CENTER_REGIONS,
+  getServiceCentersByRegion,
+} from "../../data/serviceCenters.js";
 
 const BeARider = () => {
   const api = useAxios();
@@ -23,11 +18,15 @@ const BeARider = () => {
   const { register, handleSubmit, reset, watch, setValue } = useForm();
 
   const selectedRegion = watch("region");
-  const warehouses = selectedRegion ? REGION_WAREHOUSES[selectedRegion] || [] : [];
+  const centers = selectedRegion
+    ? getServiceCentersByRegion(selectedRegion)
+    : [];
 
-  /* a warehouse from the previous region must not survive a region change */
+  /* a service center from the previous region must not survive a region change.
+     the center decides what the rider is paid on every parcel, so a stale one
+     would pay them against the wrong region */
   useEffect(() => {
-    setValue("warehouse", "");
+    setValue("serviceCenter", "");
   }, [selectedRegion, setValue]);
 
   /* a signup saves its record behind the redirect, and the auth profile is read
@@ -152,11 +151,11 @@ const BeARider = () => {
                     Select your region
                   </option>
 
-                  <option value="Dhaka">Dhaka</option>
-                  <option value="Chattogram">Chattogram</option>
-                  <option value="Khulna">Khulna</option>
-                  <option value="Rajshahi">Rajshahi</option>
-                  <option value="Sylhet">Sylhet</option>
+                  {SERVICE_CENTER_REGIONS.map((region) => (
+                    <option key={region} value={region}>
+                      {region}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -186,27 +185,28 @@ const BeARider = () => {
                 />
               </div>
 
-              {/* Warehouse */}
+              {/* Service Center, the hub the rider works out of. it decides
+                  what they are paid on every parcel they deliver */}
               <div>
                 <label className="block mb-2 font-medium">
-                  Which warehouse do you want to work at?
+                  Which service center do you want to work at?
                 </label>
 
                 <select
                   required
                   defaultValue=""
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none"
-                  {...register("warehouse", { required: true })}
+                  {...register("serviceCenter", { required: true })}
                 >
                   <option value="" disabled>
                     {selectedRegion
-                      ? "Select warehouse"
+                      ? "Select service center"
                       : "Select your region first"}
                   </option>
 
-                  {warehouses.map((warehouse) => (
-                    <option key={warehouse} value={warehouse}>
-                      {warehouse}
+                  {centers.map((center) => (
+                    <option key={center} value={center}>
+                      {center}
                     </option>
                   ))}
                 </select>
