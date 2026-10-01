@@ -348,28 +348,6 @@ const ParcelTable = ({ parcels, riderCount, assigningId, onAssign }) => {
                   {/* Action */}
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
-                      {/* an unpaid parcel says why it is locked instead of quietly offering an
-                          assign button that the server will turn down */}
-                      {!paid ? (
-                        <span
-                          className="
-                            inline-flex
-                            items-center
-                            gap-1.5
-                            rounded-xl
-                            border border-amber-200
-                            bg-amber-50
-                            px-3 py-2
-                            text-sm
-                            font-semibold
-                            text-amber-700
-                          "
-                        >
-                          <Lock size={15} />
-                          Unpaid, not assignable
-                        </span>
-                      ) : null}
-
                       {/* an assigned parcel says so, rather than still offering
                           an assign button as though nobody had been given it */}
                       {parcel.riderID ? (
