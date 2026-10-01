@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import {
   Search,
   Package,
+  PackageCheck,
+  CheckCheck,
   MapPin,
   Phone,
   CalendarDays,
@@ -14,6 +16,11 @@ import {
 import useAxios from "../../../hooks/useAxios";
 import useAuth from "../../../hooks/useAuth";
 import StatusBadge from "../../../components/StatusBadge/StatusBadge";
+import {
+  getPickedUpAt,
+  getDeliveredAt,
+  formatDateTime,
+} from "../../../data/deliveryTimes";
 
 /*
  * A promised window per status rather than a real arrival date, which the
@@ -210,6 +217,9 @@ const TrackParcel = () => {
               />
             </div>
 
+            {/* the times the parcel actually moved, as the rider marked them */}
+            <DeliveryTimes parcel={parcel} />
+
             {/* Delivery agent, and the status that agent has reached */}
             <DeliveryAgent parcel={parcel} />
 
@@ -277,6 +287,36 @@ const DeliveryAgent = ({ parcel }) => (
     )}
   </div>
 );
+
+/* when the parcel was picked up and when it reached the receiver. both are
+   stamped by the server the moment the rider marks that step, so they are the
+   real times. a parcel that has not got there yet says so rather than guessing */
+const DeliveryTimes = ({ parcel }) => {
+  const pickedUpAt = getPickedUpAt(parcel);
+  const deliveredAt = getDeliveredAt(parcel);
+
+  return (
+    <div className="border-t border-gray-100 px-6 py-5">
+      <SectionTitle>Delivery Times</SectionTitle>
+
+      <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <DetailRow
+          icon={<PackageCheck size={17} />}
+          label="Picked Up"
+          value={
+            pickedUpAt ? formatDateTime(pickedUpAt) : "Not picked up yet"
+          }
+        />
+
+        <DetailRow
+          icon={<CheckCheck size={17} />}
+          label="Delivered"
+          value={deliveredAt ? formatDateTime(deliveredAt) : "Not delivered yet"}
+        />
+      </div>
+    </div>
+  );
+};
 
 const EstimatedDelivery = ({ parcel }) => {
   const eta = getEta(parcel.status);

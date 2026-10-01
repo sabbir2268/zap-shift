@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import useRider from "../api/rider";
 import useRiderDeliveries from "./useRiderDeliveries";
+import { getDeliveredAt } from "../data/deliveryTimes";
 
 /* The smallest cashout the server allows. The server sends the figure back on
    every response and enforces it there, so this is only what the form shows in
@@ -9,11 +10,9 @@ import useRiderDeliveries from "./useRiderDeliveries";
 export const MIN_CASHOUT = 110;
 
 /* When a parcel was actually handed over, which is the day its money was earned.
-   The server stamps `deliveredAt` the moment a rider marks a parcel delivered. A
-   parcel delivered before that field existed falls back to when it was last
-   touched, then to when it was booked, so its money still lands in a window. */
-const getEarnedAt = (parcel) =>
-  new Date(parcel.deliveredAt || parcel.updatedAt || parcel.createdAt || 0);
+   The same rule the deliveries table reads, so an earning is always filed under
+   the date the rider sees on the parcel. */
+const getEarnedAt = (parcel) => getDeliveredAt(parcel);
 
 const startOfDay = (date) =>
   new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -118,9 +117,9 @@ const useRiderEarnings = () => {
         amount: Number(parcel.earning?.amount) || 0,
         at: getEarnedAt(parcel),
       }))
-      /* a parcel with no usable date cannot be placed in a window, so it counts
-         towards the lifetime total and nothing else */
-      .filter((entry) => !Number.isNaN(entry.at.getTime()));
+      /* a delivered parcel with no usable date cannot be placed in a window, so it
+         counts towards the lifetime total and nothing else */
+      .filter((entry) => entry.at && !Number.isNaN(entry.at.getTime()));
 
     return PERIODS.map((period) => {
       const from = period.start(now);

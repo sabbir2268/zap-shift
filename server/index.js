@@ -842,6 +842,10 @@ app.patch("/api/rider/parcels/:id/status", ...riderOnly, async (req, res) => {
              and a delivery that moves again later must not change which day it
              was earned on */
           ...(status === "delivered" ? { deliveredAt: new Date() } : {}),
+          /* the same for the collection. a parcel can be collected more than once
+             on a cross region route, so this is the latest pickup rather than the
+             first */
+          ...(status === "picked_up" ? { pickedUpAt: new Date() } : {}),
         },
       }
     );

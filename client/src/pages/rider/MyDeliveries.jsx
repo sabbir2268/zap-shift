@@ -21,6 +21,7 @@ import {
   Hourglass,
   CircleSlash,
   Building2,
+  CheckCheck,
 } from "lucide-react";
 import useRiderDeliveries, {
   canCancel,
@@ -28,6 +29,7 @@ import useRiderDeliveries, {
   getEarningTier,
 } from "../../hooks/useRiderDeliveries";
 import StatusBadge from "../../components/StatusBadge/StatusBadge";
+import { getDeliveredAt, formatDateTime } from "../../data/deliveryTimes";
 
 /* money is in taka and is stored as a whole number, so it is formatted once here
    rather than with a currency symbol typed at every call site */
@@ -370,6 +372,7 @@ const DeliveryTable = ({
               </th>
               <th className="px-4 py-3 font-semibold">Payment</th>
               <th className="px-4 py-3 font-semibold">Delivery Status</th>
+              <th className="px-4 py-3 font-semibold">Delivered</th>
               <th className="px-4 py-3 font-semibold text-right">Action</th>
             </tr>
           </thead>
@@ -384,6 +387,7 @@ const DeliveryTable = ({
                 Number(parcel.productDeliveryCost) ||
                 Number(getEarning(parcel)?.fee) ||
                 0;
+              const deliveredAt = getDeliveredAt(parcel);
 
               return (
                 <tr
@@ -479,6 +483,21 @@ const DeliveryTable = ({
                   {/* Status */}
                   <td className="px-4 py-3">
                     <StatusBadge kind="delivery" value={parcel.status} />
+                  </td>
+
+                  {/* when the parcel actually reached the receiver. a parcel that
+                      has not been delivered yet has no time to show */}
+                  <td className="px-4 py-3">
+                    <span className="flex items-center gap-1 whitespace-nowrap text-[var(--text)]">
+                      {deliveredAt ? (
+                        <>
+                          <CheckCheck size={14} />
+                          {formatDateTime(deliveredAt)}
+                        </>
+                      ) : (
+                        "—"
+                      )}
+                    </span>
                   </td>
 
                   {/* Actions */}

@@ -509,6 +509,7 @@ const run = async () => {
   const advanced = await call("PATCH", statusUrl(mine), { token: "token-rider", body: { status: "picked_up" } });
   check("a rider can move their own parcel -> 200", advanced.status, 200);
   check("the status is stored", advanced.data.status, "picked_up");
+  check("the pickup time is stamped", Boolean(advanced.data.pickedUpAt), true);
 
   check("a rider cannot move somebody else's parcel -> 404", (await call("PATCH", statusUrl(notMine), { token: "token-rider", body: { status: "picked_up" } })).status, 404);
   check("somebody else's parcel is untouched", notMine.status, "pending");
@@ -522,6 +523,7 @@ const run = async () => {
   const delivered = await call("PATCH", statusUrl(mine), { token: "token-rider", body: { status: "delivered" } });
   check("a rider can finish the job -> 200", delivered.status, 200);
   check("the parcel reads as delivered", delivered.data.status, "delivered");
+  check("the delivery time is stamped", Boolean(delivered.data.deliveredAt), true);
 
   const reassigned = await call("PATCH", `/api/parcels/${mine._id.toHexString()}/rider`, { token: "token-owner", body: { riderID: null } });
   check("an admin can take the job back -> 200", reassigned.status, 200);
