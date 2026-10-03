@@ -15,6 +15,7 @@ import {
   Hash,
   Ban,
   SquarePen,
+  Save,
   CreditCard,
   ArrowRight,
   Loader2,
@@ -128,11 +129,6 @@ const MyParcels = () => {
             parcels={parcels}
             deletingId={deletingId}
             onView={setSelected}
-            onUpdate={(parcel) =>
-              navigate(`/dashboard/update-parcel/${parcel._id}`, {
-                state: { parcel },
-              })
-            }
             onPay={(parcel) =>
               navigate(`/dashboard/payment/${parcel._id}`, {
                 state: { parcel },
@@ -143,7 +139,20 @@ const MyParcels = () => {
         )}
       </div>
 
-      {selected && <ParcelModal parcel={selected} onClose={() => setSelected(null)} />}
+      {selected && (
+        <ParcelModal
+          parcel={selected}
+          onClose={() => setSelected(null)}
+          onSaved={(updated) => {
+            /* the row and the open modal share one record, so both take the
+               answer of the server and the details never show a stale value */
+            setSelected(updated);
+            setParcels((prev) =>
+              prev.map((item) => (item._id === updated._id ? updated : item))
+            );
+          }}
+        />
+      )}
 
       {confirmTarget && (
         <ConfirmCancelModal
@@ -198,7 +207,6 @@ const ParcelTable = ({
   parcels,
   deletingId,
   onView,
-  onUpdate,
   onPay,
   onCancel,
 }) => {
@@ -317,17 +325,13 @@ const ParcelTable = ({
                   </td>
 
                   <td className="px-4 py-3">
-                    <div className="grid grid-cols-4 items-center gap-2">
+                    <div className="grid grid-cols-3 items-center gap-2">
+                      {/* the details modal carries the edit option, so the row
+                          only opens it */}
                       <RowAction
                         icon={<Eye size={16} />}
                         label="View Details"
                         onClick={() => onView(parcel)}
-                      />
-
-                      <RowAction
-                        icon={<SquarePen size={16} />}
-                        label="Update"
-                        onClick={() => onUpdate(parcel)}
                       />
 
                       <RowAction
@@ -363,12 +367,79 @@ const ParcelTable = ({
   );
 };
 
-const ParcelModal = ({ parcel, onClose }) => {
+/* the fields the customer owns and is therefore allowed to change. the statuses
+   and the money are decided by the server and an admin, so they stay out of the
+   editable form on purpose */
+const buildForm = (parcel) => ({
+  parcelTitle: parcel.parcelTitle || "",
+  parcelType: parcel.parcelType === "non-document" ? "non-document" : "document",
+  weight: parcel.weight ?? "",
+  senderName: parcel.senderName || "",
+  senderContact: parcel.senderContact || "",
+  senderRegion: parcel.senderRegion || "",
+  senderAddress: parcel.senderAddress || "",
+  pickupInstruction: parcel.pickupInstruction || "",
+  receiverName: parcel.receiverName || "",
+  receiverContact: parcel.receiverContact || "",
+  receiverRegion: parcel.receiverRegion || "",
+  receiverAddress: parcel.receiverAddress || "",
+  deliveryInstruction: parcel.deliveryInstruction || "",
+});
+
+const editClass =
+  "w-full rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-sm font-medium text-right outline-none focus:border-[var(--foreground)] transition";
+
+const EditField = ({ label, children, className = "" }) => (
+  <div className={`flex items-start justify-between gap-3 ${className}`}>
+    <span className="text-sm text-[var(--text)] shrink-0 pt-1.5">{label}</span>
+    <div className="min-w-0 flex-1 max-w-[60%]">{children}</div>
+  </div>
+);
+
+/*
+ * The details modal doubles as the edit form, so opening a parcel and changing
+ * it are the same screen. Editing only swaps the read only rows for inputs and
+ * reveals the save bar, nothing about the layout moves.
+ */
+const ParcelModal = ({ parcel, onClose, onSaved }) => {
+  const { updateParcel } = useParcels();
+
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState(() => buildForm(parcel));
+
+  const setField = (key) => (event) =>
+    setForm((prev) => ({ ...prev, [key]: event.target.value }));
+
+  const startEditing = () => {
+    setForm(buildForm(parcel));
+    setEditing(true);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+
+    try {
+      const updated = await updateParcel(parcel._id, {
+        ...form,
+        weight: form.weight === "" ? "" : Number(form.weight),
+      });
+
+      onSaved(updated);
+      setEditing(false);
+      toast.success("Parcel updated!");
+    } catch (error) {
+      toast.error(error.message || "Failed to update parcel");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center px-4">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={saving ? undefined : onClose}
       />
 
       <div
@@ -421,10 +492,20 @@ const ParcelModal = ({ parcel, onClose }) => {
               <Package size={21} />
             </div>
 
-            <div>
-              <h2 className="text-xl font-bold text-[var(--foreground)]">
-                {parcel.parcelTitle}
-              </h2>
+            <div className="min-w-0 flex-1">
+              {editing ? (
+                <input
+                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-base font-bold text-[var(--foreground)] outline-none focus:border-[var(--foreground)] transition"
+                  value={form.parcelTitle}
+                  onChange={setField("parcelTitle")}
+                  placeholder="Parcel title"
+                />
+              ) : (
+                <h2 className="text-xl font-bold text-[var(--foreground)] truncate">
+                  {parcel.parcelTitle}
+                </h2>
+              )}
+
               <p className="text-xs text-[var(--text)]">
                 {new Date(parcel.createdAt).toLocaleString()}
               </p>
@@ -433,8 +514,39 @@ const ParcelModal = ({ parcel, onClose }) => {
 
           {/* Parcel info */}
           <DetailSection icon={<Package size={16} />} title="Parcel Info">
-            <DetailRow label="Parcel Type" value={parcel.parcelType === "document" ? "Document" : "Non-document"} />
-            <DetailRow label="Weight" value={parcel.weight ? `${parcel.weight} KG` : "—"} />
+            {editing ? (
+              <>
+                <EditField label="Parcel Type">
+                  <select
+                    className={editClass}
+                    value={form.parcelType}
+                    onChange={setField("parcelType")}
+                  >
+                    <option value="document">Document</option>
+                    <option value="non-document">Non-document</option>
+                  </select>
+                </EditField>
+
+                <EditField label="Weight">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    className={editClass}
+                    value={form.weight}
+                    onChange={setField("weight")}
+                    placeholder="KG"
+                  />
+                </EditField>
+              </>
+            ) : (
+              <>
+                <DetailRow label="Parcel Type" value={parcel.parcelType === "document" ? "Document" : "Non-document"} />
+                <DetailRow label="Weight" value={parcel.weight ? `${parcel.weight} KG` : "—"} />
+              </>
+            )}
+
+            {/* the statuses and the money are not the customer's to set */}
             <DetailRow
               label="Delivery Status"
               value={<StatusBadge kind="delivery" value={parcel.status} bare />}
@@ -450,41 +562,187 @@ const ParcelModal = ({ parcel, onClose }) => {
 
           {/* Sender */}
           <DetailSection icon={<User size={16} />} title="Sender Info">
-            <DetailRow
-              label="Name"
-              value={<span className="flex items-center gap-1"><User size={13} /> {parcel.senderName}</span>}
-            />
-            <DetailRow
-              label="Contact"
-              value={<span className="flex items-center gap-1"><Phone size={13} /> {parcel.senderContact}</span>}
-            />
-            <DetailRow
-              label="Region"
-              value={<span className="flex items-center gap-1"><MapPin size={13} /> {parcel.senderRegion}</span>}
-            />
+            {editing ? (
+              <>
+                <EditField label="Name">
+                  <input className={editClass} value={form.senderName} onChange={setField("senderName")} />
+                </EditField>
+
+                <EditField label="Contact">
+                  <input className={editClass} value={form.senderContact} onChange={setField("senderContact")} />
+                </EditField>
+
+                <EditField label="Region">
+                  <input className={editClass} value={form.senderRegion} onChange={setField("senderRegion")} />
+                </EditField>
+              </>
+            ) : (
+              <>
+                <DetailRow
+                  label="Name"
+                  value={<span className="flex items-center gap-1"><User size={13} /> {parcel.senderName}</span>}
+                />
+                <DetailRow
+                  label="Contact"
+                  value={<span className="flex items-center gap-1"><Phone size={13} /> {parcel.senderContact}</span>}
+                />
+                <DetailRow
+                  label="Region"
+                  value={<span className="flex items-center gap-1"><MapPin size={13} /> {parcel.senderRegion}</span>}
+                />
+              </>
+            )}
+
             <DetailRow label="Service Center" value={parcel.senderServiceCenter} />
-            <DetailRow label="Address" value={parcel.senderAddress} />
-            <DetailRow label="Pickup Instruction" value={parcel.pickupInstruction} />
+
+            {editing ? (
+              <>
+                <EditField label="Address">
+                  <textarea rows={2} className={`${editClass} text-left`} value={form.senderAddress} onChange={setField("senderAddress")} />
+                </EditField>
+
+                <EditField label="Pickup Instruction">
+                  <textarea rows={2} className={`${editClass} text-left`} value={form.pickupInstruction} onChange={setField("pickupInstruction")} />
+                </EditField>
+              </>
+            ) : (
+              <>
+                <DetailRow label="Address" value={parcel.senderAddress} />
+                <DetailRow label="Pickup Instruction" value={parcel.pickupInstruction} />
+              </>
+            )}
           </DetailSection>
 
           {/* Receiver */}
           <DetailSection icon={<Truck size={16} />} title="Receiver Info">
-            <DetailRow
-              label="Name"
-              value={<span className="flex items-center gap-1"><User size={13} /> {parcel.receiverName}</span>}
-            />
-            <DetailRow
-              label="Contact"
-              value={<span className="flex items-center gap-1"><Phone size={13} /> {parcel.receiverContact}</span>}
-            />
-            <DetailRow
-              label="Region"
-              value={<span className="flex items-center gap-1"><MapPin size={13} /> {parcel.receiverRegion}</span>}
-            />
+            {editing ? (
+              <>
+                <EditField label="Name">
+                  <input className={editClass} value={form.receiverName} onChange={setField("receiverName")} />
+                </EditField>
+
+                <EditField label="Contact">
+                  <input className={editClass} value={form.receiverContact} onChange={setField("receiverContact")} />
+                </EditField>
+
+                <EditField label="Region">
+                  <input className={editClass} value={form.receiverRegion} onChange={setField("receiverRegion")} />
+                </EditField>
+              </>
+            ) : (
+              <>
+                <DetailRow
+                  label="Name"
+                  value={<span className="flex items-center gap-1"><User size={13} /> {parcel.receiverName}</span>}
+                />
+                <DetailRow
+                  label="Contact"
+                  value={<span className="flex items-center gap-1"><Phone size={13} /> {parcel.receiverContact}</span>}
+                />
+                <DetailRow
+                  label="Region"
+                  value={<span className="flex items-center gap-1"><MapPin size={13} /> {parcel.receiverRegion}</span>}
+                />
+              </>
+            )}
+
             <DetailRow label="Service Center" value={parcel.receiverServiceCenter} />
-            <DetailRow label="Address" value={parcel.receiverAddress} />
-            <DetailRow label="Delivery Instruction" value={parcel.deliveryInstruction} />
+
+            {editing ? (
+              <>
+                <EditField label="Address">
+                  <textarea rows={2} className={`${editClass} text-left`} value={form.receiverAddress} onChange={setField("receiverAddress")} />
+                </EditField>
+
+                <EditField label="Delivery Instruction">
+                  <textarea rows={2} className={`${editClass} text-left`} value={form.deliveryInstruction} onChange={setField("deliveryInstruction")} />
+                </EditField>
+              </>
+            ) : (
+              <>
+                <DetailRow label="Address" value={parcel.receiverAddress} />
+                <DetailRow label="Delivery Instruction" value={parcel.deliveryInstruction} />
+              </>
+            )}
           </DetailSection>
+
+          {/* the save bar only exists while editing, the same slot holds the
+              edit button the rest of the time */}
+          <div className="mt-6 flex items-center gap-3">
+            {editing ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setEditing(false)}
+                  disabled={saving}
+                  className="
+                    flex-1
+                    rounded-xl
+                    border border-gray-200
+                    py-2.5
+                    text-sm font-semibold
+                    text-[var(--foreground)]
+                    hover:bg-gray-100
+                    transition
+                    disabled:cursor-not-allowed
+                    disabled:opacity-60
+                  "
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="
+                    flex-1
+                    rounded-xl
+                    bg-[var(--secondary)]
+                    py-2.5
+                    text-sm font-semibold
+                    text-[var(--foreground)]
+                    hover:bg-[var(--primary)]
+                    transition
+                    flex items-center justify-center gap-2
+                    disabled:cursor-not-allowed
+                    disabled:opacity-60
+                  "
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save size={16} />
+                      Save Changes
+                    </>
+                  )}
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={startEditing}
+                className="
+                  w-full
+                  rounded-xl
+                  bg-[var(--secondary)]
+                  py-2.5
+                  text-sm font-semibold
+                  text-[var(--foreground)]
+                  hover:bg-[var(--primary)]
+                  transition
+                  flex items-center justify-center gap-2
+                "
+              >
+                <SquarePen size={16} />
+                Edit Parcel Details
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
