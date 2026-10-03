@@ -26,12 +26,12 @@ const Service = () => {
       description:
         "Send parcels anywhere in Bangladesh with reliable door-to-door delivery across all districts.",
     },
-    // {
-    //   icon: Banknote,
-    //   title: "Cash on Delivery",
-    //   description:
-    //     "Collect payment from your customers safely and conveniently when the parcel is delivered.",
-    // },
+    {
+      icon: Banknote,
+      title: "Cash on Delivery",
+      description:
+        "Collect payment from your customers safely and conveniently when the parcel is delivered.",
+    },
     // {
     //   icon: PackageCheck,
     //   title: "Live Parcel Tracking",
