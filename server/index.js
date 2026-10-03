@@ -433,10 +433,12 @@ app.patch("/api/users/:id/role", ...adminOnly, async (req, res) => {
       });
     }
 
-    // a rider is not allowed to hold the admin role
-    if (target.role === ROLES.RIDER && role === ROLES.ADMIN) {
+    /* the rider role is a one way door. the administration page never offers a
+       rider anything else, and a crafted request is refused here as well, so a
+       rider can neither be made an admin nor be pushed back to a normal user */
+    if (target.role === ROLES.RIDER && role !== ROLES.RIDER) {
       return res.status(403).json({
-        message: "A rider cannot be set as admin",
+        message: "A rider cannot be set as admin or as a normal user",
       });
     }
 

@@ -7,22 +7,29 @@ import {
   Mail,
   UserRound,
   Users,
-  ShieldPlus,
   UserCheck,
   Bike,
+  Lock,
 } from "lucide-react";
 import useAxios from "../../../hooks/useAxios";
 import useAuth from "../../../hooks/useAuth";
 import { ROLES } from "../../../data/admin";
 
-const ROLE_OPTIONS = [
-  { value: ROLES.USER, label: "User", icon: UserRound, className: "bg-gray-100 text-gray-700" },
-  { value: ROLES.RIDER, label: "Rider", icon: Bike, className: "bg-blue-100 text-blue-700" },
-  { value: ROLES.ADMIN, label: "Admin", icon: ShieldCheck, className: "bg-[var(--secondary)] text-[var(--foreground)]" },
-];
+/* what each role can be turned into. the rider role is absent on purpose, it is
+   a one way door: nobody hands it out and nobody takes it away */
+const ACTIONS_BY_ROLE = {
+  [ROLES.USER]: [ROLES.ADMIN, ROLES.RIDER],
+  [ROLES.ADMIN]: [ROLES.RIDER, ROLES.USER],
+  [ROLES.RIDER]: [],
+};
 
-const getRoleMeta = (role) =>
-  ROLE_OPTIONS.find((item) => item.value === role) || ROLE_OPTIONS[0];
+const ROLE_META = {
+  [ROLES.USER]: { label: "User", icon: UserRound, className: "bg-gray-100 text-gray-700" },
+  [ROLES.RIDER]: { label: "Rider", icon: Bike, className: "bg-blue-100 text-blue-700" },
+  [ROLES.ADMIN]: { label: "Admin", icon: ShieldCheck, className: "bg-[var(--secondary)] text-[var(--foreground)]" },
+};
+
+const getRoleMeta = (role) => ROLE_META[role] || ROLE_META[ROLES.USER];
 
 const Administration = () => {
   const api = useAxios();
@@ -51,27 +58,11 @@ const Administration = () => {
     loadUsers();
   }, [loadUsers]);
 
-  const filtered = useMemo(() => {
-    const term = query.trim().toLowerCase();
-
-    return users.filter((item) => {
-      if (roleFilter !== "all" && (item.role || "user") !== roleFilter) {
-        return false;
-      }
-
-      if (!term) return true;
-
-      return [item.name, item.email, item.riderID]
-        .filter(Boolean)
-        .some((value) => value.toLowerCase().includes(term));
-    });
-  }, [users, query, roleFilter]);
-
   const counts = useMemo(() => {
     const result = { all: users.length, user: 0, rider: 0, admin: 0 };
 
     users.forEach((item) => {
-      const role = item.role || "user";
+      const role = item.role || ROLES.USER;
 
       if (result[role] !== undefined) result[role] += 1;
     });
@@ -79,11 +70,26 @@ const Administration = () => {
     return result;
   }, [users]);
 
-  /* promotes or demotes a user, then refreshes the row in place */
+  const filtered = useMemo(() => {
+    const term = query.trim().toLowerCase();
+
+    return users.filter((item) => {
+      const role = item.role || ROLES.USER;
+
+      if (roleFilter !== "all" && role !== roleFilter) {
+        return false;
+      }
+
+      if (!term) return true;
+
+      return item.email?.toLowerCase().includes(term);
+    });
+  }, [users, query, roleFilter]);
+
+  /* hands out a role, then refreshes the row in place from the answer of the
+     server, which is where the truth lives */
   const changeRole = useCallback(
     async (target, nextRole) => {
-      if (target.role === nextRole) return;
-
       setWorkingId(target._id);
 
       try {
@@ -96,7 +102,7 @@ const Administration = () => {
         );
 
         toast.success(
-          `${target.name || target.email} is now ${getRoleMeta(nextRole).label.toLowerCase()}`
+          `${target.email} is now ${getRoleMeta(nextRole).label.toLowerCase()}`
         );
       } catch (error) {
         toast.error(error.message || "Failed to update role");
@@ -116,7 +122,8 @@ const Administration = () => {
               Administration
             </h1>
             <p className="mt-3 text-[var(--text)] leading-7">
-              Promote logged in users to admin or send them back to a normal role.
+              Every registered account, identified by its email. Give one the
+              admin or the rider role, or send an admin back to a normal user.
             </p>
           </div>
 
@@ -144,7 +151,7 @@ const Administration = () => {
         {/* Counts */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {[
-            { key: "all", label: "Total Users", icon: Users },
+            { key: "all", label: "Total Accounts", icon: Users },
             { key: "user", label: "Users", icon: UserRound },
             { key: "rider", label: "Riders", icon: Bike },
             { key: "admin", label: "Admins", icon: ShieldCheck },
@@ -155,7 +162,9 @@ const Administration = () => {
               <button
                 key={card.key}
                 type="button"
-                onClick={() => setRoleFilter(active && card.key !== "all" ? "all" : card.key)}
+                onClick={() =>
+                  setRoleFilter(active && card.key !== "all" ? "all" : card.key)
+                }
                 className={`
                   bg-white rounded-2xl border p-4 text-left transition
                   ${
@@ -188,7 +197,7 @@ const Administration = () => {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by name, email or rider id"
+            placeholder="Search by email"
             className="
               w-full
               rounded-full
@@ -216,7 +225,7 @@ const Administration = () => {
             </h2>
             <p className="mt-2 text-sm text-[var(--text)]">
               {query || roleFilter !== "all"
-                ? "No users match your filters."
+                ? "No email matches your filters."
                 : "Users appear here once they register."}
             </p>
           </div>
@@ -227,11 +236,10 @@ const Administration = () => {
                 <thead>
                   <tr className="border-b border-gray-200 text-xs uppercase tracking-wide text-[var(--text)]/50">
                     <th className="px-4 py-3 font-semibold">User</th>
-                    <th className="hidden px-4 py-3 font-semibold sm:table-cell">
-                      Rider ID
+                    <th className="px-4 py-3 font-semibold">Current Role</th>
+                    <th className="px-4 py-3 font-semibold text-right">
+                      Change Role
                     </th>
-                    <th className="px-4 py-3 font-semibold">Role</th>
-                    <th className="px-4 py-3 font-semibold text-right">Action</th>
                   </tr>
                 </thead>
 
@@ -241,39 +249,33 @@ const Administration = () => {
                     const meta = getRoleMeta(role);
                     const busy = workingId === item._id;
                     const isSelf = item._id === profile?._id;
+                    const options = ACTIONS_BY_ROLE[role] || [];
+                    /* the last admin is the only way into the panel, so the
+                       button is taken away instead of letting the server refuse
+                       it after the click */
+                    const isLastAdmin = role === ROLES.ADMIN && counts.admin <= 1;
 
                     return (
                       <tr
                         key={item._id}
                         className="border-b border-gray-100 last:border-0"
                       >
-                        {/* User */}
+                        {/* Email only, it is the one thing that identifies an
+                            account across the whole platform */}
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3 min-w-0">
                             <div className="w-9 h-9 rounded-full bg-[var(--secondary)] text-[var(--foreground)] flex items-center justify-center shrink-0 font-bold text-xs">
-                              {(item.name || item.email)?.[0]?.toUpperCase() || "U"}
+                              {item.email?.[0]?.toUpperCase() || "U"}
                             </div>
 
-                            <div className="min-w-0">
-                              <p className="font-semibold text-[var(--foreground)] truncate">
-                                {item.name || "Unnamed user"}
-                              </p>
-                              <p className="text-xs text-[var(--text)] truncate flex items-center gap-1">
-                                <Mail size={12} />
-                                {item.email}
-                              </p>
-                            </div>
+                            <p className="font-semibold text-[var(--foreground)] truncate flex items-center gap-2">
+                              <Mail size={13} className="shrink-0 text-[var(--text)]" />
+                              {item.email}
+                            </p>
                           </div>
                         </td>
 
-                        {/* Rider ID */}
-                        <td className="hidden px-4 py-3 md:table-cell">
-                          <span className="font-mono text-xs text-[var(--text)]">
-                            {item.riderID || "—"}
-                          </span>
-                        </td>
-
-                        {/* Role */}
+                        {/* Current Role */}
                         <td className="px-4 py-3">
                           <span
                             className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${meta.className}`}
@@ -288,49 +290,67 @@ const Administration = () => {
                             </p>
                           )}
 
-                          {role === ROLES.RIDER && (
+                          {isLastAdmin && !isSelf && (
                             <p className="mt-1 text-[10px] text-[var(--text)]">
-                              Admin not allowed
+                              The last admin
                             </p>
                           )}
                         </td>
 
-                        {/* Action */}
-                        <td className="px-4 py-3 text-right">
-                          {isSelf ? (
-                            <span className="text-xs text-[var(--text)]">
-                              That&apos;s you
-                            </span>
-                          ) : (
-                            <select
-                              value={role}
-                              disabled={busy}
-                              onChange={(e) => changeRole(item, e.target.value)}
-                              className="
-                                rounded-xl
-                                border
-                                border-gray-200
-                                px-3
-                                py-2
-                                text-sm
-                                font-semibold
-                                outline-none
-                                bg-white
-                                disabled:opacity-50
-                                disabled:cursor-not-allowed
-                              "
-                            >
-                              {ROLE_OPTIONS.map((option) => (
-                                <option
-                                  key={option.value}
-                                  value={option.value}
-                                  disabled={option.value === ROLES.ADMIN && role === ROLES.RIDER}
-                                >
-                                  {option.label}
-                                </option>
-                              ))}
-                            </select>
-                          )}
+                        {/* Change Role */}
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-end gap-2">
+                            {isSelf ? (
+                              <span className="text-xs text-[var(--text)]">
+                                That&apos;s you
+                              </span>
+                            ) : options.length === 0 ? (
+                              <span className="inline-flex items-center gap-1 text-xs text-[var(--text)]">
+                                <Lock size={12} />
+                                Locked to rider
+                              </span>
+                            ) : (
+                              options.map((nextRole) => {
+                                const nextMeta = getRoleMeta(nextRole);
+                                const blocked =
+                                  isLastAdmin && nextRole === ROLES.USER;
+
+                                return (
+                                  <button
+                                    key={nextRole}
+                                    type="button"
+                                    disabled={busy || blocked}
+                                    onClick={() => changeRole(item, nextRole)}
+                                    title={
+                                      blocked
+                                        ? "The last admin cannot be demoted"
+                                        : `Make ${nextMeta.label.toLowerCase()}`
+                                    }
+                                    className="
+                                      inline-flex
+                                      items-center gap-2
+                                      rounded-full
+                                      border border-gray-200
+                                      px-4 py-2
+                                      text-xs
+                                      font-semibold
+                                      text-[var(--foreground)]
+                                      hover:bg-[var(--primary)]
+                                      hover:border-[var(--primary)]
+                                      transition-all duration-300
+                                      disabled:opacity-40
+                                      disabled:cursor-not-allowed
+                                      disabled:hover:bg-transparent
+                                      disabled:hover:border-gray-200
+                                    "
+                                  >
+                                    <nextMeta.icon size={14} />
+                                    {nextMeta.label}
+                                  </button>
+                                );
+                              })
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -344,8 +364,9 @@ const Administration = () => {
         <p className="mt-6 flex items-start gap-2 text-xs text-[var(--text)]">
           <UserCheck size={14} className="mt-0.5 shrink-0" />
           Only accounts with the admin role can open this page or change a role.
-          You cannot change your own role, the last admin cannot be demoted, and
-          a rider cannot be given the admin role.
+          You cannot change your own role and the last admin cannot be demoted.
+          The rider role is final, a rider is neither made an admin nor sent
+          back to a normal user.
         </p>
       </div>
     </section>

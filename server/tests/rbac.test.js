@@ -365,19 +365,30 @@ const run = async () => {
   check("GET /api/payments -> all", (await call("GET", "/api/payments", { token: "token-owner" })).data.length, 1);
   check("DELETE /api/parcels/:id -> 200", (await call("DELETE", `/api/parcels/${foreignId}`, { token: "token-owner" })).status, 200);
 
-  section("10. an admin can promote somebody else");
+  section("10. a rider is locked into the rider role");
   const promote = await call("PATCH", `/api/users/${RIDER_ID.toHexString()}/role`, {
     token: "token-owner",
     body: { role: "admin" },
   });
   check("rider cannot be made admin -> 403", promote.status, 403);
 
-  const strangerPromoted = await call("PATCH", `/api/users/${RIDER_ID.toHexString()}/role`, {
+  const demoteRider = await call("PATCH", `/api/users/${RIDER_ID.toHexString()}/role`, {
     token: "token-owner",
     body: { role: "user" },
   });
-  check("demote rider -> 200", strangerPromoted.status, 200);
-  await call("PATCH", `/api/users/${RIDER_ID.toHexString()}/role`, { token: "token-owner", body: { role: "rider" } });
+  check("rider cannot be sent back to a normal user -> 403", demoteRider.status, 403);
+  check("the rider kept the rider role", users.docs.find((d) => String(d._id) === String(RIDER_ID)).role, "rider");
+
+  const grantUser = await call("PATCH", `/api/users/${BLOCKED_ID.toHexString()}/role`, {
+    token: "token-owner",
+    body: { role: "admin" },
+  });
+  check("a plain user can still be made admin -> 200", grantUser.status, 200);
+  const restoreUser = await call("PATCH", `/api/users/${BLOCKED_ID.toHexString()}/role`, {
+    token: "token-owner",
+    body: { role: "user" },
+  });
+  check("and sent back to a normal user -> 200", restoreUser.status, 200);
 
   section("11. an admin cannot demote themselves or the last admin");
   check("own role change -> 403", (await call("PATCH", `/api/users/${OWNER_ID.toHexString()}/role`, { token: "token-owner", body: { role: "user" } })).status, 403);
