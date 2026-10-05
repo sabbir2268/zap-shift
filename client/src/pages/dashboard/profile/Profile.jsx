@@ -55,7 +55,7 @@ const Profile = () => {
   };
 
   return (
-    <section className="w-full bg-gray-50 py-6 md:py-8">
+    <section className="w-full bg-[var(--background)] py-6 md:py-8">
       <div className="max-w-xl mx-auto px-4 sm:px-6">
         <div className="rounded-3xl bg-white border border-gray-200 shadow-md overflow-hidden">
           {/* Header */}
