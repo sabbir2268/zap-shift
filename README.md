@@ -64,7 +64,7 @@ zap-shift/
 | Update Parcel | `/dashboard/update-parcel/:id` | Edit an existing parcel |
 | Payment | `/dashboard/payment/:id` | Stripe card checkout for one parcel |
 | Payment History | `/dashboard/payments` | Every payment you have made, with transaction ids |
-| Profile | `/dashboard/profile` | Read-only account card, sign-in method, verification state, member since |
+| Profile | `/dashboard/profile` | Read-only account card with your picture, sign-in method, verification state and member since. The same card is served to riders and admins, and a rider additionally sees their rider record under it |
 
 ### Admin dashboard
 
@@ -313,6 +313,7 @@ layout branches.
 | `/admin/manage-parcels` | ManageParcels | login required **and admin role** |
 | `/admin/manage-payments` | ManagePayments | login required **and admin role** |
 | `/admin/administration` | Administration | login required **and admin role** |
+| `/admin/profile` | Profile | login required **and admin role** |
 
 ### Auth — `AuthLayout`
 

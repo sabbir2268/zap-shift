@@ -383,7 +383,20 @@ app.get("/api/users/me", requireAuth, async (req, res) => {
       return res.status(404).json({ message: "No user record for this account" });
     }
 
-    res.json(user);
+    /* The status an admin decided on lives on the application, not on the user,
+       because a held rider is still a rider. It is joined on here so a rider
+       reading their own profile sees whether they are on the road or on hold,
+       instead of the page having to guess from the role alone. A rider is matched
+       on the id they were promoted with, so an old application they may have filed
+       years ago can never speak for the one that is live. */
+    const application = await riderApplicationsCollection.findOne(
+      user.riderID
+        ? { riderID: user.riderID }
+        : { $or: [{ uid: req.auth.uid }, { email: req.auth.email }] },
+      { sort: { createdAt: -1 }, projection: { status: 1 } }
+    );
+
+    res.json({ ...user, riderStatus: application?.status || null });
   } catch (error) {
     res.status(500).send({ message: error.message });
   }

@@ -15,7 +15,7 @@ import DashboardHome from "../pages/dashboard/DashboardHome";
 import SendParcel from "../pages/dashboard/sendParcel/SendParcel";
 import MyParcels from "../pages/dashboard/myParcels/MyParcels";
 import TrackParcel from "../pages/dashboard/trackParcel/TrackParcel";
-import Profile from "../pages/dashboard/profile/Profile";
+import Profile from "../pages/profile/Profile";
 import UpdateParcel from "../pages/dashboard/updateParcel/UpdateParcel";
 import Payment from "../pages/dashboard/payment/Payment";
 import PaymentHistory from "../pages/dashboard/payment/PaymentHistory";
@@ -32,7 +32,6 @@ import ManagePayments from "../pages/admin/managePayments/ManagePayments";
 import Administration from "../pages/admin/administration/Administration";
 import RiderHome from "../pages/rider/RiderHome";
 import MyDeliveries from "../pages/rider/MyDeliveries";
-import RiderProfile from "../pages/rider/RiderProfile";
 import MyEarnings from "../pages/rider/MyEarnings";
 
 export const router = createBrowserRouter([
@@ -94,6 +93,7 @@ export const router = createBrowserRouter([
       { path: "assign-rider", element: <AssignRider /> },
       { path: "manage-payments", element: <ManagePayments /> },
       { path: "administration", element: <Administration /> },
+      { path: "profile", element: <Profile /> },
     ],
   },
   {
@@ -112,7 +112,7 @@ export const router = createBrowserRouter([
       /* the old cashout address still opens the earnings page, so a link that
          predates the rename is not a dead end */
       { path: "cashout", element: <MyEarnings /> },
-      { path: "profile", element: <RiderProfile /> },
+      { path: "profile", element: <Profile /> },
     ],
   },
   {

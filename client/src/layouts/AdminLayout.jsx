@@ -9,6 +9,7 @@ import {
   Package,
   CreditCard,
   ShieldPlus,
+  UserRound,
   LogOut,
   Menu,
   X,
@@ -26,6 +27,7 @@ const navItems = [
   { to: "/admin/assign-rider", label: "Assign Rider", icon: UserCheck },
   { to: "/admin/manage-payments", label: "Manage Payment", icon: CreditCard },
   { to: "/admin/administration", label: "Administration", icon: ShieldPlus },
+  { to: "/admin/profile", label: "My Profile", icon: UserRound },
 ];
 
 const AdminLayout = () => {

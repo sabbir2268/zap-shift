@@ -21,7 +21,7 @@ const navItems = [
   { to: "/dashboard/parcels", label: "My Parcels", icon: Package },
   { to: "/dashboard/payments", label: "Payment History", icon: History },
   { to: "/dashboard/track", label: "Track Parcels", icon: Truck },
-  { to: "/dashboard/profile", label: "Profile", icon: UserRound },
+  { to: "/dashboard/profile", label: "My Profile", icon: UserRound },
 ];
 
 const DashboardLayout = () => {
