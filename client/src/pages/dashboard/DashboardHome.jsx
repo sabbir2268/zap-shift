@@ -9,6 +9,7 @@ import {
 import useAxios from "../../hooks/useAxios";
 import useAuth from "../../hooks/useAuth";
 import StatusBadge from "../../components/StatusBadge/StatusBadge";
+import ParcelMixChart from "../../components/ParcelMixChart/ParcelMixChart";
 import PageLoader from "../../components/PageLoader/PageLoader";
 
 const DashboardHome = () => {
@@ -208,6 +209,9 @@ const DashboardHome = () => {
           </div>
         )}
       </div>
+
+      {/* ================= PARCEL MIX ================= */}
+      <ParcelMixChart parcels={parcels} />
     </section>
   );
 };

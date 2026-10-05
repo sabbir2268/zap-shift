@@ -13,7 +13,9 @@ import { Link } from "react-router-dom";
 import useAxios from "../../hooks/useAxios";
 import StatusBadge from "../../components/StatusBadge/StatusBadge";
 import PageLoader from "../../components/PageLoader/PageLoader";
+import StatsBarChart from "../../components/StatsBarChart/StatsBarChart";
 import { getRiderAge, getRiderName } from "../../utils/riders";
+import { getParcelRows, getPeopleRows } from "../../utils/platformStats";
 
 const AdminHome = () => {
   const api = useAxios();
@@ -99,6 +101,22 @@ const AdminHome = () => {
   const recentRiders = [...applications]
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
     .slice(0, 5);
+
+  const peopleRows = getPeopleRows(parcels, applications);
+  const parcelRows = getParcelRows(parcels);
+
+  const peopleTotal = new Set(
+    parcels.map((parcel) => parcel.userEmail).filter(Boolean)
+  ).size;
+
+  const riderTotal = peopleRows.find((row) => row.key === "riders")?.value || 0;
+
+  const deliveredTotal =
+    parcelRows.find((row) => row.key === "delivered")?.value || 0;
+
+  const deliveredShare = parcels.length
+    ? Math.round((deliveredTotal / parcels.length) * 100)
+    : 0;
 
   return (
     <section className="mx-auto max-w-6xl">
@@ -339,6 +357,58 @@ const AdminHome = () => {
             </table>
           </div>
         )}
+      </div>
+
+      {/* ================= PLATFORM CHARTS ================= */}
+      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <StatsBarChart
+          title="People on the platform"
+          subtitle="The accounts behind the parcels and the riders moving them"
+          rows={peopleRows}
+          unit="person"
+          figures={[
+            { label: "Users", value: peopleTotal },
+            { label: "Riders", value: riderTotal },
+          ]}
+          isEmpty={peopleTotal === 0 && riderTotal === 0}
+          empty={
+            <div className="rounded-2xl bg-gray-50 p-10 text-center">
+              <Users size={36} className="mx-auto text-[var(--text)]/40" />
+
+              <p className="mt-3 font-semibold text-[var(--text)]">
+                No people on the platform yet
+              </p>
+
+              <p className="mt-1 text-sm text-[var(--text)]/60">
+                Users and rider applications will appear here.
+              </p>
+            </div>
+          }
+        />
+
+        <StatsBarChart
+          title="Parcel delivery"
+          subtitle="Every parcel booked, and how many of them landed"
+          rows={parcelRows}
+          figures={[
+            { label: "Parcels", value: parcels.length },
+            { label: "Landed", value: `${deliveredShare}%` },
+          ]}
+          isEmpty={parcels.length === 0}
+          empty={
+            <div className="rounded-2xl bg-gray-50 p-10 text-center">
+              <Package size={36} className="mx-auto text-[var(--text)]/40" />
+
+              <p className="mt-3 font-semibold text-[var(--text)]">
+                No parcels to chart yet
+              </p>
+
+              <p className="mt-1 text-sm text-[var(--text)]/60">
+                The chart fills in as soon as a parcel is booked.
+              </p>
+            </div>
+          }
+        />
       </div>
     </section>
   );
