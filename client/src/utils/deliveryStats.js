@@ -7,9 +7,10 @@
  * as the pill the same status gets everywhere else, so a bar and the badge beside
  * it read as one status.
  *
- * A bucket nothing sits in is left out. Six bars of mostly zeroes tells a rider
- * less than the two steps they are actually on, and the total above the chart
- * already says how much was assigned in all.
+ * Every step a delivery can be at is kept, including the ones nothing sits in.
+ * A rider reading the chart should see the whole journey their parcels are on,
+ * so a step they have already cleared, or have not reached yet, still has a bar
+ * to compare against, and the shape of the queue never changes under them.
  */
 
 const BUCKETS = [
@@ -72,9 +73,10 @@ export const getDeliveryRate = (counts) => {
   return Math.round((delivered / total) * 100);
 };
 
-/* the bars to draw, one per bucket that holds at least one parcel */
+/* the bars to draw, one per step a parcel can be at, so an empty step is a zero
+   bar rather than a missing one */
 export const getDeliveryChartRows = (counts) =>
   BUCKETS.map((bucket) => ({
     ...bucket,
     value: Number(counts?.[bucket.key]) || 0,
-  })).filter((row) => row.value > 0);
+  }));

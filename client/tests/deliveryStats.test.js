@@ -46,18 +46,36 @@ test("every step of a delivery gets a bar", () => {
   );
 });
 
-test("a bucket nothing sits in is left out of the chart", () => {
+test("a step with nothing in it still gets a bar", () => {
   const rows = getDeliveryChartRows({ pickedUp: 2, delivered: 5, cancelled: 0 });
+
+  assert.equal(rows.length, 7);
 
   assert.deepEqual(
     rows.map((row) => row.label),
-    ["Picked Up", "Delivered"]
+    [
+      "Assigned",
+      "Pending",
+      "Picked Up",
+      "In Transit",
+      "At Center",
+      "Delivered",
+      "Cancelled",
+    ]
   );
+
+  assert.equal(rows.find((row) => row.label === "Cancelled").value, 0);
+  assert.equal(rows.find((row) => row.label === "Picked Up").value, 2);
 });
 
-test("no counts at all means no bars rather than a broken chart", () => {
-  assert.deepEqual(getDeliveryChartRows({}), []);
-  assert.deepEqual(getDeliveryChartRows(undefined), []);
+test("a rider with nothing assigned still has the whole journey to look at", () => {
+  const rows = getDeliveryChartRows({});
+
+  assert.equal(rows.length, 7);
+
+  for (const row of rows) {
+    assert.equal(row.value, 0);
+  }
 });
 
 test("every bar carries a value and a colour the chart can paint with", () => {
@@ -65,7 +83,7 @@ test("every bar carries a value and a colour the chart can paint with", () => {
 
   for (const row of rows) {
     assert.equal(typeof row.value, "number");
-    assert.ok(row.value > 0);
+    assert.ok(row.value >= 0);
     assert.match(row.color, /^#[0-9a-f]{6}$/i);
     assert.ok(row.caption);
   }

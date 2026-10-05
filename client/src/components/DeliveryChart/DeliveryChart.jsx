@@ -18,11 +18,12 @@ import {
 /*
  * Where a rider's parcels have got to.
  *
- * The total and the completed share are stated in words, because a rider reads
- * those two numbers rather than measuring them off a bar. The chart itself only
- * has to say how the work is split between the steps still to do and the steps
- * already done, and every figure in it is written out underneath so a colour is
- * never the only thing carrying the meaning.
+ * Every step a parcel can be at gets a bar, the empty ones included, so the rider
+ * sees the whole journey rather than only the part they happen to be standing
+ * on. The total and the completed share are stated in words, because a rider
+ * reads those two numbers rather than measuring them off a bar, and every figure
+ * is written out underneath so a colour is never the only thing carrying the
+ * meaning.
  */
 const DeliveryChart = ({ counts }) => {
   const rows = getDeliveryChartRows(counts);
@@ -51,7 +52,7 @@ const DeliveryChart = ({ counts }) => {
         </div>
       </div>
 
-      {rows.length === 0 ? (
+      {total === 0 ? (
         <div className="rounded-2xl bg-gray-50 p-10 text-center">
           <BarChart3 size={36} className="mx-auto text-[var(--text)]/40" />
 
@@ -69,7 +70,7 @@ const DeliveryChart = ({ counts }) => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={rows}
-                margin={{ top: 8, right: 8, bottom: 4, left: -20 }}
+                margin={{ top: 8, right: 8, bottom: 8, left: -20 }}
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
@@ -78,12 +79,17 @@ const DeliveryChart = ({ counts }) => {
                   strokeOpacity={0.12}
                 />
 
+                {/* every step is labelled even when its bar is nothing, so the labels
+                    are angled to keep from colliding on a narrow screen */}
                 <XAxis
                   dataKey="label"
                   tickLine={false}
                   axisLine={false}
                   interval={0}
-                  tick={{ fontSize: 12, fill: "var(--text)" }}
+                  angle={-35}
+                  textAnchor="end"
+                  height={58}
+                  tick={{ fontSize: 11, fill: "var(--text)" }}
                 />
 
                 <YAxis
