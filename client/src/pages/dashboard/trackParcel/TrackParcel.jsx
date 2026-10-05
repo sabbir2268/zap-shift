@@ -16,6 +16,7 @@ import {
 import useAxios from "../../../hooks/useAxios";
 import useAuth from "../../../hooks/useAuth";
 import StatusBadge from "../../../components/StatusBadge/StatusBadge";
+import PageLoader from "../../../components/PageLoader/PageLoader";
 import {
   getPickedUpAt,
   getDeliveredAt,
@@ -132,9 +133,7 @@ const TrackParcel = () => {
       {/* ================= RESULT ================= */}
       <div className="mt-6">
         {searched && loading && (
-          <div className="flex justify-center rounded-3xl border border-gray-200 bg-white py-16">
-            <Loader2 size={28} className="animate-spin text-[var(--foreground)]" />
-          </div>
+          <PageLoader className="min-h-[40vh] rounded-3xl border border-gray-200 bg-white" />
         )}
 
         {searched && !loading && error && (

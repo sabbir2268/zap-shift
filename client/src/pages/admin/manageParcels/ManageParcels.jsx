@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import useAxios from "../../../hooks/useAxios";
 import StatusBadge from "../../../components/StatusBadge/StatusBadge";
+import PageLoader from "../../../components/PageLoader/PageLoader";
 
 const ManageParcels = () => {
   const api = useAxios();
@@ -146,9 +147,7 @@ const ManageParcels = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-24">
-            <span className="loading loading-spinner loading-xl"></span>
-          </div>
+          <PageLoader className="min-h-[60vh]" />
         ) : filtered.length === 0 ? (
           <div className="bg-white rounded-3xl border border-gray-200 p-16 text-center">
             <Package size={48} className="mx-auto text-[var(--text)]" />

@@ -2,6 +2,7 @@ import React from "react";
 import { Link, Navigate, useLocation } from "react-router";
 import { ShieldAlert } from "lucide-react";
 import useAuth from "../hooks/useAuth";
+import PageLoader from "../components/PageLoader/PageLoader";
 
 /* shown to a signed in account whose role is not rider */
 const RiderAccessDenied = () => {
@@ -44,7 +45,7 @@ const RiderRoutes = ({ children }) => {
   const location = useLocation();
 
   if (loading) {
-    return <span className="loading loading-spinner loading-xl"></span>;
+    return <PageLoader />;
   }
 
   if (!user) {
@@ -53,7 +54,7 @@ const RiderRoutes = ({ children }) => {
 
   /* wait for the role, otherwise a fresh rider gets bounced */
   if (!roleReady) {
-    return <span className="loading loading-spinner loading-xl"></span>;
+    return <PageLoader />;
   }
 
   if (!isRider) {
@@ -72,7 +73,7 @@ export const DashboardRedirect = ({ children }) => {
   const { user, loading, isAdmin, isRider, roleReady } = useAuth();
 
   if (loading) {
-    return <span className="loading loading-spinner loading-xl"></span>;
+    return <PageLoader />;
   }
 
   if (!user) {
@@ -80,7 +81,7 @@ export const DashboardRedirect = ({ children }) => {
   }
 
   if (!roleReady) {
-    return <span className="loading loading-spinner loading-xl"></span>;
+    return <PageLoader />;
   }
 
   if (isAdmin) {

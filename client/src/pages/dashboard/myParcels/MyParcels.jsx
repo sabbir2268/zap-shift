@@ -24,6 +24,7 @@ import {
 import useParcels from "../../../api/parcels";
 import useAuth from "../../../hooks/useAuth";
 import StatusBadge from "../../../components/StatusBadge/StatusBadge";
+import PageLoader from "../../../components/PageLoader/PageLoader";
 
 const formatDate = (value) => {
   if (!value) return "—";
@@ -111,9 +112,7 @@ const MyParcels = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-24">
-            <span className="loading loading-spinner loading-xl"></span>
-          </div>
+          <PageLoader className="min-h-[60vh]" />
         ) : parcels.length === 0 ? (
           <div className="bg-white rounded-3xl border border-gray-200 p-16 text-center">
             <Package size={48} className="mx-auto text-[var(--text)]" />

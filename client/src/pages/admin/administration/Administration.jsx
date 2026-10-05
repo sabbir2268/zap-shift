@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import useAxios from "../../../hooks/useAxios";
 import useAuth from "../../../hooks/useAuth";
+import PageLoader from "../../../components/PageLoader/PageLoader";
 import { ROLES } from "../../../data/admin";
 
 /* what each role can be turned into. the rider role is absent on purpose, it is
@@ -214,9 +215,7 @@ const Administration = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-24">
-            <span className="loading loading-spinner loading-xl"></span>
-          </div>
+          <PageLoader className="min-h-[60vh]" />
         ) : filtered.length === 0 ? (
           <div className="bg-white rounded-3xl border border-gray-200 p-16 text-center">
             <Users size={48} className="mx-auto text-[var(--text)]" />

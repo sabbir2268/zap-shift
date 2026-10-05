@@ -29,6 +29,7 @@ import useRiderDeliveries, {
   getEarningTier,
 } from "../../hooks/useRiderDeliveries";
 import StatusBadge from "../../components/StatusBadge/StatusBadge";
+import PageLoader from "../../components/PageLoader/PageLoader";
 import { getDeliveredAt, formatDateTime } from "../../data/deliveryTimes";
 
 /* money is in taka and is stored as a whole number, so it is formatted once here
@@ -274,9 +275,7 @@ const MyDeliveries = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-24">
-            <span className="loading loading-spinner loading-xl"></span>
-          </div>
+          <PageLoader className="min-h-[60vh]" />
         ) : filtered.length === 0 ? (
           <div className="bg-white rounded-3xl border border-gray-200 p-16 text-center">
             <Package size={48} className="mx-auto text-[var(--text)]" />

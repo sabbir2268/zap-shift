@@ -4,12 +4,12 @@ import {
   Clock,
   Truck,
   PackageCheck,
-  Loader2,
   RefreshCw,
 } from "lucide-react";
 import useAxios from "../../hooks/useAxios";
 import useAuth from "../../hooks/useAuth";
 import StatusBadge from "../../components/StatusBadge/StatusBadge";
+import PageLoader from "../../components/PageLoader/PageLoader";
 
 const DashboardHome = () => {
   const api = useAxios();
@@ -126,9 +126,7 @@ const DashboardHome = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-16">
-            <Loader2 size={28} className="animate-spin text-[var(--foreground)]" />
-          </div>
+          <PageLoader className="min-h-[60vh]" />
         ) : error ? (
           <div className="rounded-2xl bg-red-50 p-6 text-center text-sm text-red-600">
             {error}

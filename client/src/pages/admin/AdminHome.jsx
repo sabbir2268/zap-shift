@@ -7,12 +7,12 @@ import {
   Clock,
   Truck,
   PackageCheck,
-  Loader2,
   RefreshCw,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import useAxios from "../../hooks/useAxios";
 import StatusBadge from "../../components/StatusBadge/StatusBadge";
+import PageLoader from "../../components/PageLoader/PageLoader";
 import { getRiderAge, getRiderName } from "../../utils/riders";
 
 const AdminHome = () => {
@@ -175,9 +175,7 @@ const AdminHome = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-16">
-            <Loader2 size={28} className="animate-spin text-[var(--foreground)]" />
-          </div>
+          <PageLoader className="min-h-[60vh]" />
         ) : recentParcels.length === 0 ? (
           <div className="rounded-2xl bg-gray-50 p-10 text-center">
             <Package size={36} className="mx-auto text-[var(--text)]/40" />
@@ -283,9 +281,7 @@ const AdminHome = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-16">
-            <Loader2 size={28} className="animate-spin text-[var(--foreground)]" />
-          </div>
+          <PageLoader className="min-h-[60vh]" />
         ) : recentRiders.length === 0 ? (
           <div className="rounded-2xl bg-gray-50 p-10 text-center">
             <Users size={36} className="mx-auto text-[var(--text)]/40" />

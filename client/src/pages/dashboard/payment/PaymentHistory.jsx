@@ -9,6 +9,7 @@ import {
 import toast from "react-hot-toast";
 import usePayments from "../../../api/payments";
 import useAuth from "../../../hooks/useAuth";
+import PageLoader from "../../../components/PageLoader/PageLoader";
 
 const PaymentHistory = () => {
   const { getPayments } = usePayments();
@@ -78,9 +79,7 @@ const PaymentHistory = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-24">
-            <span className="loading loading-spinner loading-xl"></span>
-          </div>
+          <PageLoader className="min-h-[60vh]" />
         ) : payments.length === 0 ? (
           <div className="bg-white rounded-3xl border border-gray-200 p-16 text-center">
             <History size={48} className="mx-auto text-[var(--text)]" />

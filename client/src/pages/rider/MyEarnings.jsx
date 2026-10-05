@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
 import useRiderEarnings from "../../hooks/useRiderEarnings";
+import PageLoader from "../../components/PageLoader/PageLoader";
 import { getRiderServiceCenter } from "../../data/rider";
 
 /* money is in taka, whole units only */
@@ -125,9 +126,7 @@ const MyEarnings = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-24">
-            <span className="loading loading-spinner loading-xl"></span>
-          </div>
+          <PageLoader className="min-h-[60vh]" />
         ) : (
           <>
             {/* ============ THE THREE FIGURES ============ */}

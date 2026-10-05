@@ -2,6 +2,7 @@ import React from "react";
 import { Link, Navigate, useLocation } from "react-router";
 import { ShieldAlert } from "lucide-react";
 import useAuth from "../hooks/useAuth";
+import PageLoader from "../components/PageLoader/PageLoader";
 
 /* shown to a signed in account whose role is not admin */
 const AccessDenied = () => (
@@ -40,7 +41,7 @@ const AdminRoutes = ({ children }) => {
   const location = useLocation();
 
   if (loading) {
-    return <span className="loading loading-spinner loading-xl"></span>;
+    return <PageLoader />;
   }
 
   if (!user) {
@@ -49,7 +50,7 @@ const AdminRoutes = ({ children }) => {
 
   /* wait for the role, otherwise a promoted admin gets bounced */
   if (!roleReady) {
-    return <span className="loading loading-spinner loading-xl"></span>;
+    return <PageLoader />;
   }
 
   if (!isAdmin) {

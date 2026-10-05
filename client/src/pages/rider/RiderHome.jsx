@@ -16,6 +16,7 @@ import useAuth from "../../hooks/useAuth";
 import useRiderDeliveries from "../../hooks/useRiderDeliveries";
 import { getRiderServiceCenter } from "../../data/rider";
 import StatusBadge from "../../components/StatusBadge/StatusBadge";
+import PageLoader from "../../components/PageLoader/PageLoader";
 
 const RiderHome = () => {
   const { profile } = useAuth();
@@ -187,9 +188,7 @@ const RiderHome = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-16">
-            <span className="loading loading-spinner loading-xl"></span>
-          </div>
+          <PageLoader className="min-h-[60vh]" />
         ) : upcoming.length === 0 ? (
           <div className="rounded-2xl bg-gray-50 p-10 text-center">
             <PackageCheck size={36} className="mx-auto text-[var(--text)]/40" />

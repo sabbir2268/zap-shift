@@ -20,6 +20,7 @@ import {
 import useAxios from "../../../hooks/useAxios";
 import { getStatus, getStatusOptions } from "../../../data/statuses";
 import StatusBadge from "../../../components/StatusBadge/StatusBadge";
+import PageLoader from "../../../components/PageLoader/PageLoader";
 import { getRiderAge, getRiderName } from "../../../utils/riders";
 
 const RIDER_STATUS_OPTIONS = getStatusOptions("rider");
@@ -203,9 +204,7 @@ const RiderList = ({
         )}
 
         {loading ? (
-          <div className="flex justify-center py-24">
-            <span className="loading loading-spinner loading-xl"></span>
-          </div>
+          <PageLoader className="min-h-[60vh]" />
         ) : filtered.length === 0 ? (
           <div className="bg-white rounded-3xl border border-gray-200 p-16 text-center">
             <empty.icon size={48} className="mx-auto text-[var(--text)]" />
