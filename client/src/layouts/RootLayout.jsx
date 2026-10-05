@@ -6,7 +6,7 @@ import { Outlet } from "react-router-dom";
 const RootLayout = () => {
   return (
     <div className="mx-5 lg:mx-10 pb-10">
-      <section className="py-3 lg:py-5">
+      <section className="sticky top-0 z-50 bg-[var(--background)] py-3 lg:py-5">
         <Navbar></Navbar>
       </section>
       <Outlet></Outlet>
