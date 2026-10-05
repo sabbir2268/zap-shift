@@ -1,24 +1,32 @@
 import React from "react";
 
 const WhyUs = () => {
+  /* The tracking picture is drawn in full colour, so it is shown as it was made
+     in both themes. The other two are dark ink on nothing, which is why they
+     disappear into a dark card, so the dark theme paints them in the brand lime
+     through their own alpha instead. .artwork-lime does that from the same file
+     the light theme shows as it is. */
   const whyUsData = [
     {
       title: "Live Parcel Tracking",
       description:
         "Stay updated in real-time with our live parcel tracking feature. From pick-up to delivery, monitor your shipment's journey and get instant status updates for complete peace of mind.",
       image: "../../src/assets/live-tracking.png",
+      keepColours: true,
     },
     {
       title: "100% Safe Delivery",
       description:
         "We ensure your parcels are handled with the utmost care and delivered securely to their destination. Our reliable process guarantees safe and damage-free delivery every time.",
       image: "../../src/assets/tiny-deliveryman.png",
+      keepColours: false,
     },
     {
       title: "24/7 Call Center Support",
       description:
         "Our dedicated support team is available around the clock to assist you with any questions, updates, or delivery concerns—anytime you need us.",
       image: "../../src/assets/safe-delivery.png",
+      keepColours: false,
     },
   ];
 
@@ -46,11 +54,20 @@ const WhyUs = () => {
             >
               {/* Image */}
               <div className="w-full md:w-40 flex-shrink-0 flex justify-center items-center p-6 md:p-8">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-32 h-32 md:w-36 md:h-36 object-contain"
-                />
+                {item.keepColours ? (
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-32 h-32 md:w-36 md:h-36 object-contain"
+                  />
+                ) : (
+                  <span
+                    role="img"
+                    aria-label={item.title}
+                    className="artwork-lime block w-32 h-32 md:w-36 md:h-36"
+                    style={{ "--art": `url(${item.image})` }}
+                  />
+                )}
               </div>
 
               {/* Dashed Separator */}

@@ -86,10 +86,13 @@ const reviews = [
 
         {/* Illustration */}
         <div className="flex justify-center mb-4">
-          <img
-            src="../../src/assets/customer-top.png"
-            alt="Customer reviews"
-            className="w-32 h-20 object-contain"
+          {/* a flat dark grey mark, so the dark theme paints it in the brand lime
+              rather than leaving dark grey on a dark card */}
+          <span
+            role="img"
+            aria-label="Customer reviews"
+            className="artwork-lime block w-32 h-20"
+            style={{ "--art": 'url("../../src/assets/customer-top.png")' }}
           />
         </div>
 

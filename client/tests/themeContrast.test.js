@@ -158,9 +158,13 @@ test("the two themes describe the same set of roles", () => {
   assert.deepEqual(Object.keys(dark).sort(), Object.keys(light).sort());
 });
 
-/* a token that nothing defines resolves to nothing at all, which in css means
+/* A token that nothing defines resolves to nothing at all, which in css means
    the browser quietly keeps the inherited value. every var() the app asks for
-   has to exist, in both themes, or a page loses a colour without any warning */
+   has to exist, in both themes, or a page loses a colour without any warning.
+
+   A theme token is one of the palette. A property handed to a single element,
+   such as the file a painted picture is standing in for, is set on that element
+   instead, so a property counts as provided if the app sets it anywhere. */
 test("every custom property the app asks for is defined in both themes", () => {
   const srcRoot = path.join(clientRoot, "src");
 
@@ -174,19 +178,35 @@ test("every custom property the app asks for is defined in both themes", () => {
       return full;
     });
 
+  const files = [cssPath, ...walk(srcRoot)];
+  const bodies = files.map((file) => fs.readFileSync(file, "utf8"));
+
+  const provided = new Set([
+    ...Object.keys(light),
+    ...Object.keys(dark),
+    /* style={{ "--name": ... }} and --name: in a stylesheet */
+    ...bodies.flatMap((body) => [...body.matchAll(/["'`]?(--[a-z-]+)["'`]?\s*:/g)].map(([, name]) => name)),
+  ]);
+
   const missing = [];
 
-  for (const file of [cssPath, ...walk(srcRoot)]) {
-    const body = fs.readFileSync(file, "utf8");
-
-    for (const [, name] of body.matchAll(/var\(\s*(--[a-z-]+)/g)) {
-      if (!(name in light) || !(name in dark)) {
+  files.forEach((file, index) => {
+    for (const [, name] of bodies[index].matchAll(/var\(\s*(--[a-z-]+)/g)) {
+      if (!provided.has(name)) {
         missing.push(`${path.relative(clientRoot, file)} asks for ${name}`);
       }
     }
-  }
+  });
 
   assert.deepEqual([...new Set(missing)], []);
+});
+
+/* a property that is handed to an element has to actually reach it, or the rule
+   that reads it has nothing to work with */
+test("a painted picture is given the file the rule paints it from", () => {
+  const whyUs = fs.readFileSync(path.join(clientRoot, "src", "pages", "home", "WhyUs.jsx"), "utf8");
+
+  assert.match(whyUs, /artwork-lime[\s\S]*?"--art":\s*`url\(\$\{item\.image\}\)`/);
 });
 
 test("the lime fill is the same lime in both themes", () => {

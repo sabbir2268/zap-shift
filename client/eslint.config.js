@@ -26,4 +26,12 @@ export default defineConfig([
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
+  {
+    /* the tests are run by node rather than by a browser, so they read and
+       write png bytes instead of touching the dom */
+    files: ['tests/**/*.js'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
 ])

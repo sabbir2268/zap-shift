@@ -134,6 +134,53 @@ option {
   scrollbar-color: var(--border-strong) transparent;
 }
 
+/*
+ * Artwork that was drawn in dark ink on a transparent background.
+ *
+ * A png carries no background of its own, so it is only ever as readable as
+ * whatever sits behind it, and these were drawn for a white page: a deliveryman
+ * and a call centre scene in near black, plus the customer review mark in a flat
+ * dark grey. Once the card behind them goes dark they are painted in the same
+ * darkness they are sitting on, which is why two of the Why Choose Us pictures
+ * disappeared and the review mark went muddy.
+ *
+ * Rather than filter ink into an approximation of the brand lime, the png is
+ * used as a mask and the lime is painted straight through it. The colour is then
+ * exactly --secondary rather than near enough, the soft edges the png already
+ * has stay soft, and the light theme is left showing the picture as drawn, so
+ * nothing moves when the theme flips.
+ *
+ * The picture is handed over in a custom property, which is what lets the same
+ * element be a plain image in one theme and a painted one in the other.
+ *
+ * Which pictures are painted this way is decided by measurement rather than by
+ * eye: tests/artwork.test.js reads every png, works out how much of it would be
+ * lost on a dark card, and fails if one that would disappear is not.
+ */
+.artwork-lime {
+  background-image: var(--art);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.dark .artwork-lime {
+  background-color: var(--secondary);
+  background-image: none;
+
+  -webkit-mask-image: var(--art);
+  mask-image: var(--art);
+
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  -webkit-mask-position: center;
+  mask-position: center;
+
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
 /* leaflet paints its own panes, so the map has to be told which theme it is in
    or it stays a bright island on a dark page */
 .dark .leaflet-tile-pane {
