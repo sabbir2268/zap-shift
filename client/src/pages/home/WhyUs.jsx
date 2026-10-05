@@ -27,11 +27,11 @@ const WhyUs = () => {
       <div className="w-full max-w-6xl mx-auto px-4">
         {/* Section Heading */}
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+          <h2 className="text-3xl md:text-4xl font-bold text-[var(--foreground)]">
             Why Choose Us
           </h2>
 
-          <p className="mt-3 text-gray-600 max-w-2xl mx-auto">
+          <p className="mt-3 text-[var(--text-muted)] max-w-2xl mx-auto">
             We make parcel delivery simple, secure, and reliable with services
             designed around your needs.
           </p>
@@ -42,7 +42,7 @@ const WhyUs = () => {
           {whyUsData.map((item) => (
             <div
               key={item.title}
-              className="w-full flex flex-col md:flex-row items-center rounded-2xl border border-gray-200 bg-white shadow-sm"
+              className="w-full flex flex-col md:flex-row items-center rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm"
             >
               {/* Image */}
               <div className="w-full md:w-40 flex-shrink-0 flex justify-center items-center p-6 md:p-8">
@@ -54,15 +54,15 @@ const WhyUs = () => {
               </div>
 
               {/* Dashed Separator */}
-              <div className="hidden md:block h-24 border-r-2 border-dashed border-gray-300"></div>
+              <div className="hidden md:block h-24 border-r-2 border-dashed border-[var(--border-strong)]"></div>
 
               {/* Text */}
               <div className="flex-1 p-6 md:p-8 text-center md:text-left">
-                <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">
+                <h3 className="text-xl md:text-2xl font-semibold text-[var(--foreground)] mb-3">
                   {item.title}
                 </h3>
 
-                <p className="text-gray-600 leading-7">{item.description}</p>
+                <p className="text-[var(--text-muted)] leading-7">{item.description}</p>
               </div>
             </div>
           ))}

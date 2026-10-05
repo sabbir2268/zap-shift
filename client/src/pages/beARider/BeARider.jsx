@@ -81,7 +81,7 @@ const BeARider = () => {
       <div className="mb-10">
         <h1 className="text-4xl md:text-5xl font-bold mb-4">Be a Rider</h1>
 
-        <p className="text-gray-600 text-base md:text-lg max-w-2xl">
+        <p className="text-[var(--text-muted)] text-base md:text-lg max-w-2xl">
           Enjoy fast, reliable parcel delivery with real-time tracking and zero
           hassle. From personal packages to business shipments — we deliver on
           time, every time.
@@ -89,7 +89,7 @@ const BeARider = () => {
       </div>
 
       {/* Shared Background Container */}
-      <div className="bg-white shadow-xl rounded-2xl p-6 md:p-10">
+      <div className="bg-[var(--surface)] shadow-xl rounded-2xl p-6 md:p-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Left Side - Form */}
           <div>
@@ -107,7 +107,7 @@ const BeARider = () => {
                   value={accountName}
                   readOnly
                   required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-100 cursor-not-allowed text-gray-600"
+                  className="w-full border border-[var(--border-strong)] rounded-lg px-4 py-3 bg-[var(--surface-muted)] cursor-not-allowed text-[var(--text-muted)]"
                 />
               </div>
 
@@ -119,7 +119,7 @@ const BeARider = () => {
                   type="number"
                   placeholder="Enter your age"
                   required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full border border-[var(--border-strong)] rounded-lg px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
                   {...register("age", { required: true })}
                 />
               </div>
@@ -133,7 +133,7 @@ const BeARider = () => {
                   value={user?.email || ""}
                   readOnly
                   required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-100 cursor-not-allowed text-gray-600"
+                  className="w-full border border-[var(--border-strong)] rounded-lg px-4 py-3 bg-[var(--surface-muted)] cursor-not-allowed text-[var(--text-muted)]"
                 />
               </div>
 
@@ -144,7 +144,7 @@ const BeARider = () => {
                 <select
                   required
                   defaultValue=""
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none"
+                  className="w-full border border-[var(--border-strong)] rounded-lg px-4 py-3 outline-none"
                   {...register("region", { required: true })}
                 >
                   <option value="" disabled>
@@ -167,7 +167,7 @@ const BeARider = () => {
                   type="text"
                   placeholder="Enter your NID number"
                   required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none"
+                  className="w-full border border-[var(--border-strong)] rounded-lg px-4 py-3 outline-none"
                   {...register("nid", { required: true })}
                 />
               </div>
@@ -180,7 +180,7 @@ const BeARider = () => {
                   type="tel"
                   placeholder="Enter your contact number"
                   required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none"
+                  className="w-full border border-[var(--border-strong)] rounded-lg px-4 py-3 outline-none"
                   {...register("contact", { required: true })}
                 />
               </div>
@@ -195,7 +195,7 @@ const BeARider = () => {
                 <select
                   required
                   defaultValue=""
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none"
+                  className="w-full border border-[var(--border-strong)] rounded-lg px-4 py-3 outline-none"
                   {...register("serviceCenter", { required: true })}
                 >
                   <option value="" disabled>

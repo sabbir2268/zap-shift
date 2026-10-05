@@ -50,9 +50,9 @@ const EARNING_LEGEND = [
 /* one of the summary cards above the table */
 const EarningCard = ({ icon, label, amount, hint, tone }) => {
   const toneClass = {
-    green: "border-green-200 bg-green-50",
-    amber: "border-amber-200 bg-amber-50",
-    plain: "border-gray-200 bg-white",
+    green: "border-green-200 dark:border-green-400/40 bg-green-50",
+    amber: "border-amber-200 dark:border-amber-400/40 bg-amber-50",
+    plain: "border-[var(--border)] bg-[var(--surface)]",
   }[tone];
 
   return (
@@ -105,13 +105,13 @@ const EarningCell = ({ parcel }) => {
       <p
         className={`font-semibold ${
           earning.settled
-            ? "text-green-700"
+            ? "text-green-700 dark:text-green-300"
             : "text-[var(--foreground)]"
         }`}
       >
         {taka(earning.amount)}
         {!earning.settled && (
-          <span className="ml-1.5 text-[10px] font-medium uppercase tracking-wide text-amber-600">
+          <span className="ml-1.5 text-[10px] font-medium uppercase tracking-wide text-amber-600 dark:text-amber-400">
             Pending
           </span>
         )}
@@ -181,10 +181,10 @@ const MyDeliveries = () => {
               className="
                 px-6 py-3
                 rounded-full
-                bg-[var(--foreground)]
+                bg-[var(--ink)]
                 text-[var(--secondary)]
                 font-semibold
-                hover:bg-[var(--primary)]
+                hover:bg-[var(--surface)]
                 hover:text-[var(--foreground)]
                 transition-all duration-300
                 flex items-center gap-2
@@ -206,7 +206,7 @@ const MyDeliveries = () => {
                 bg-transparent
                 text-[var(--foreground)]
                 font-semibold
-                hover:bg-[var(--foreground)]
+                hover:bg-[var(--ink)]
                 hover:text-[var(--secondary)]
                 transition-all duration-300
                 flex items-center gap-2
@@ -234,8 +234,8 @@ const MyDeliveries = () => {
               w-full
               rounded-full
               border
-              border-gray-200
-              bg-white
+              border-[var(--border)]
+              bg-[var(--surface)]
               py-3
               pl-11
               pr-4
@@ -277,7 +277,7 @@ const MyDeliveries = () => {
         {loading ? (
           <PageLoader className="min-h-[60vh]" />
         ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-gray-200 p-16 text-center">
+          <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] p-16 text-center">
             <Package size={48} className="mx-auto text-[var(--text)]" />
             <h2 className="mt-4 text-xl font-bold text-[var(--foreground)]">
               No deliveries found
@@ -327,9 +327,9 @@ const DeliveryTable = ({
   onCancel,
 }) => {
   return (
-    <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden">
+    <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] overflow-hidden">
       {/* Legend */}
-      <div className="flex flex-wrap items-center gap-3 border-b border-gray-100 px-5 py-3">
+      <div className="flex flex-wrap items-center gap-3 border-b border-[var(--border)] px-5 py-3">
         <span className="text-xs font-semibold text-[var(--text)]">
           {parcels.length} deliver{parcels.length === 1 ? "y" : "ies"}
         </span>
@@ -352,7 +352,7 @@ const DeliveryTable = ({
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-gray-200 text-xs uppercase tracking-wide text-[var(--text)]/50">
+            <tr className="border-b border-[var(--border)] text-xs uppercase tracking-wide text-[var(--text)]/50">
               <th className="px-4 py-3 font-semibold">Parcel</th>
               <th className="hidden px-4 py-3 font-semibold lg:table-cell">
                 Pickup
@@ -391,12 +391,12 @@ const DeliveryTable = ({
               return (
                 <tr
                   key={parcel._id}
-                  className="border-b border-gray-100 last:border-0 hover:bg-gray-50/60 transition-colors"
+                  className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface-hover)]/60 transition-colors"
                 >
                   {/* Parcel */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-[var(--secondary)] text-[var(--foreground)] flex items-center justify-center shrink-0">
+                      <div className="w-9 h-9 rounded-xl bg-[var(--secondary)] text-[var(--text-on-secondary)] flex items-center justify-center shrink-0">
                         <Package size={17} />
                       </div>
 
@@ -509,10 +509,10 @@ const DeliveryTable = ({
                         className="
                           w-9 h-9
                           rounded-lg
-                          border border-gray-200
+                          border border-[var(--border)]
                           flex items-center justify-center
                           text-[var(--foreground)]
-                          hover:bg-gray-100
+                          hover:bg-[var(--surface-muted)]
                           transition
                         "
                       >
@@ -528,10 +528,10 @@ const DeliveryTable = ({
                           className="
                             w-9 h-9
                             rounded-lg
-                            border border-blue-200
+                            border border-blue-200 dark:border-blue-400/40
                             flex items-center justify-center
-                            text-blue-600
-                            hover:bg-blue-50
+                            text-blue-600 dark:text-blue-400
+                            hover:bg-blue-50 dark:hover:bg-blue-400/20
                             transition
                             disabled:cursor-not-allowed
                             disabled:opacity-60
@@ -554,10 +554,10 @@ const DeliveryTable = ({
                           className="
                             w-9 h-9
                             rounded-lg
-                            border border-red-200
+                            border border-red-200 dark:border-red-400/40
                             flex items-center justify-center
-                            text-red-500
-                            hover:bg-red-50
+                            text-red-500 dark:text-red-400
+                            hover:bg-red-50 dark:hover:bg-red-400/20
                             transition
                             disabled:cursor-not-allowed
                             disabled:opacity-60
@@ -592,7 +592,7 @@ const DeliveryModal = ({ parcel, onClose }) => (
         max-w-lg
         max-h-[85vh]
         overflow-y-auto
-        bg-white
+        bg-[var(--surface)]
         rounded-3xl
         shadow-2xl
       "
@@ -609,10 +609,10 @@ const DeliveryModal = ({ parcel, onClose }) => (
             top-5
             w-9 h-9
             rounded-full
-            bg-gray-100
+            bg-[var(--surface-muted)]
             flex items-center justify-center
-            text-gray-500
-            hover:bg-gray-200
+            text-[var(--text-muted)]
+            hover:bg-[var(--surface-hover)]
             transition
           "
         >
@@ -620,7 +620,7 @@ const DeliveryModal = ({ parcel, onClose }) => (
         </button>
 
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-[var(--secondary)] text-[var(--foreground)] flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-xl bg-[var(--secondary)] text-[var(--text-on-secondary)] flex items-center justify-center shrink-0">
             <Package size={21} />
           </div>
 
@@ -637,8 +637,8 @@ const DeliveryModal = ({ parcel, onClose }) => (
         </div>
 
         {/* Parcel info */}
-        <div className="mt-5 rounded-2xl border border-gray-200 overflow-hidden">
-          <div className="flex items-center gap-2 px-4 py-3 bg-gray-100">
+        <div className="mt-5 rounded-2xl border border-[var(--border)] overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-3 bg-[var(--surface-muted)]">
             <Package size={16} />
             <span className="font-semibold text-sm">Parcel Info</span>
           </div>
@@ -671,8 +671,8 @@ const DeliveryModal = ({ parcel, onClose }) => (
         {/* Earning, so the rider can see what the delivery pays and which tier
             decided it rather than taking the figure on trust */}
         {getEarning(parcel) && (
-          <div className="mt-4 rounded-2xl border border-gray-200 overflow-hidden">
-            <div className="flex items-center gap-2 px-4 py-3 bg-gray-100">
+          <div className="mt-4 rounded-2xl border border-[var(--border)] overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-3 bg-[var(--surface-muted)]">
               <Wallet size={16} />
               <span className="font-semibold text-sm">Your Earning</span>
             </div>
@@ -711,19 +711,19 @@ const DeliveryModal = ({ parcel, onClose }) => (
                   <span
                     className={`text-base font-bold ${
                       getEarning(parcel).settled
-                        ? "text-green-700"
+                        ? "text-green-700 dark:text-green-300"
                         : "text-[var(--foreground)]"
                     }`}
                   >
                     {taka(getEarning(parcel).amount)}
                     {!getEarning(parcel).settled &&
                       getEarning(parcel).status !== "cancelled" && (
-                        <span className="ml-1.5 text-[10px] font-medium uppercase tracking-wide text-amber-600">
+                        <span className="ml-1.5 text-[10px] font-medium uppercase tracking-wide text-amber-600 dark:text-amber-400">
                           Pending
                         </span>
                       )}
                     {getEarning(parcel).status === "cancelled" && (
-                      <span className="ml-1.5 text-[10px] font-medium uppercase tracking-wide text-red-500">
+                      <span className="ml-1.5 text-[10px] font-medium uppercase tracking-wide text-red-500 dark:text-red-400">
                         Cancelled
                       </span>
                     )}
@@ -735,8 +735,8 @@ const DeliveryModal = ({ parcel, onClose }) => (
         )}
 
         {/* Pickup */}
-        <div className="mt-4 rounded-2xl border border-gray-200 overflow-hidden">
-          <div className="flex items-center gap-2 px-4 py-3 bg-gray-100">
+        <div className="mt-4 rounded-2xl border border-[var(--border)] overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-3 bg-[var(--surface-muted)]">
             <User size={16} />
             <span className="font-semibold text-sm">Pickup Info</span>
           </div>
@@ -763,8 +763,8 @@ const DeliveryModal = ({ parcel, onClose }) => (
         </div>
 
         {/* Receiver */}
-        <div className="mt-4 rounded-2xl border border-gray-200 overflow-hidden">
-          <div className="flex items-center gap-2 px-4 py-3 bg-gray-100">
+        <div className="mt-4 rounded-2xl border border-[var(--border)] overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-3 bg-[var(--surface-muted)]">
             <Truck size={16} />
             <span className="font-semibold text-sm">Receiver Info</span>
           </div>
@@ -806,12 +806,12 @@ const ConfirmCancelModal = ({ parcel, busy, onConfirm, onClose }) => (
       onClick={busy ? undefined : onClose}
     />
 
-    <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl">
+    <div className="relative w-full max-w-md bg-[var(--surface)] rounded-3xl shadow-2xl">
       <div className="h-2 bg-red-500 rounded-t-3xl" />
 
       <div className="p-6">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-red-100 text-red-500 flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-xl bg-red-100 text-red-500 dark:text-red-400 flex items-center justify-center shrink-0">
             <Ban size={21} />
           </div>
 
@@ -839,12 +839,12 @@ const ConfirmCancelModal = ({ parcel, busy, onConfirm, onClose }) => (
               flex-1
               rounded-xl
               border
-              border-gray-200
+              border-[var(--border)]
               py-2.5
               text-sm
               font-semibold
               text-[var(--foreground)]
-              hover:bg-gray-100
+              hover:bg-[var(--surface-muted)]
               transition
               disabled:cursor-not-allowed
               disabled:opacity-60

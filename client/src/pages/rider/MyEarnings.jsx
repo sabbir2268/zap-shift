@@ -105,10 +105,10 @@ const MyEarnings = () => {
             className="
               px-6 py-3
               rounded-full
-              bg-[var(--foreground)]
+              bg-[var(--ink)]
               text-[var(--secondary)]
               font-semibold
-              hover:bg-[var(--primary)]
+              hover:bg-[var(--surface)]
               hover:text-[var(--foreground)]
               transition-all duration-300
               flex items-center gap-2
@@ -133,7 +133,7 @@ const MyEarnings = () => {
             <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <MoneyCard
                 icon={<TrendingUp size={22} />}
-                tone="bg-green-100 text-green-600"
+                tone="bg-green-100 dark:bg-green-400/15 text-green-600 dark:text-green-400"
                 label="Total Earning"
                 value={totals.total}
                 caption="From delivered parcels"
@@ -141,7 +141,7 @@ const MyEarnings = () => {
 
               <MoneyCard
                 icon={<Hourglass size={22} />}
-                tone="bg-amber-100 text-amber-600"
+                tone="bg-amber-100 dark:bg-amber-400/15 text-amber-600 dark:text-amber-400"
                 label="Pending"
                 value={totals.pending}
                 caption="Deliveries still open"
@@ -149,7 +149,7 @@ const MyEarnings = () => {
 
               <MoneyCard
                 icon={<Wallet size={22} />}
-                tone="bg-blue-100 text-blue-600"
+                tone="bg-blue-100 dark:bg-blue-400/15 text-blue-600 dark:text-blue-400"
                 label="In Wallet"
                 value={totals.wallet}
                 caption="Ready to cash out"
@@ -157,7 +157,7 @@ const MyEarnings = () => {
 
               <MoneyCard
                 icon={<Banknote size={22} />}
-                tone="bg-purple-100 text-purple-600"
+                tone="bg-purple-100 dark:bg-purple-400/15 text-purple-600 dark:text-purple-400"
                 label="Cashed Out"
                 value={totals.cashedOut}
                 caption="Already taken out"
@@ -168,7 +168,7 @@ const MyEarnings = () => {
               {/* ============ CASHOUT ============ */}
               <form
                 onSubmit={handleSubmit}
-                className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm"
+                className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm"
               >
                 <div className="flex items-center gap-2">
                   <Banknote size={18} className="text-[var(--foreground)]" />
@@ -202,13 +202,13 @@ const MyEarnings = () => {
                       placeholder="Enter amount"
                       disabled={!canCashOut}
                       className={`
-                        w-full rounded-xl border bg-white py-3 pl-9 pr-4 outline-none transition
+                        w-full rounded-xl border bg-[var(--surface)] py-3 pl-9 pr-4 outline-none transition
                         focus:ring-2 focus:ring-[var(--secondary)]
-                        disabled:bg-gray-100 disabled:cursor-not-allowed
+                        disabled:bg-[var(--surface-muted)] disabled:cursor-not-allowed
                         ${
                           error
                             ? "border-red-400"
-                            : "border-gray-200 focus:border-[var(--foreground)]"
+                            : "border-[var(--border)] focus:border-[var(--foreground)]"
                         }
                       `}
                     />
@@ -216,7 +216,7 @@ const MyEarnings = () => {
 
                   <div className="mt-1.5 flex items-center justify-between gap-3">
                     {error ? (
-                      <p className="text-xs text-red-500">{error}</p>
+                      <p className="text-xs text-red-500 dark:text-red-400">{error}</p>
                     ) : (
                       <span />
                     )}
@@ -239,9 +239,9 @@ const MyEarnings = () => {
                     submitting || !canCashOut || !amount || Boolean(error)
                   }
                   className="
-                    mt-5 w-full rounded-xl bg-[var(--foreground)] py-3
+                    mt-5 w-full rounded-xl bg-[var(--ink)] py-3
                     font-semibold text-[var(--secondary)]
-                    transition hover:bg-[var(--primary)] hover:text-[var(--foreground)]
+                    transition hover:bg-[var(--surface)] hover:text-[var(--foreground)]
                     disabled:cursor-not-allowed disabled:opacity-60
                     flex items-center justify-center gap-2
                   "
@@ -262,7 +262,7 @@ const MyEarnings = () => {
                 )}
 
                 {/* ============ PAYOUT DETAILS ============ */}
-                <div className="mt-6 border-t border-gray-100 pt-5">
+                <div className="mt-6 border-t border-[var(--border)] pt-5">
                   <h3 className="text-sm font-bold text-[var(--foreground)]">
                     Payout details
                   </h3>
@@ -289,7 +289,7 @@ const MyEarnings = () => {
               </form>
 
               {/* ============ PERIODS ============ */}
-              <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
                 <div className="flex items-center gap-2">
                   <CalendarDays size={18} className="text-[var(--foreground)]" />
                   <h2 className="text-lg font-bold text-[var(--foreground)]">
@@ -306,7 +306,7 @@ const MyEarnings = () => {
                   {periods.map((period) => (
                     <div
                       key={period.key}
-                      className="rounded-2xl border border-gray-200 bg-gray-50 p-4"
+                      className="rounded-2xl border border-[var(--border)] bg-[var(--surface-muted)] p-4"
                     >
                       <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text)]/60">
                         {period.label}
@@ -327,7 +327,7 @@ const MyEarnings = () => {
             </div>
 
             {/* ============ CASHOUT HISTORY ============ */}
-            <div className="mt-5 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="mt-5 rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
               <div className="flex items-center gap-2">
                 <History size={18} className="text-[var(--foreground)]" />
                 <h2 className="text-lg font-bold text-[var(--foreground)]">
@@ -336,14 +336,14 @@ const MyEarnings = () => {
               </div>
 
               {records.length === 0 ? (
-                <p className="mt-4 rounded-2xl bg-gray-50 p-6 text-center text-sm text-[var(--text)]">
+                <p className="mt-4 rounded-2xl bg-[var(--surface-muted)] p-6 text-center text-sm text-[var(--text)]">
                   You have not cashed out yet.
                 </p>
               ) : (
                 <div className="mt-4 overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead>
-                      <tr className="border-b border-gray-200 text-xs uppercase tracking-wide text-[var(--text)]/50">
+                      <tr className="border-b border-[var(--border)] text-xs uppercase tracking-wide text-[var(--text)]/50">
                         <th className="px-3 py-2 font-semibold">Amount</th>
                         <th className="px-3 py-2 font-semibold">Date</th>
                         <th className="px-3 py-2 font-semibold text-right">
@@ -368,8 +368,8 @@ const MyEarnings = () => {
               )}
             </div>
 
-            <div className="mt-5 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/60 p-5">
-              <Info size={18} className="mt-0.5 shrink-0 text-amber-600" />
+            <div className="mt-5 flex items-start gap-3 rounded-2xl border border-amber-200 dark:border-amber-400/40 bg-amber-50/60 p-5">
+              <Info size={18} className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
 
               <div className="text-sm leading-6 text-[var(--text)]">
                 <p className="font-semibold text-[var(--foreground)]">
@@ -397,7 +397,7 @@ const recordsToCome = (records, index) =>
     .reduce((sum, record) => sum + (Number(record.amount) || 0), 0);
 
 const CashoutRow = ({ record, wallet }) => (
-  <tr className="border-b border-gray-100 last:border-0">
+  <tr className="border-b border-[var(--border)] last:border-0">
     <td className="px-3 py-3 font-semibold text-[var(--foreground)]">
       {taka(record.amount)}
     </td>
@@ -413,7 +413,7 @@ const CashoutRow = ({ record, wallet }) => (
 );
 
 const MoneyCard = ({ icon, tone, label, value, caption }) => (
-  <div className="flex items-center gap-4 rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
+  <div className="flex items-center gap-4 rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
     <div
       className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${tone}`}
     >
@@ -433,7 +433,7 @@ const MoneyCard = ({ icon, tone, label, value, caption }) => (
 );
 
 const DetailRow = ({ label, value }) => (
-  <div className="flex items-center justify-between gap-3 border-b border-gray-100 pb-3 last:border-0 last:pb-0">
+  <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] pb-3 last:border-0 last:pb-0">
     <span className="text-[var(--text)]">{label}</span>
     <span className="font-medium text-right text-[var(--foreground)]">
       {value}

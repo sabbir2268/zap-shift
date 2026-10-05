@@ -57,7 +57,7 @@ const HowItWorks = () => {
                 className="
                   p-6
                   rounded-2xl
-                  bg-[var(--card)]
+                  bg-[var(--surface)]
                   border
                   border-[var(--border)]
                   shadow-sm
@@ -77,7 +77,7 @@ const HowItWorks = () => {
                     flex
                     items-center
                     justify-center
-                    bg-[var(--foreground)]
+                    bg-[var(--ink)]
                     text-[var(--secondary)]
                     mb-5
                     transition-all

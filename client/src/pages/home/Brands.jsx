@@ -39,11 +39,11 @@ const Brands = () => {
 
       {/* Heading */}
       <div className="text-center px-4 mb-4 lg:mb-8">
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600 mb-3">
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600 dark:text-blue-400 mb-3">
           Our Partners
         </p>
 
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+        <h2 className="text-3xl md:text-4xl font-bold text-[var(--foreground)]">
           We've helped thousands of sales teams
         </h2>
 

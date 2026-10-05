@@ -66,25 +66,25 @@ const AdminHome = () => {
       label: "Total Parcels",
       value: parcels.length,
       icon: Package,
-      className: "bg-indigo-100 text-indigo-600",
+      className: "bg-indigo-100 dark:bg-indigo-400/15 text-indigo-600 dark:text-indigo-400",
     },
     {
       label: "Total Users",
       value: new Set(parcels.map((parcel) => parcel.userEmail)).size,
       icon: Users,
-      className: "bg-blue-100 text-blue-600",
+      className: "bg-blue-100 dark:bg-blue-400/15 text-blue-600 dark:text-blue-400",
     },
     {
       label: "Pending Riders",
       value: pendingApplications,
       icon: ClipboardList,
-      className: "bg-yellow-100 text-yellow-600",
+      className: "bg-yellow-100 dark:bg-yellow-400/15 text-yellow-600 dark:text-yellow-400",
     },
     {
       label: "Revenue",
       value: `৳${revenue}`,
       icon: CreditCard,
-      className: "bg-green-100 text-green-600",
+      className: "bg-green-100 dark:bg-green-400/15 text-green-600 dark:text-green-400",
     },
   ];
 
@@ -135,7 +135,7 @@ const AdminHome = () => {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
+            className="flex items-center gap-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm"
           >
             <div
               className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${stat.className}`}
@@ -161,7 +161,7 @@ const AdminHome = () => {
         {deliveryStats.map((item) => (
           <div
             key={item.label}
-            className="flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-5 py-4 shadow-sm"
+            className="flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-5 py-4 shadow-sm"
           >
             <span className="font-semibold text-[var(--text)]">
               {item.label}
@@ -176,7 +176,7 @@ const AdminHome = () => {
       </div>
 
       {/* ================= RECENT PARCELS ================= */}
-      <div className="mt-8 rounded-3xl border border-gray-200 bg-white p-5 shadow-sm md:p-6">
+      <div className="mt-8 rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm md:p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-[var(--foreground)]">
             Recent Parcels
@@ -185,7 +185,7 @@ const AdminHome = () => {
           <button
             type="button"
             onClick={loadData}
-            className="flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:bg-gray-100"
+            className="flex items-center gap-2 rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--surface-muted)]"
           >
             <RefreshCw size={15} />
             Refresh
@@ -195,7 +195,7 @@ const AdminHome = () => {
         {loading ? (
           <PageLoader className="min-h-[60vh]" />
         ) : recentParcels.length === 0 ? (
-          <div className="rounded-2xl bg-gray-50 p-10 text-center">
+          <div className="rounded-2xl bg-[var(--surface-muted)] p-10 text-center">
             <Package size={36} className="mx-auto text-[var(--text)]/40" />
             <p className="mt-3 font-semibold text-[var(--text)]">
               No parcels yet
@@ -208,7 +208,7 @@ const AdminHome = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-gray-200 text-xs uppercase tracking-wide text-[var(--text)]/50">
+                <tr className="border-b border-[var(--border)] text-xs uppercase tracking-wide text-[var(--text)]/50">
                   <th className="px-3 py-3 font-semibold">Parcel</th>
                   <th className="hidden px-3 py-3 font-semibold sm:table-cell">
                     From
@@ -229,7 +229,7 @@ const AdminHome = () => {
                   return (
                     <tr
                       key={parcel._id}
-                      className="border-b border-gray-100 last:border-0"
+                      className="border-b border-[var(--border)] last:border-0"
                     >
                       <td className="px-3 py-4 font-semibold text-[var(--foreground)]">
                         {parcel.parcelTitle || "Untitled"}
@@ -267,7 +267,7 @@ const AdminHome = () => {
         <div className="mt-5 flex justify-end">
           <Link
             to="/admin/manage-parcels"
-            className="rounded-full bg-[var(--foreground)] px-5 py-2 text-sm font-semibold text-[var(--secondary)] transition hover:bg-[var(--primary)] hover:text-[var(--foreground)]"
+            className="rounded-full bg-[var(--ink)] px-5 py-2 text-sm font-semibold text-[var(--secondary)] transition hover:bg-[var(--surface)] hover:text-[var(--foreground)]"
           >
             Manage Parcels
           </Link>
@@ -275,7 +275,7 @@ const AdminHome = () => {
       </div>
 
       {/* ================= RECENT RIDERS ================= */}
-      <div className="mt-8 rounded-3xl border border-gray-200 bg-white p-5 shadow-sm md:p-6">
+      <div className="mt-8 rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm md:p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-[var(--foreground)]">
             Recent Riders
@@ -284,14 +284,14 @@ const AdminHome = () => {
           <div className="flex gap-2">
             <Link
               to="/admin/pending-riders"
-              className="rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:bg-gray-100"
+              className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--surface-muted)]"
             >
               Pending
             </Link>
 
             <Link
               to="/admin/active-riders"
-              className="rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:bg-gray-100"
+              className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--surface-muted)]"
             >
               Active
             </Link>
@@ -301,7 +301,7 @@ const AdminHome = () => {
         {loading ? (
           <PageLoader className="min-h-[60vh]" />
         ) : recentRiders.length === 0 ? (
-          <div className="rounded-2xl bg-gray-50 p-10 text-center">
+          <div className="rounded-2xl bg-[var(--surface-muted)] p-10 text-center">
             <Users size={36} className="mx-auto text-[var(--text)]/40" />
             <p className="mt-3 font-semibold text-[var(--text)]">
               No rider applications yet
@@ -314,7 +314,7 @@ const AdminHome = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-gray-200 text-xs uppercase tracking-wide text-[var(--text)]/50">
+                <tr className="border-b border-[var(--border)] text-xs uppercase tracking-wide text-[var(--text)]/50">
                   <th className="px-3 py-3 font-semibold">Rider</th>
                   <th className="px-3 py-3 font-semibold">Age</th>
                   <th className="px-3 py-3 font-semibold">Service Center</th>
@@ -325,7 +325,7 @@ const AdminHome = () => {
                 {recentRiders.map((rider) => (
                   <tr
                     key={rider._id}
-                    className="border-b border-gray-100 last:border-0"
+                    className="border-b border-[var(--border)] last:border-0"
                   >
                     <td className="px-3 py-4">
                       <p className="font-semibold text-[var(--foreground)]">
@@ -372,7 +372,7 @@ const AdminHome = () => {
           ]}
           isEmpty={peopleTotal === 0 && riderTotal === 0}
           empty={
-            <div className="rounded-2xl bg-gray-50 p-10 text-center">
+            <div className="rounded-2xl bg-[var(--surface-muted)] p-10 text-center">
               <Users size={36} className="mx-auto text-[var(--text)]/40" />
 
               <p className="mt-3 font-semibold text-[var(--text)]">
@@ -396,7 +396,7 @@ const AdminHome = () => {
           ]}
           isEmpty={parcels.length === 0}
           empty={
-            <div className="rounded-2xl bg-gray-50 p-10 text-center">
+            <div className="rounded-2xl bg-[var(--surface-muted)] p-10 text-center">
               <Package size={36} className="mx-auto text-[var(--text)]/40" />
 
               <p className="mt-3 font-semibold text-[var(--text)]">

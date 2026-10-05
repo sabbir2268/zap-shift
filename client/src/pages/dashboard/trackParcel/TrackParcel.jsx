@@ -99,7 +99,7 @@ const TrackParcel = () => {
       {/* ================= SEARCH ================= */}
       <form
         onSubmit={handleTrack}
-        className="flex flex-col gap-3 rounded-3xl border border-gray-200 bg-white p-5 shadow-sm sm:flex-row"
+        className="flex flex-col gap-3 rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm sm:flex-row"
       >
         <div className="relative flex-1">
           <Search
@@ -112,14 +112,14 @@ const TrackParcel = () => {
             value={parcelId}
             onChange={(e) => setParcelId(e.target.value)}
             placeholder="Enter parcel ID (e.g. 665f3c9d...) "
-            className="w-full rounded-xl border border-gray-200 bg-white py-3 pl-11 pr-4 outline-none transition focus:border-[var(--foreground)] focus:ring-2 focus:ring-[var(--secondary)]"
+            className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] py-3 pl-11 pr-4 outline-none transition focus:border-[var(--foreground)] focus:ring-2 focus:ring-[var(--secondary)]"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading || !parcelId.trim()}
-          className="flex items-center justify-center gap-2 rounded-xl bg-[var(--foreground)] px-6 py-3 font-semibold text-[var(--secondary)] transition hover:bg-[var(--primary)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex items-center justify-center gap-2 rounded-xl bg-[var(--ink)] px-6 py-3 font-semibold text-[var(--secondary)] transition hover:bg-[var(--surface)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? (
             <Loader2 size={18} className="animate-spin" />
@@ -133,11 +133,11 @@ const TrackParcel = () => {
       {/* ================= RESULT ================= */}
       <div className="mt-6">
         {searched && loading && (
-          <PageLoader className="min-h-[40vh] rounded-3xl border border-gray-200 bg-white" />
+          <PageLoader className="min-h-[40vh] rounded-3xl border border-[var(--border)] bg-[var(--surface)]" />
         )}
 
         {searched && !loading && error && (
-          <div className="flex flex-col items-center rounded-3xl border border-gray-200 bg-white py-14 text-center">
+          <div className="flex flex-col items-center rounded-3xl border border-[var(--border)] bg-[var(--surface)] py-14 text-center">
             <Package size={40} className="text-[var(--text)]/30" />
             <p className="mt-4 font-semibold text-[var(--text)]">
               Parcel not found
@@ -147,11 +147,11 @@ const TrackParcel = () => {
         )}
 
         {searched && !loading && parcel && (
-          <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
             {/* Status header */}
             <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-5">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--secondary)] text-[var(--foreground)]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--secondary)] text-[var(--text-on-secondary)]">
                   <Package size={22} />
                 </div>
 
@@ -170,7 +170,7 @@ const TrackParcel = () => {
             </div>
 
             {/* Route */}
-            <div className="grid grid-cols-1 gap-4 border-t border-gray-100 px-6 py-5 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 border-t border-[var(--border)] px-6 py-5 sm:grid-cols-2">
               <DetailRow
                 icon={<MapPin size={17} />}
                 label="Pickup"
@@ -240,12 +240,12 @@ const SectionTitle = ({ children }) => (
 /* the rider name and id the admin wrote onto the parcel, or the honest answer
    that nobody has taken it yet */
 const DeliveryAgent = ({ parcel }) => (
-  <div className="border-t border-gray-100 px-6 py-5">
+  <div className="border-t border-[var(--border)] px-6 py-5">
     <SectionTitle>Delivery Agent</SectionTitle>
 
     {parcel.riderID ? (
       <div className="mt-3 flex items-center gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--secondary)] font-bold text-[var(--foreground)]">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--secondary)] font-bold text-[var(--text-on-secondary)]">
           {(parcel.riderName || parcel.riderID)[0].toUpperCase()}
         </div>
 
@@ -270,7 +270,7 @@ const DeliveryAgent = ({ parcel }) => (
         />
       </div>
     ) : (
-      <div className="mt-3 flex items-center gap-3 rounded-2xl border border-dashed border-gray-300 px-4 py-3">
+      <div className="mt-3 flex items-center gap-3 rounded-2xl border border-dashed border-[var(--border-strong)] px-4 py-3">
         <Hourglass size={18} className="shrink-0 text-[var(--text)]/50" />
 
         <div className="min-w-0">
@@ -295,7 +295,7 @@ const DeliveryTimes = ({ parcel }) => {
   const deliveredAt = getDeliveredAt(parcel);
 
   return (
-    <div className="border-t border-gray-100 px-6 py-5">
+    <div className="border-t border-[var(--border)] px-6 py-5">
       <SectionTitle>Delivery Times</SectionTitle>
 
       <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -322,7 +322,7 @@ const EstimatedDelivery = ({ parcel }) => {
   const paused = !parcel.riderID && parcel.status !== "cancelled";
 
   return (
-    <div className="border-t border-gray-100 px-6 py-5">
+    <div className="border-t border-[var(--border)] px-6 py-5">
       <SectionTitle>Estimated Delivery</SectionTitle>
 
       <div className="mt-3 flex items-start gap-3">
@@ -339,7 +339,7 @@ const EstimatedDelivery = ({ parcel }) => {
 
           {/* the window only starts counting once a rider holds the parcel */}
           {paused && (
-            <p className="mt-1 flex items-center gap-1.5 text-xs text-amber-700">
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300">
               <Clock size={13} />
               Paused until a rider is assigned
             </p>

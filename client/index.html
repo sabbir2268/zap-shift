@@ -6,6 +6,29 @@
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vite + React</title>
+
+  <!--
+    the theme is decided before the page paints
+    without this, someone on the dark theme gets a white flash while react boots
+  -->
+  <script>
+    (function () {
+      try {
+        var stored = window.localStorage.getItem("zapshift-theme");
+        var theme =
+          stored === "light" || stored === "dark"
+            ? stored
+            : window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+
+        document.documentElement.classList.toggle("dark", theme === "dark");
+        document.documentElement.dataset.theme = theme;
+      } catch (error) {
+        /* storage blocked, so the site simply opens in the light theme */
+      }
+    })();
+  </script>
 </head>
 
 <body>

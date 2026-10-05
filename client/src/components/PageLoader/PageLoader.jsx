@@ -13,7 +13,12 @@ const PageLoader = ({ className = "min-h-screen" }) => (
     aria-label="Loading"
     className={`flex w-full items-center justify-center ${className}`}
   >
-    <span className="loading loading-spinner loading-xl text-[var(--foreground)]"></span>
+    {/* drawn here rather than pulled from a ui kit, so it is painted in the ink
+        of whichever theme is on and never arrives as a white ring on a dark page */}
+    <span
+      className="inline-block h-9 w-9 animate-spin rounded-full border-4 border-current border-t-transparent text-[var(--foreground)]"
+      aria-hidden="true"
+    />
   </div>
 );
 

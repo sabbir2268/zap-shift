@@ -58,19 +58,19 @@ const ManagePayments = () => {
       label: "Total Payments",
       value: payments.length,
       icon: CreditCard,
-      className: "bg-indigo-100 text-indigo-600",
+      className: "bg-indigo-100 dark:bg-indigo-400/15 text-indigo-600 dark:text-indigo-400",
     },
     {
       label: "Total Payment",
       value: `৳${total}`,
       icon: Banknote,
-      className: "bg-green-100 text-green-600",
+      className: "bg-green-100 dark:bg-green-400/15 text-green-600 dark:text-green-400",
     },
     {
       label: "Paying Users",
       value: new Set(payments.map((payment) => payment.userEmail)).size,
       icon: Wallet,
-      className: "bg-purple-100 text-purple-600",
+      className: "bg-purple-100 dark:bg-purple-400/15 text-purple-600 dark:text-purple-400",
     },
   ];
 
@@ -103,10 +103,10 @@ const ManagePayments = () => {
             className="
               px-6 py-3
               rounded-full
-              bg-[var(--foreground)]
+              bg-[var(--ink)]
               text-[var(--secondary)]
               font-semibold
-              hover:bg-[var(--primary)]
+              hover:bg-[var(--surface)]
               hover:text-[var(--foreground)]
               transition-all duration-300
               flex items-center gap-2
@@ -122,7 +122,7 @@ const ManagePayments = () => {
           {stats.map((stat) => (
             <div
               key={stat.label}
-              className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
+              className="flex items-center gap-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm"
             >
               <div
                 className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${stat.className}`}
@@ -159,8 +159,8 @@ const ManagePayments = () => {
               w-full
               rounded-full
               border
-              border-gray-200
-              bg-white
+              border-[var(--border)]
+              bg-[var(--surface)]
               py-3
               pl-11
               pr-4
@@ -173,7 +173,7 @@ const ManagePayments = () => {
         {loading ? (
           <PageLoader className="min-h-[60vh]" />
         ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-gray-200 p-16 text-center">
+          <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] p-16 text-center">
             <CreditCard size={48} className="mx-auto text-[var(--text)]" />
             <h2 className="mt-4 text-xl font-bold text-[var(--foreground)]">
               No payments found
@@ -185,7 +185,7 @@ const ManagePayments = () => {
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden divide-y divide-gray-100">
+          <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] overflow-hidden divide-y divide-[var(--border)]">
             {filtered.map((payment) => (
               <div
                 key={payment._id}
@@ -199,7 +199,7 @@ const ManagePayments = () => {
                         w-11 h-11
                         rounded-xl
                         bg-[var(--secondary)]
-                        text-[var(--foreground)]
+                        text-[var(--text-on-secondary)]
                         flex items-center justify-center shrink-0
                       "
                     >
@@ -211,7 +211,7 @@ const ManagePayments = () => {
                         <span className="truncate">
                           {payment.parcelTitle || "Parcel Payment"}
                         </span>
-                        <span className="text-[10px] font-normal text-[var(--text)] bg-gray-100 rounded px-1.5 py-0.5 shrink-0 flex items-center gap-0.5">
+                        <span className="text-[10px] font-normal text-[var(--text)] bg-[var(--surface-muted)] rounded px-1.5 py-0.5 shrink-0 flex items-center gap-0.5">
                           <Hash size={10} />
                           {shortId(payment.transactionId)}
                         </span>
@@ -223,7 +223,7 @@ const ManagePayments = () => {
                     </div>
                   </div>
 
-                  <span className="shrink-0 text-xs font-medium px-3 py-1.5 rounded-full bg-green-100 text-green-800 flex items-center gap-1">
+                  <span className="shrink-0 text-xs font-medium px-3 py-1.5 rounded-full bg-green-100 dark:bg-green-400/15 text-green-800 dark:text-green-300 flex items-center gap-1">
                     <CheckCircle2 size={12} />
                     Success
                   </span>

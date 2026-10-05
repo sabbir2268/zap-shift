@@ -172,10 +172,10 @@ const ManageUsers = () => {
             className="
               px-6 py-3
               rounded-full
-              bg-[var(--foreground)]
+              bg-[var(--ink)]
               text-[var(--secondary)]
               font-semibold
-              hover:bg-[var(--primary)]
+              hover:bg-[var(--surface)]
               hover:text-[var(--foreground)]
               transition-all duration-300
               flex items-center gap-2
@@ -202,8 +202,8 @@ const ManageUsers = () => {
               w-full
               rounded-full
               border
-              border-gray-200
-              bg-white
+              border-[var(--border)]
+              bg-[var(--surface)]
               py-3
               pl-11
               pr-4
@@ -216,7 +216,7 @@ const ManageUsers = () => {
         {loading ? (
           <PageLoader className="min-h-[60vh]" />
         ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-gray-200 p-16 text-center">
+          <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] p-16 text-center">
             <Users size={48} className="mx-auto text-[var(--text)]" />
             <h2 className="mt-4 text-xl font-bold text-[var(--foreground)]">
               No users found
@@ -228,11 +228,11 @@ const ManageUsers = () => {
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden">
+          <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
-                  <tr className="border-b border-gray-200">
+                  <tr className="border-b border-[var(--border)]">
                     <th className="px-5 py-4 text-xs font-semibold text-[var(--text)]">
                       User
                     </th>
@@ -257,7 +257,7 @@ const ManageUsers = () => {
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-[var(--border)]">
                   {filtered.map((user) => {
                     const initial = user.name?.[0]?.toUpperCase();
                     const busy = busyId === user._id;
@@ -265,7 +265,7 @@ const ManageUsers = () => {
                     const blockable = canBlock(user);
 
                     return (
-                      <tr key={user._id} className="hover:bg-gray-50">
+                      <tr key={user._id} className="hover:bg-[var(--surface-muted)]">
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-3 min-w-0">
                             <div
@@ -273,7 +273,7 @@ const ManageUsers = () => {
                                 w-10 h-10
                                 rounded-full
                                 bg-[var(--secondary)]
-                                text-[var(--foreground)]
+                                text-[var(--text-on-secondary)]
                                 flex items-center justify-center
                                 shrink-0
                                 font-bold
@@ -327,12 +327,12 @@ const ManageUsers = () => {
                                 h-9
                                 rounded-lg
                                 border
-                                border-gray-200
+                                border-[var(--border)]
                                 flex
                                 items-center
                                 justify-center
                                 text-[var(--foreground)]
-                                hover:bg-gray-100
+                                hover:bg-[var(--surface-muted)]
                                 transition
                               "
                             >
@@ -363,8 +363,8 @@ const ManageUsers = () => {
                                 disabled:opacity-40
                                 ${
                                   blocked
-                                    ? "border-green-200 text-green-600 hover:bg-green-50"
-                                    : "border-red-200 text-red-600 hover:bg-red-50"
+                                    ? "border-green-200 dark:border-green-400/40 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-400/20"
+                                    : "border-red-200 dark:border-red-400/40 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-400/20"
                                 }
                               `}
                             >
@@ -418,7 +418,7 @@ const UserModal = ({ user, parcels, onClose }) => {
           max-w-lg
           max-h-[85vh]
           overflow-y-auto
-          bg-white
+          bg-[var(--surface)]
           rounded-3xl
           shadow-2xl
         "
@@ -436,12 +436,12 @@ const UserModal = ({ user, parcels, onClose }) => {
               w-9
               h-9
               rounded-full
-              bg-gray-100
+              bg-[var(--surface-muted)]
               flex
               items-center
               justify-center
-              text-gray-500
-              hover:bg-gray-200
+              text-[var(--text-muted)]
+              hover:bg-[var(--surface-hover)]
               transition
             "
           >
@@ -454,7 +454,7 @@ const UserModal = ({ user, parcels, onClose }) => {
                 w-11 h-11
                 rounded-full
                 bg-[var(--secondary)]
-                text-[var(--foreground)]
+                text-[var(--text-on-secondary)]
                 flex items-center justify-center
                 font-bold
               "
@@ -480,7 +480,7 @@ const UserModal = ({ user, parcels, onClose }) => {
               className="shrink-0"
             />
 
-            <span className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold capitalize text-[var(--text)]">
+            <span className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-semibold capitalize text-[var(--text)]">
               {user.role}
             </span>
 
@@ -493,8 +493,8 @@ const UserModal = ({ user, parcels, onClose }) => {
           </div>
 
           {/* Summary */}
-          <div className="mt-5 rounded-2xl border border-gray-200 overflow-hidden">
-            <div className="flex items-center gap-2 px-4 py-3 bg-gray-100">
+          <div className="mt-5 rounded-2xl border border-[var(--border)] overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-3 bg-[var(--surface-muted)]">
               <UserRound size={16} />
               <span className="font-semibold text-sm">Summary</span>
             </div>
@@ -518,8 +518,8 @@ const UserModal = ({ user, parcels, onClose }) => {
           </div>
 
           {/* Parcels */}
-          <div className="mt-4 rounded-2xl border border-gray-200 overflow-hidden">
-            <div className="flex items-center gap-2 px-4 py-3 bg-gray-100">
+          <div className="mt-4 rounded-2xl border border-[var(--border)] overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-3 bg-[var(--surface-muted)]">
               <Package size={16} />
               <span className="font-semibold text-sm">Parcels</span>
             </div>
@@ -529,7 +529,7 @@ const UserModal = ({ user, parcels, onClose }) => {
                 No parcels found.
               </p>
             ) : (
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-[var(--border)]">
                 {parcels.map((parcel) => {
                   return (
                     <div

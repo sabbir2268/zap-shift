@@ -21,7 +21,7 @@ export const STATUS_KINDS = {
 export const DELIVERY_STATUS = {
   pending: {
     label: "Pending",
-    className: "bg-yellow-100 text-yellow-800",
+    className: "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/15 dark:text-yellow-300",
     dot: "bg-yellow-400",
   },
   /* booked and given to a rider, but the rider has not collected it yet. it sits
@@ -29,17 +29,17 @@ export const DELIVERY_STATUS = {
      two ends of a delivery are not squashed into one step */
   rider_assigned: {
     label: "Rider Assigned",
-    className: "bg-indigo-100 text-indigo-800",
+    className: "bg-indigo-100 text-indigo-800 dark:bg-indigo-500/15 dark:text-indigo-300",
     dot: "bg-indigo-400",
   },
   picked_up: {
     label: "Picked Up",
-    className: "bg-blue-100 text-blue-800",
+    className: "bg-blue-100 text-blue-800 dark:bg-blue-500/15 dark:text-blue-300",
     dot: "bg-blue-400",
   },
   in_transit: {
     label: "In Transit",
-    className: "bg-purple-100 text-purple-800",
+    className: "bg-purple-100 text-purple-800 dark:bg-purple-500/15 dark:text-purple-300",
     dot: "bg-purple-400",
   },
   /* A parcel going to another region is not carried the whole way by one rider.
@@ -48,17 +48,17 @@ export const DELIVERY_STATUS = {
      is the truck leg and the parcel is still on its way. */
   transferred: {
     label: "Transferred",
-    className: "bg-cyan-100 text-cyan-800",
+    className: "bg-cyan-100 text-cyan-800 dark:bg-cyan-500/15 dark:text-cyan-300",
     dot: "bg-cyan-400",
   },
   delivered: {
     label: "Delivered",
-    className: "bg-green-100 text-green-800",
+    className: "bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-300",
     dot: "bg-green-400",
   },
   cancelled: {
     label: "Cancelled",
-    className: "bg-red-100 text-red-800",
+    className: "bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-300",
     dot: "bg-red-400",
   },
 };
@@ -67,12 +67,12 @@ export const DELIVERY_STATUS = {
 export const PAYMENT_STATUS = {
   paid: {
     label: "Paid",
-    className: "bg-green-100 text-green-800",
+    className: "bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-300",
     dot: "bg-green-400",
   },
   unpaid: {
     label: "Unpaid",
-    className: "bg-amber-100 text-amber-800",
+    className: "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300",
     dot: "bg-amber-400",
   },
 };
@@ -81,22 +81,22 @@ export const PAYMENT_STATUS = {
 export const RIDER_STATUS = {
   pending: {
     label: "Pending",
-    className: "bg-yellow-100 text-yellow-800",
+    className: "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/15 dark:text-yellow-300",
     dot: "bg-yellow-400",
   },
   approved: {
     label: "Approved",
-    className: "bg-green-100 text-green-800",
+    className: "bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-300",
     dot: "bg-green-400",
   },
   rejected: {
     label: "Rejected",
-    className: "bg-red-100 text-red-800",
+    className: "bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-300",
     dot: "bg-red-400",
   },
   held: {
     label: "On Hold",
-    className: "bg-orange-100 text-orange-800",
+    className: "bg-orange-100 text-orange-800 dark:bg-orange-500/15 dark:text-orange-300",
     dot: "bg-orange-400",
   },
 };
@@ -105,12 +105,12 @@ export const RIDER_STATUS = {
 export const ACCOUNT_STATUS = {
   active: {
     label: "Active",
-    className: "bg-green-100 text-green-800",
+    className: "bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-300",
     dot: "bg-green-400",
   },
   blocked: {
     label: "Blocked",
-    className: "bg-red-100 text-red-800",
+    className: "bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-300",
     dot: "bg-red-400",
   },
 };
@@ -124,7 +124,8 @@ const REGISTRY = {
 
 const UNKNOWN = {
   label: "Unknown",
-  className: "bg-gray-100 text-gray-700",
+  className:
+    "bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-gray-300",
   dot: "bg-gray-400",
 };
 

@@ -7,8 +7,8 @@ import PageLoader from "../components/PageLoader/PageLoader";
 /* shown to a signed in account whose role is not admin */
 const AccessDenied = () => (
   <div className="min-h-screen flex items-center justify-center bg-[var(--background)] px-4">
-    <div className="max-w-md w-full text-center bg-white rounded-3xl border border-gray-200 p-10">
-      <div className="mx-auto w-16 h-16 rounded-full bg-red-100 text-red-600 flex items-center justify-center">
+    <div className="max-w-md w-full text-center bg-[var(--surface)] rounded-3xl border border-[var(--border)] p-10">
+      <div className="mx-auto w-16 h-16 rounded-full bg-red-100 dark:bg-red-400/15 text-red-600 dark:text-red-400 flex items-center justify-center">
         <ShieldAlert size={30} />
       </div>
 
@@ -23,7 +23,7 @@ const AccessDenied = () => (
 
       <Link
         to="/dashboard"
-        className="mt-8 inline-block rounded-full bg-[var(--foreground)] text-[var(--secondary)] font-semibold px-7 py-3 transition-colors duration-300 hover:bg-[var(--primary)] hover:text-[var(--foreground)]"
+        className="mt-8 inline-block rounded-full bg-[var(--ink)] text-[var(--secondary)] font-semibold px-7 py-3 transition-colors duration-300 hover:bg-[var(--surface)] hover:text-[var(--foreground)]"
       >
         Go to my dashboard
       </Link>

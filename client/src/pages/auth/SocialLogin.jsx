@@ -44,8 +44,8 @@ const SocialLogin = () => {
       onClick={handleGoogleSignIn}
       className="w-full flex items-center justify-center gap-3 
       bg-[var(--secondary)] 
-      hover:bg-[var(--foreground)] 
-      text-[var(--foreground)] 
+      hover:bg-[var(--ink)] 
+      text-[var(--text-on-secondary)] 
       hover:text-[var(--secondary)] 
       rounded-full py-3 px-4 
       font-bold

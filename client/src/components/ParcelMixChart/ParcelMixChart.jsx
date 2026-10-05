@@ -16,7 +16,7 @@ const ParcelMixChart = ({ parcels }) => {
   const total = getParcelTotal(parcels);
 
   return (
-    <div className="mt-6 rounded-3xl border border-gray-200 bg-white p-5 shadow-sm md:p-6">
+    <div className="mt-6 rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm md:p-6">
       <div className="mb-4">
         <h2 className="text-lg font-bold text-[var(--foreground)]">
           Where your parcels are
@@ -28,7 +28,7 @@ const ParcelMixChart = ({ parcels }) => {
       </div>
 
       {total === 0 ? (
-        <div className="rounded-2xl bg-gray-50 p-10 text-center">
+        <div className="rounded-2xl bg-[var(--surface-muted)] p-10 text-center">
           <PieIcon size={36} className="mx-auto text-[var(--text)]/40" />
 
           <p className="mt-3 font-semibold text-[var(--text)]">
@@ -81,7 +81,7 @@ const ParcelMixChart = ({ parcels }) => {
             {rows.map((row) => (
               <li
                 key={row.key}
-                className="flex items-center gap-3 rounded-2xl border border-gray-100 px-4 py-3"
+                className="flex items-center gap-3 rounded-2xl border border-[var(--border)] px-4 py-3"
               >
                 <span
                   className="h-3 w-3 shrink-0 rounded-full"
@@ -110,7 +110,7 @@ const ParcelMixChart = ({ parcels }) => {
               </li>
             ))}
 
-            <li className="flex items-center gap-3 rounded-2xl border border-dashed border-gray-200 px-4 py-3">
+            <li className="flex items-center gap-3 rounded-2xl border border-dashed border-[var(--border)] px-4 py-3">
               <Send size={16} className="shrink-0 text-[var(--text)]/50" />
 
               <p className="text-xs text-[var(--text)]/70">
@@ -132,7 +132,7 @@ const MixTooltip = ({ active, payload, total }) => {
   if (!active || !row) return null;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm">
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 shadow-sm">
       <p className="font-semibold text-[var(--foreground)]">{row.label}</p>
 
       <p className="text-xs text-[var(--text)]">{row.caption}</p>

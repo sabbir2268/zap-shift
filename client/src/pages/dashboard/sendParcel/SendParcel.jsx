@@ -158,7 +158,7 @@ const SendParcel = () => {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* PARCEL INFO */}
 
-            <div className="bg-white rounded-3xl border border-gray-200 p-5 md:p-8">
+            <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] p-5 md:p-8">
               <SectionHeader
                 icon={<Package size={21} />}
                 title="Parcel Info"
@@ -182,8 +182,8 @@ const SendParcel = () => {
                         font-medium transition
                         ${
                           parcelType === "document"
-                            ? "bg-[var(--foreground)] text-[var(--secondary)] border-[var(--foreground)]"
-                            : "border-gray-200 hover:bg-gray-100"
+                            ? "bg-[var(--ink)] text-[var(--secondary)] border-[var(--foreground)]"
+                            : "border-[var(--border)] hover:bg-[var(--surface-muted)]"
                         }
                       `}
                     >
@@ -198,8 +198,8 @@ const SendParcel = () => {
                         font-medium transition
                         ${
                           parcelType === "non-document"
-                            ? "bg-[var(--foreground)] text-[var(--secondary)] border-[var(--foreground)]"
-                            : "border-gray-200 hover:bg-gray-100"
+                            ? "bg-[var(--ink)] text-[var(--secondary)] border-[var(--foreground)]"
+                            : "border-[var(--border)] hover:bg-[var(--surface-muted)]"
                         }
                       `}
                     >
@@ -246,7 +246,7 @@ const SendParcel = () => {
 
             {/* SENDER INFO */}
 
-            <div className="bg-white rounded-3xl border border-gray-200 p-5 md:p-8">
+            <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] p-5 md:p-8">
               <SectionHeader
                 icon={<User size={21} />}
                 title="Sender Info"
@@ -334,7 +334,7 @@ const SendParcel = () => {
 
             {/* RECEIVER INFO */}
 
-            <div className="bg-white rounded-3xl border border-gray-200 p-5 md:p-8">
+            <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] p-5 md:p-8">
               <SectionHeader
                 icon={<MapPin size={21} />}
                 title="Receiver Info"
@@ -428,11 +428,11 @@ const SendParcel = () => {
                 className="
                   px-8 py-3.5
                   rounded-full
-                  bg-[var(--foreground)]
+                  bg-[var(--ink)]
                   text-[var(--secondary)]
                   font-semibold
                   transition-all duration-300
-                  hover:bg-[var(--primary)]
+                  hover:bg-[var(--surface)]
                   hover:text-[var(--foreground)]
                   hover:-translate-y-0.5
                 "
@@ -486,7 +486,7 @@ const SectionHeader = ({ icon, title, subtitle }) => {
           w-11 h-11
           rounded-xl
           bg-[var(--secondary)]
-          text-[var(--foreground)]
+          text-[var(--text-on-secondary)]
           flex items-center justify-center
         "
       >
@@ -550,8 +550,8 @@ const InputField = ({
             w-full
             rounded-xl
             border
-            ${error ? "border-red-500" : "border-gray-200"}
-            bg-white
+            ${error ? "border-red-500" : "border-[var(--border)]"}
+            bg-[var(--surface)]
             py-3 px-4
             ${icon ? "pl-11" : ""}
             outline-none
@@ -559,13 +559,13 @@ const InputField = ({
             focus:border-[var(--foreground)]
             focus:ring-2
             focus:ring-[var(--secondary)]
-            disabled:bg-gray-100
+            disabled:bg-[var(--surface-muted)]
             disabled:cursor-not-allowed
           `}
         />
       </div>
 
-      {error && <p className="text-red-500 text-xs mt-1">{error.message}</p>}
+      {error && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{error.message}</p>}
     </div>
   );
 };
@@ -601,15 +601,15 @@ const SelectField = ({
             w-full
             rounded-xl
             border
-            ${error ? "border-red-500" : "border-gray-200"}
-            bg-white
+            ${error ? "border-red-500" : "border-[var(--border)]"}
+            bg-[var(--surface)]
             px-4 py-3 pr-10
             outline-none
             transition
             focus:border-[var(--foreground)]
             focus:ring-2
             focus:ring-[var(--secondary)]
-            disabled:bg-gray-100
+            disabled:bg-[var(--surface-muted)]
             disabled:cursor-not-allowed
           `}
         >
@@ -635,7 +635,7 @@ const SelectField = ({
         />
       </div>
 
-      {error && <p className="text-red-500 text-xs mt-1">{error.message}</p>}
+      {error && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{error.message}</p>}
     </div>
   );
 };
@@ -674,8 +674,8 @@ const TextAreaField = ({
             w-full
             rounded-xl
             border
-            ${error ? "border-red-500" : "border-gray-200"}
-            bg-white
+            ${error ? "border-red-500" : "border-[var(--border)]"}
+            bg-[var(--surface)]
             px-4 py-3
             ${icon ? "pl-11" : ""}
             outline-none
@@ -688,7 +688,7 @@ const TextAreaField = ({
         />
       </div>
 
-      {error && <p className="text-red-500 text-xs mt-1">{error.message}</p>}
+      {error && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{error.message}</p>}
     </div>
   );
 };
@@ -718,7 +718,7 @@ const ParcelDetails = ({
               w-full
               max-w-md
               max-h-[90vh]
-              bg-white
+              bg-[var(--surface)]
               rounded-3xl
               shadow-2xl
               overflow-y-auto
@@ -743,13 +743,13 @@ const ParcelDetails = ({
                   w-9
                   h-9
                   rounded-full
-                  bg-gray-100
+                  bg-[var(--surface-muted)]
                   flex
                   items-center
                   justify-center
-                  text-gray-500
-                  hover:bg-gray-200
-                  hover:text-gray-800
+                  text-[var(--text-muted)]
+                  hover:bg-[var(--surface-hover)]
+                  hover:text-[var(--foreground)]
                   transition
                 "
           >
@@ -767,7 +767,7 @@ const ParcelDetails = ({
                     flex
                     items-center
                     justify-center
-                    text-[var(--foreground)]
+                    text-[var(--text-on-secondary)]
                     shadow-lg
                   "
             >
@@ -799,7 +799,7 @@ const ParcelDetails = ({
                     rounded-2xl
                     p-4
                     border
-                    border-gray-100
+                    border-[var(--border)]
                   "
             >
               <div
@@ -810,7 +810,7 @@ const ParcelDetails = ({
                       flex
                       items-center
                       justify-center
-                      text-[var(--foreground)]
+                      text-[var(--text-on-secondary)]
                     "
               >
                 <Package size={21} />
@@ -833,7 +833,7 @@ const ParcelDetails = ({
                       px-3
                       py-1.5
                       rounded-full
-                      bg-[var(--foreground)]
+                      bg-[var(--ink)]
                       text-[var(--secondary)]
                     "
               >
@@ -873,7 +873,7 @@ const ParcelDetails = ({
                     flex
                     items-center
                     justify-center
-                    text-[var(--foreground)]
+                    text-[var(--text-on-secondary)]
                   "
             >
               <Truck size={17} />
@@ -899,7 +899,7 @@ const ParcelDetails = ({
                   mt-5
                   rounded-2xl
                   border
-                  border-gray-200
+                  border-[var(--border)]
                   overflow-hidden
                 "
           >
@@ -910,7 +910,7 @@ const ParcelDetails = ({
                     gap-2
                     px-4
                     py-3
-                    bg-gray-100
+                    bg-[var(--surface-muted)]
                   "
             >
               <ReceiptText size={17} />
@@ -939,7 +939,7 @@ const ParcelDetails = ({
                     Service Charge
                   </span>
 
-                  <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-[var(--secondary)] text-[var(--foreground)]">
+                  <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-[var(--secondary)] text-[var(--text-on-secondary)]">
                     10%
                   </span>
                 </div>
@@ -949,7 +949,7 @@ const ParcelDetails = ({
                 </span>
               </div>
 
-              <div className="border-t border-gray-200" />
+              <div className="border-t border-[var(--border)]" />
 
               {/* Total */}
 
@@ -981,10 +981,10 @@ const ParcelDetails = ({
                     py-3
                     rounded-full
                     border
-                    border-gray-200
+                    border-[var(--border)]
                     font-semibold
                     text-sm
-                    hover:bg-gray-100
+                    hover:bg-[var(--surface-muted)]
                     transition
                   "
             >
@@ -998,11 +998,11 @@ const ParcelDetails = ({
               className="
                     py-3
                     rounded-full
-                    bg-[var(--foreground)]
+                    bg-[var(--ink)]
                     text-[var(--secondary)]
                     font-semibold
                     text-sm
-                    hover:bg-[var(--primary)]
+                    hover:bg-[var(--surface)]
                     hover:text-[var(--foreground)]
                     transition
                     disabled:opacity-60
@@ -1026,6 +1026,6 @@ const ParcelDetails = ({
 
 /* REQUIRED */
 
-const Required = () => <span className="text-red-500 ml-1">*</span>;
+const Required = () => <span className="text-red-500 dark:text-red-400 ml-1">*</span>;
 
 export default SendParcel;

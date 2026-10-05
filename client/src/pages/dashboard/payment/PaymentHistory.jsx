@@ -64,10 +64,10 @@ const PaymentHistory = () => {
             className="
               px-6 py-3
               rounded-full
-              bg-[var(--foreground)]
+              bg-[var(--ink)]
               text-[var(--secondary)]
               font-semibold
-              hover:bg-[var(--primary)]
+              hover:bg-[var(--surface)]
               hover:text-[var(--foreground)]
               transition-all duration-300
               flex items-center gap-2
@@ -81,7 +81,7 @@ const PaymentHistory = () => {
         {loading ? (
           <PageLoader className="min-h-[60vh]" />
         ) : payments.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-gray-200 p-16 text-center">
+          <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] p-16 text-center">
             <History size={48} className="mx-auto text-[var(--text)]" />
             <h2 className="mt-4 text-xl font-bold text-[var(--foreground)]">
               No payments yet
@@ -91,7 +91,7 @@ const PaymentHistory = () => {
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden divide-y divide-gray-100">
+          <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] overflow-hidden divide-y divide-[var(--border)]">
             {payments.map((payment) => (
               <div
                 key={payment._id}
@@ -105,7 +105,7 @@ const PaymentHistory = () => {
                         w-11 h-11
                         rounded-xl
                         bg-[var(--secondary)]
-                        text-[var(--foreground)]
+                        text-[var(--text-on-secondary)]
                         flex items-center justify-center shrink-0
                       "
                     >
@@ -117,7 +117,7 @@ const PaymentHistory = () => {
                         <span className="truncate">
                           {payment.parcelTitle || "Parcel Payment"}
                         </span>
-                        <span className="text-[10px] font-normal text-[var(--text)] bg-gray-100 rounded px-1.5 py-0.5 shrink-0 flex items-center gap-0.5">
+                        <span className="text-[10px] font-normal text-[var(--text)] bg-[var(--surface-muted)] rounded px-1.5 py-0.5 shrink-0 flex items-center gap-0.5">
                           <Hash size={10} />
                           {shortId(payment.transactionId)}
                         </span>
@@ -128,7 +128,7 @@ const PaymentHistory = () => {
                     </div>
                   </div>
 
-                  <span className="shrink-0 text-xs font-medium px-3 py-1.5 rounded-full bg-green-100 text-green-800 flex items-center gap-1">
+                  <span className="shrink-0 text-xs font-medium px-3 py-1.5 rounded-full bg-green-100 dark:bg-green-400/15 text-green-800 dark:text-green-300 flex items-center gap-1">
                     <CheckCircle2 size={12} />
                     Success
                   </span>

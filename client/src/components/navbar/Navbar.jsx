@@ -4,6 +4,7 @@ import { Link, NavLink } from "react-router-dom";
 import useAuth from "./../../hooks/useAuth";
 import { getDashboardPath } from "../../data/admin";
 import { LoginButton, RegisterButton, LogoutButton } from "../Buttons/Buttons";
+import ThemeToggle from "../ThemeToggle/ThemeToggle";
 import logo from "../../assets/logo.png";
 
 const Navbar = () => {
@@ -50,7 +51,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="relative w-full bg-[var(--primary)] text-[var(--text)] shadow-sm rounded-lg">
+    <nav className="relative w-full bg-[var(--surface)] text-[var(--text)] shadow-sm rounded-lg">
       <div className="max-w-7xl mx-auto px-4">
         {/* ================= NAVBAR ================= */}
         <div className="h-16 flex items-center justify-between">
@@ -65,7 +66,7 @@ const Navbar = () => {
                 rounded-lg
                 text-[var(--text)]
                 hover:text-[var(--secondary)]
-                hover:bg-[var(--foreground)]
+                hover:bg-[var(--ink)]
                 transition-all
                 duration-200
               "
@@ -120,11 +121,11 @@ const Navbar = () => {
                         isActive
                           ? `
                             text-white
-                            bg-[var(--foreground)]
+                            bg-[var(--ink)]
                           `
                           : `
                             hover:text-[var(--secondary)]
-                            hover:bg-[var(--foreground)]
+                            hover:bg-[var(--ink)]
                           `
                       }
                       `
@@ -139,6 +140,8 @@ const Navbar = () => {
 
           {/* ================= RIGHT ================= */}
           <div className="flex items-center">
+            <ThemeToggle className="mr-1 sm:mr-2" />
+
             {/* Desktop Login/Register/User */}
             <div className="hidden lg:flex items-center gap-2">
               {user ? (
@@ -152,13 +155,13 @@ const Navbar = () => {
                       w-10
                       h-10
                       rounded-full
-                      bg-black
+                      bg-[var(--ink)]
                       text-white
                       flex
                       items-center
                       justify-center
                       hover:bg-[var(--secondary)]
-                      hover:text-black
+                      hover:text-[var(--text-on-secondary)]
                       transition-all
                       duration-200
                     "
@@ -189,7 +192,7 @@ const Navbar = () => {
                       rounded-lg
                       text-[var(--text)]
                       hover:text-[var(--secondary)]
-                      hover:bg-[var(--foreground)]
+                      hover:bg-[var(--ink)]
                       transition-all
                       duration-200
                     "
@@ -207,7 +210,7 @@ const Navbar = () => {
                         z-50
                         w-56
                         p-2
-                        bg-[var(--card)]
+                        bg-[var(--surface)]
                         rounded-xl
                         shadow-xl
                         border
@@ -236,13 +239,13 @@ const Navbar = () => {
                     w-9
                     h-9
                     rounded-full
-                    bg-black
+                    bg-[var(--ink)]
                     text-white
                     flex
                     items-center
                     justify-center
                     hover:bg-[var(--secondary)]
-                    hover:text-black
+                    hover:text-[var(--text-on-secondary)]
                     transition-all
                     duration-200
                   "
@@ -266,7 +269,7 @@ const Navbar = () => {
               z-50
               w-48
               p-2
-              bg-[var(--card)]
+              bg-[var(--surface)]
               rounded-xl
               shadow-xl
               border
@@ -294,11 +297,11 @@ const Navbar = () => {
                         isActive
                           ? `
                             text-white
-                            bg-[var(--foreground)]
+                            bg-[var(--ink)]
                           `
                           : `
                             hover:text-[var(--secondary)]
-                            hover:bg-[var(--foreground)]
+                            hover:bg-[var(--ink)]
                           `
                       }
                       `

@@ -129,10 +129,10 @@ const PaymentForm = () => {
   };
 
   return (
-    <div className="mt-6 bg-white rounded-3xl border border-gray-200 p-5 md:p-8">
+    <div className="mt-6 bg-[var(--surface)] rounded-3xl border border-[var(--border)] p-5 md:p-8">
       {/* Header */}
       <div className="flex items-center gap-3 mb-7">
-        <div className="w-11 h-11 rounded-xl bg-[var(--secondary)] text-[var(--foreground)] flex items-center justify-center">
+        <div className="w-11 h-11 rounded-xl bg-[var(--secondary)] text-[var(--text-on-secondary)] flex items-center justify-center">
           <CreditCard size={21} />
         </div>
         <div>
@@ -148,10 +148,10 @@ const PaymentForm = () => {
       <form onSubmit={handleSubmit}>
         {/* Card Element */}
         <label className="block text-sm font-semibold text-[var(--foreground)] mb-2">
-          Card Information <span className="text-red-500 ml-1">*</span>
+          Card Information <span className="text-red-500 dark:text-red-400 ml-1">*</span>
         </label>
 
-        <div className="rounded-xl border border-gray-200 bg-white px-4 py-3.5 transition focus-within:border-[var(--foreground)] focus-within:ring-2 focus-within:ring-[var(--secondary)]">
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3.5 transition focus-within:border-[var(--foreground)] focus-within:ring-2 focus-within:ring-[var(--secondary)]">
           <CardElement options={cardElementOptions} />
         </div>
 
@@ -170,7 +170,7 @@ const PaymentForm = () => {
         <button
           type="submit"
           disabled={!stripe}
-          className="group relative mt-6 flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-[var(--foreground)] px-6 py-3.5 text-lg font-bold text-[var(--secondary)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(3,55,61,0.35)] active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
+          className="group relative mt-6 flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-[var(--ink)] px-6 py-3.5 text-lg font-bold text-[var(--secondary)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(3,55,61,0.35)] active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
         >
           <span className="absolute inset-0 -translate-x-full bg-white/20 skew-x-12 transition-transform duration-700 group-hover:translate-x-full" />
           <span className="relative z-10">Pay ৳ {parcelInfo?.totalCost}</span>

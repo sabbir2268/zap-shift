@@ -95,10 +95,10 @@ const MyParcels = () => {
               px-4 sm:px-6
               py-2 sm:py-3
               rounded-full
-              bg-[var(--foreground)]
+              bg-[var(--ink)]
               text-[var(--secondary)]
               font-semibold
-              hover:bg-[var(--primary)]
+              hover:bg-[var(--surface)]
               hover:text-[var(--foreground)]
               transition-all duration-300
               flex items-center gap-2
@@ -114,7 +114,7 @@ const MyParcels = () => {
         {loading ? (
           <PageLoader className="min-h-[60vh]" />
         ) : parcels.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-gray-200 p-16 text-center">
+          <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] p-16 text-center">
             <Package size={48} className="mx-auto text-[var(--text)]" />
             <h2 className="mt-4 text-xl font-bold text-[var(--foreground)]">
               No parcels found
@@ -175,10 +175,10 @@ const MyParcels = () => {
  * widest one in the row ragged.
  */
 const ACTION_TONES = {
-  plain: "border-gray-200 text-[var(--foreground)] hover:bg-gray-100",
+  plain: "border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--surface-muted)]",
   solid:
-    "border-transparent bg-[var(--secondary)] text-[var(--foreground)] hover:bg-[var(--primary)]",
-  danger: "border-red-200 text-red-500 hover:bg-red-50",
+    "border-transparent bg-[var(--secondary)] text-[var(--text-on-secondary)] hover:bg-[var(--surface)]",
+  danger: "border-red-200 dark:border-red-400/40 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-400/20",
 };
 
 const RowAction = ({ icon, label, tone = "plain", ...rest }) => (
@@ -210,8 +210,8 @@ const ParcelTable = ({
   onCancel,
 }) => {
   return (
-    <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden">
-      <div className="flex flex-wrap items-center gap-3 border-b border-gray-100 px-5 py-3">
+    <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] overflow-hidden">
+      <div className="flex flex-wrap items-center gap-3 border-b border-[var(--border)] px-5 py-3">
         <span className="text-xs font-semibold text-[var(--text)]">
           {parcels.length} parcel{parcels.length === 1 ? "" : "s"}
         </span>
@@ -220,7 +220,7 @@ const ParcelTable = ({
       <div className="overflow-x-auto">
         <table className="w-full min-w-[760px] text-left text-sm">
           <thead>
-            <tr className="border-b border-gray-200 text-xs uppercase tracking-wide text-[var(--text)]/50">
+            <tr className="border-b border-[var(--border)] text-xs uppercase tracking-wide text-[var(--text)]/50">
               <th className="px-4 py-3 font-semibold">Parcel</th>
               <th className="px-4 py-3 font-semibold">Route</th>
               <th className="hidden px-4 py-3 font-semibold lg:table-cell">
@@ -240,12 +240,12 @@ const ParcelTable = ({
               return (
                 <tr
                   key={parcel._id}
-                  className="border-b border-gray-100 last:border-0 hover:bg-gray-50"
+                  className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface-muted)]"
                 >
                   {/* Parcel cell: icon, title, id and when it was sent */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-[var(--secondary)] text-[var(--foreground)] flex items-center justify-center shrink-0">
+                      <div className="w-9 h-9 rounded-xl bg-[var(--secondary)] text-[var(--text-on-secondary)] flex items-center justify-center shrink-0">
                         <Package size={17} />
                       </div>
 
@@ -386,7 +386,7 @@ const buildForm = (parcel) => ({
 });
 
 const editClass =
-  "w-full rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-sm font-medium text-right outline-none focus:border-[var(--foreground)] transition";
+  "w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1.5 text-sm font-medium text-right outline-none focus:border-[var(--foreground)] transition";
 
 const EditField = ({ label, children, className = "" }) => (
   <div className={`flex items-start justify-between gap-3 ${className}`}>
@@ -448,7 +448,7 @@ const ParcelModal = ({ parcel, onClose, onSaved }) => {
           max-w-lg
           max-h-[85vh]
           overflow-y-auto
-          bg-white
+          bg-[var(--surface)]
           rounded-3xl
           shadow-2xl
         "
@@ -466,12 +466,12 @@ const ParcelModal = ({ parcel, onClose, onSaved }) => {
               w-9
               h-9
               rounded-full
-              bg-gray-100
+              bg-[var(--surface-muted)]
               flex
               items-center
               justify-center
-              text-gray-500
-              hover:bg-gray-200
+              text-[var(--text-muted)]
+              hover:bg-[var(--surface-hover)]
               transition
             "
           >
@@ -484,7 +484,7 @@ const ParcelModal = ({ parcel, onClose, onSaved }) => {
                 w-11 h-11
                 rounded-xl
                 bg-[var(--secondary)]
-                text-[var(--foreground)]
+                text-[var(--text-on-secondary)]
                 flex items-center justify-center
               "
             >
@@ -494,7 +494,7 @@ const ParcelModal = ({ parcel, onClose, onSaved }) => {
             <div className="min-w-0 flex-1">
               {editing ? (
                 <input
-                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-base font-bold text-[var(--foreground)] outline-none focus:border-[var(--foreground)] transition"
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-base font-bold text-[var(--foreground)] outline-none focus:border-[var(--foreground)] transition"
                   value={form.parcelTitle}
                   onChange={setField("parcelTitle")}
                   placeholder="Parcel title"
@@ -677,11 +677,11 @@ const ParcelModal = ({ parcel, onClose, onSaved }) => {
                   className="
                     flex-1
                     rounded-xl
-                    border border-gray-200
+                    border border-[var(--border)]
                     py-2.5
                     text-sm font-semibold
                     text-[var(--foreground)]
-                    hover:bg-gray-100
+                    hover:bg-[var(--surface-muted)]
                     transition
                     disabled:cursor-not-allowed
                     disabled:opacity-60
@@ -700,8 +700,8 @@ const ParcelModal = ({ parcel, onClose, onSaved }) => {
                     bg-[var(--secondary)]
                     py-2.5
                     text-sm font-semibold
-                    text-[var(--foreground)]
-                    hover:bg-[var(--primary)]
+                    text-[var(--text-on-secondary)]
+                    hover:bg-[var(--surface)]
                     transition
                     flex items-center justify-center gap-2
                     disabled:cursor-not-allowed
@@ -731,8 +731,8 @@ const ParcelModal = ({ parcel, onClose, onSaved }) => {
                   bg-[var(--secondary)]
                   py-2.5
                   text-sm font-semibold
-                  text-[var(--foreground)]
-                  hover:bg-[var(--primary)]
+                  text-[var(--text-on-secondary)]
+                  hover:bg-[var(--surface)]
                   transition
                   flex items-center justify-center gap-2
                 "
@@ -756,12 +756,12 @@ const ConfirmCancelModal = ({ parcel, deleting, onConfirm, onClose }) => {
         onClick={deleting ? undefined : onClose}
       />
 
-      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl">
+      <div className="relative w-full max-w-md bg-[var(--surface)] rounded-3xl shadow-2xl">
         <div className="h-2 bg-red-500 rounded-t-3xl" />
 
         <div className="p-6">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-red-100 text-red-500 flex items-center justify-center shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-red-100 text-red-500 dark:text-red-400 flex items-center justify-center shrink-0">
               <Ban size={21} />
             </div>
 
@@ -789,12 +789,12 @@ const ConfirmCancelModal = ({ parcel, deleting, onConfirm, onClose }) => {
                 flex-1
                 rounded-xl
                 border
-                border-gray-200
+                border-[var(--border)]
                 py-2.5
                 text-sm
                 font-semibold
                 text-[var(--foreground)]
-                hover:bg-gray-100
+                hover:bg-[var(--surface-muted)]
                 transition
                 disabled:cursor-not-allowed
                 disabled:opacity-60
@@ -836,8 +836,8 @@ const ConfirmCancelModal = ({ parcel, deleting, onConfirm, onClose }) => {
 };
 
 const DetailSection = ({ icon, title, children }) => (
-  <div className="mt-5 rounded-2xl border border-gray-200 overflow-hidden">
-    <div className="flex items-center gap-2 px-4 py-3 bg-gray-100">
+  <div className="mt-5 rounded-2xl border border-[var(--border)] overflow-hidden">
+    <div className="flex items-center gap-2 px-4 py-3 bg-[var(--surface-muted)]">
       {icon}
       <span className="font-semibold text-sm">{title}</span>
     </div>

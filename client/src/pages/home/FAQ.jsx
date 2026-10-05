@@ -86,8 +86,8 @@ const FAQ = () => {
                   duration-300
                   ${
                     isOpen
-                      ? "border-[var(--secondary)] bg-[var(--card)] shadow-sm"
-                      : "border-black/10 bg-[var(--card)] hover:border-[var(--secondary)]"
+                      ? "border-[var(--secondary)] bg-[var(--surface)] shadow-sm"
+                      : "border-[var(--border)] bg-[var(--surface)] hover:border-[var(--secondary)]"
                   }
                 `}
               >
@@ -117,8 +117,8 @@ const FAQ = () => {
                         duration-300
                         ${
                           isOpen
-                            ? "bg-[var(--secondary)] text-[var(--text)]"
-                            : "bg-[var(--foreground)] text-[var(--primary)]"
+                            ? "bg-[var(--secondary)] text-[var(--text-on-secondary)]"
+                            : "bg-[var(--ink)] text-[var(--text-on-ink)]"
                         }
                       `}
                     >
@@ -155,8 +155,8 @@ const FAQ = () => {
                       duration-300
                       ${
                         isOpen
-                          ? "bg-[var(--secondary)] text-[var(--text)]"
-                          : "bg-[var(--foreground)] text-[var(--primary)]"
+                          ? "bg-[var(--secondary)] text-[var(--text-on-secondary)]"
+                          : "bg-[var(--ink)] text-[var(--text-on-ink)]"
                       }
                     `}
                   >
@@ -215,11 +215,11 @@ const FAQ = () => {
               py-3.5
               rounded-full
               bg-[var(--secondary)]
-              text-[var(--text)]
+              text-[var(--text-on-secondary)]
               border-2
               border-[var(--secondary)]
               font-semibold
-              hover:bg-[var(--foreground)]
+              hover:bg-[var(--ink)]
               hover:text-[var(--secondary)]
               hover:border-[var(--secondary)]
               transition-all

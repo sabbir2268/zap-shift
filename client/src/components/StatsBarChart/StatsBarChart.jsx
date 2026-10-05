@@ -29,7 +29,7 @@ const StatsBarChart = ({
   unit = "parcel",
 }) => {
   return (
-    <div className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm md:p-6">
+    <div className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm md:p-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-bold text-[var(--foreground)]">{title}</h2>
@@ -123,7 +123,7 @@ const StatsBarChart = ({
 /* the divider only goes between figures, so a lone figure has nothing beside it */
 const Figure = ({ figure, lead }) => (
   <div className="flex items-center gap-3">
-    {lead ? <span className="h-9 w-px bg-gray-200" /> : null}
+    {lead ? <span className="h-9 w-px bg-[var(--surface-hover)]" /> : null}
 
     <div className="text-right">
       <p className="text-xs font-medium text-[var(--text)]/60">{figure.label}</p>
@@ -143,7 +143,7 @@ const ChartTooltip = ({ active, payload, unit }) => {
   if (!active || !row) return null;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm">
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 shadow-sm">
       <p className="font-semibold text-[var(--foreground)]">{row.label}</p>
 
       {row.caption ? (

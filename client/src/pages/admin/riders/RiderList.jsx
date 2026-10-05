@@ -161,10 +161,10 @@ const RiderList = ({
             className="
               px-6 py-3
               rounded-full
-              bg-[var(--foreground)]
+              bg-[var(--ink)]
               text-[var(--secondary)]
               font-semibold
-              hover:bg-[var(--primary)]
+              hover:bg-[var(--surface)]
               hover:text-[var(--foreground)]
               transition-all duration-300
               flex items-center gap-2
@@ -191,8 +191,8 @@ const RiderList = ({
                 w-full
                 rounded-full
                 border
-                border-gray-200
-                bg-white
+                border-[var(--border)]
+                bg-[var(--surface)]
                 py-3
                 pl-11
                 pr-4
@@ -206,7 +206,7 @@ const RiderList = ({
         {loading ? (
           <PageLoader className="min-h-[60vh]" />
         ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-gray-200 p-16 text-center">
+          <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] p-16 text-center">
             <empty.icon size={48} className="mx-auto text-[var(--text)]" />
             <h2 className="mt-4 text-xl font-bold text-[var(--foreground)]">
               {empty.title}
@@ -241,9 +241,9 @@ const RiderList = ({
 
             {/* ============ HELD RIDERS (ISOLATED) ============ */}
             {heldRiders.length > 0 && (
-              <div className="mt-10 rounded-3xl border-2 border-dashed border-orange-200 bg-orange-50/40 p-5 md:p-6">
+              <div className="mt-10 rounded-3xl border-2 border-dashed border-orange-200 dark:border-orange-400/40 bg-orange-50/40 p-5 md:p-6">
                 <div className="mb-5 flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 dark:bg-orange-400/15 text-orange-600 dark:text-orange-400">
                     <PauseCircle size={20} />
                   </div>
 
@@ -256,7 +256,7 @@ const RiderList = ({
                     </p>
                   </div>
 
-                  <span className="ml-auto shrink-0 rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-800">
+                  <span className="ml-auto shrink-0 rounded-full bg-orange-100 dark:bg-orange-400/15 px-3 py-1 text-xs font-semibold text-orange-800 dark:text-orange-300">
                     {heldRiders.length}
                   </span>
                 </div>
@@ -315,9 +315,9 @@ const RiderTable = ({
   ).map(([value, count]) => ({ ...getStatus("rider", value), count }));
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden">
+    <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] overflow-hidden">
       {/* Legend */}
-      <div className="flex flex-wrap items-center gap-3 border-b border-gray-100 px-5 py-3">
+      <div className="flex flex-wrap items-center gap-3 border-b border-[var(--border)] px-5 py-3">
         <span className="text-xs font-semibold text-[var(--text)]">
           {riders.length} rider{riders.length === 1 ? "" : "s"}
         </span>
@@ -336,7 +336,7 @@ const RiderTable = ({
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-gray-200 text-xs uppercase tracking-wide text-[var(--text)]/50">
+            <tr className="border-b border-[var(--border)] text-xs uppercase tracking-wide text-[var(--text)]/50">
               <th className="px-4 py-3 font-semibold">Rider</th>
               <th className="hidden px-4 py-3 font-semibold md:table-cell">
                 Email
@@ -363,8 +363,8 @@ const RiderTable = ({
                 <tr
                   key={rider._id}
                   className={`
-                    border-b border-gray-100 last:border-0
-                    ${isHeld ? "bg-orange-50/40" : ""}
+                    border-b border-[var(--border)] last:border-0
+                    ${isHeld ? "bg-orange-50/40 dark:bg-orange-400/10" : ""}
                   `}
                 >
                   {/* Rider */}
@@ -379,8 +379,8 @@ const RiderTable = ({
                           font-bold
                           ${
                             isHeld
-                              ? "bg-orange-100 text-orange-700"
-                              : "bg-[var(--secondary)] text-[var(--foreground)]"
+                              ? "bg-orange-100 dark:bg-orange-400/15 text-orange-700 dark:text-orange-300"
+                              : "bg-[var(--secondary)] text-[var(--text-on-secondary)]"
                           }
                         `}
                       >
@@ -440,12 +440,12 @@ const RiderTable = ({
                           h-9
                           rounded-lg
                           border
-                          border-gray-200
+                          border-[var(--border)]
                           flex
                           items-center
                           justify-center
                           text-[var(--foreground)]
-                          hover:bg-gray-100
+                          hover:bg-[var(--surface-muted)]
                           transition
                         "
                       >
@@ -464,12 +464,12 @@ const RiderTable = ({
                               h-9
                               rounded-lg
                               border
-                              border-green-200
+                              border-green-200 dark:border-green-400/40
                               flex
                               items-center
                               justify-content
-                              text-green-600
-                              hover:bg-green-50
+                              text-green-600 dark:text-green-400
+                              hover:bg-green-50 dark:hover:bg-green-400/20
                               transition
                               disabled:cursor-not-allowed
                               disabled:opacity-60
@@ -492,12 +492,12 @@ const RiderTable = ({
                               h-9
                               rounded-lg
                               border
-                              border-red-200
+                              border-red-200 dark:border-red-400/40
                               flex
                               items-center
                               justify-content
-                              text-red-600
-                              hover:bg-red-50
+                              text-red-600 dark:text-red-400
+                              hover:bg-red-50 dark:hover:bg-red-400/20
                               transition
                               disabled:cursor-not-allowed
                               disabled:opacity-60
@@ -521,12 +521,12 @@ const RiderTable = ({
                             h-9
                             rounded-lg
                             border
-                            border-green-200
+                            border-green-200 dark:border-green-400/40
                             flex
                             items-center
                             justify-center
-                            text-green-600
-                            hover:bg-green-50
+                            text-green-600 dark:text-green-400
+                            hover:bg-green-50 dark:hover:bg-green-400/20
                             transition
                             disabled:cursor-not-allowed
                             disabled:opacity-60
@@ -549,12 +549,12 @@ const RiderTable = ({
                             h-9
                             rounded-lg
                             border
-                            border-orange-200
+                            border-orange-200 dark:border-orange-400/40
                             flex
                             items-center
                             justify-center
-                            text-orange-600
-                            hover:bg-orange-50
+                            text-orange-600 dark:text-orange-400
+                            hover:bg-orange-50 dark:hover:bg-orange-400/20
                             transition
                             disabled:cursor-not-allowed
                             disabled:opacity-60
@@ -592,8 +592,8 @@ const RiderCard = ({
   return (
     <div
       className={`
-        bg-white rounded-3xl border p-5
-        ${held ? "border-orange-200 opacity-90" : "border-gray-200"}
+        bg-[var(--surface)] rounded-3xl border p-5
+        ${held ? "border-orange-200 dark:border-orange-400/40 opacity-90" : "border-[var(--border)]"}
       `}
     >
       {/* Header */}
@@ -607,8 +607,8 @@ const RiderCard = ({
               font-bold
               ${
                 held
-                  ? "bg-orange-100 text-orange-700"
-                  : "bg-[var(--secondary)] text-[var(--foreground)]"
+                  ? "bg-orange-100 dark:bg-orange-400/15 text-orange-700 dark:text-orange-300"
+                  : "bg-[var(--secondary)] text-[var(--text-on-secondary)]"
               }
             `}
           >
@@ -661,7 +661,7 @@ const RiderCard = ({
       </div>
 
       {/* Service Center */}
-      <div className="mt-4 flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-2 text-sm">
+      <div className="mt-4 flex items-center gap-2 rounded-xl bg-[var(--surface-muted)] px-3 py-2 text-sm">
         <Truck size={15} className="text-[var(--text)]" />
         <span className="truncate">{rider.serviceCenter || "—"}</span>
       </div>
@@ -669,7 +669,7 @@ const RiderCard = ({
       {/* Actions */}
       <div
         className={`
-          mt-5 pt-4 border-t border-gray-100
+          mt-5 pt-4 border-t border-[var(--border)]
           ${allowHold || allowActivate ? "grid grid-cols-2 gap-2" : ""}
         `}
       >
@@ -680,7 +680,7 @@ const RiderCard = ({
             w-full
             rounded-xl
             border
-            border-gray-200
+            border-[var(--border)]
             py-2
             text-sm
             font-semibold
@@ -689,7 +689,7 @@ const RiderCard = ({
             items-center
             justify-center
             gap-2
-            hover:bg-gray-100
+            hover:bg-[var(--surface-muted)]
             transition
           "
         >
@@ -706,16 +706,16 @@ const RiderCard = ({
               w-full
               rounded-xl
               border
-              border-orange-200
+              border-orange-200 dark:border-orange-400/40
               py-2
               text-sm
               font-semibold
-              text-orange-600
+              text-orange-600 dark:text-orange-400
               flex
               items-center
               justify-center
               gap-2
-              hover:bg-orange-50
+              hover:bg-orange-50 dark:hover:bg-orange-400/20
               transition
               disabled:cursor-not-allowed
               disabled:opacity-60
@@ -739,16 +739,16 @@ const RiderCard = ({
               w-full
               rounded-xl
               border
-              border-green-200
+              border-green-200 dark:border-green-400/40
               py-2
               text-sm
               font-semibold
-              text-green-600
+              text-green-600 dark:text-green-400
               flex
               items-center
               justify-center
               gap-2
-              hover:bg-green-50
+              hover:bg-green-50 dark:hover:bg-green-400/20
               transition
               disabled:cursor-not-allowed
               disabled:opacity-60
@@ -807,7 +807,7 @@ const RiderModal = ({ rider, onClose, onDone }) => {
           max-w-lg
           max-h-[85vh]
           overflow-y-auto
-          bg-white
+          bg-[var(--surface)]
           rounded-3xl
           shadow-2xl
         "
@@ -825,12 +825,12 @@ const RiderModal = ({ rider, onClose, onDone }) => {
               w-9
               h-9
               rounded-full
-              bg-gray-100
+              bg-[var(--surface-muted)]
               flex
               items-center
               justify-center
-              text-gray-500
-              hover:bg-gray-200
+              text-[var(--text-muted)]
+              hover:bg-[var(--surface-hover)]
               transition
             "
           >
@@ -843,7 +843,7 @@ const RiderModal = ({ rider, onClose, onDone }) => {
                 w-11 h-11
                 rounded-full
                 bg-[var(--secondary)]
-                text-[var(--foreground)]
+                text-[var(--text-on-secondary)]
                 flex items-center justify-center
                 font-bold
               "
@@ -862,8 +862,8 @@ const RiderModal = ({ rider, onClose, onDone }) => {
           </div>
 
           {/* Rider info */}
-          <div className="mt-5 rounded-2xl border border-gray-200 overflow-hidden">
-            <div className="flex items-center gap-2 px-4 py-3 bg-gray-100">
+          <div className="mt-5 rounded-2xl border border-[var(--border)] overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-3 bg-[var(--surface-muted)]">
               <User size={16} />
               <span className="font-semibold text-sm">Rider Info</span>
             </div>
@@ -950,7 +950,7 @@ const RiderModal = ({ rider, onClose, onDone }) => {
             </label>
 
             <select
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none"
+              className="w-full border border-[var(--border-strong)] rounded-lg px-4 py-3 outline-none"
               {...register("status", { required: true })}
             >
               {RIDER_STATUS_OPTIONS.map((option) => (
@@ -961,7 +961,7 @@ const RiderModal = ({ rider, onClose, onDone }) => {
             </select>
 
             {errors.status && (
-              <p className="mt-1 text-xs text-red-500">{errors.status.message}</p>
+              <p className="mt-1 text-xs text-red-500 dark:text-red-400">{errors.status.message}</p>
             )}
 
             <div className="mt-5 flex items-center gap-3">
@@ -973,12 +973,12 @@ const RiderModal = ({ rider, onClose, onDone }) => {
                   flex-1
                   rounded-xl
                   border
-                  border-gray-200
+                  border-[var(--border)]
                   py-2.5
                   text-sm
                   font-semibold
                   text-[var(--foreground)]
-                  hover:bg-gray-100
+                  hover:bg-[var(--surface-muted)]
                   transition
                   disabled:cursor-not-allowed
                   disabled:opacity-60
@@ -997,8 +997,8 @@ const RiderModal = ({ rider, onClose, onDone }) => {
                   py-2.5
                   text-sm
                   font-semibold
-                  text-[var(--foreground)]
-                  hover:bg-[var(--primary)]
+                  text-[var(--text-on-secondary)]
+                  hover:bg-[var(--surface)]
                   transition
                   flex
                   items-center

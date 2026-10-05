@@ -150,10 +150,10 @@ const AssignRider = () => {
             className="
               px-6 py-3
               rounded-full
-              bg-[var(--foreground)]
+              bg-[var(--ink)]
               text-[var(--secondary)]
               font-semibold
-              hover:bg-[var(--primary)]
+              hover:bg-[var(--surface)]
               hover:text-[var(--foreground)]
               transition-all duration-300
               flex items-center gap-2
@@ -180,8 +180,8 @@ const AssignRider = () => {
               w-full
               rounded-full
               border
-              border-gray-200
-              bg-white
+              border-[var(--border)]
+              bg-[var(--surface)]
               py-3
               pl-11
               pr-4
@@ -194,7 +194,7 @@ const AssignRider = () => {
         {loading ? (
           <PageLoader className="min-h-[60vh]" />
         ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-gray-200 p-16 text-center">
+          <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] p-16 text-center">
             <Package size={48} className="mx-auto text-[var(--text)]" />
             <h2 className="mt-4 text-xl font-bold text-[var(--foreground)]">
               No parcels found
@@ -237,9 +237,9 @@ const AssignRider = () => {
 
 const ParcelTable = ({ parcels, riderCount, assigningId, onAssign }) => {
   return (
-    <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden">
+    <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] overflow-hidden">
       {/* Legend */}
-      <div className="flex flex-wrap items-center gap-3 border-b border-gray-100 px-5 py-3">
+      <div className="flex flex-wrap items-center gap-3 border-b border-[var(--border)] px-5 py-3">
         <span className="text-xs font-semibold text-[var(--text)]">
           {parcels.length} parcel{parcels.length === 1 ? "" : "s"}
         </span>
@@ -250,7 +250,7 @@ const ParcelTable = ({ parcels, riderCount, assigningId, onAssign }) => {
         </span>
 
         {/* the rule the page is built around, said out loud once */}
-        <span className="flex items-center gap-1.5 text-xs text-amber-700">
+        <span className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300">
           <Lock size={13} />
           Only paid parcels can be assigned
         </span>
@@ -259,7 +259,7 @@ const ParcelTable = ({ parcels, riderCount, assigningId, onAssign }) => {
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-gray-200 text-xs uppercase tracking-wide text-[var(--text)]/50">
+            <tr className="border-b border-[var(--border)] text-xs uppercase tracking-wide text-[var(--text)]/50">
               <th className="px-4 py-3 font-semibold">Parcel</th>
               <th className="px-4 py-3 font-semibold">Date</th>
               <th className="px-4 py-3 font-semibold">Payment</th>
@@ -276,12 +276,12 @@ const ParcelTable = ({ parcels, riderCount, assigningId, onAssign }) => {
               return (
                 <tr
                   key={parcel._id}
-                  className="border-b border-gray-100 last:border-0 hover:bg-gray-50/60 transition-colors"
+                  className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface-hover)]/60 transition-colors"
                 >
                   {/* Parcel name + id */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-[var(--secondary)] text-[var(--foreground)] flex items-center justify-center shrink-0">
+                      <div className="w-9 h-9 rounded-xl bg-[var(--secondary)] text-[var(--text-on-secondary)] flex items-center justify-center shrink-0">
                         <Package size={17} />
                       </div>
 
@@ -297,7 +297,7 @@ const ParcelTable = ({ parcels, riderCount, assigningId, onAssign }) => {
 
                         {parcel.riderID ? (
                           <>
-                            <p className="text-[11px] text-green-600 font-medium truncate flex items-center gap-1">
+                            <p className="text-[11px] text-green-600 dark:text-green-400 font-medium truncate flex items-center gap-1">
                               <UserCheck size={10} />
                               {parcel.riderName || parcel.riderID}
                             </p>
@@ -356,12 +356,13 @@ const ParcelTable = ({ parcels, riderCount, assigningId, onAssign }) => {
                             items-center
                             gap-1.5
                             rounded-xl
-                            border border-green-200
-                            bg-green-50
-                            px-3 py-2
+                            border border-green-200 dark:border-green-400/40
+                  bg-green-50
+                  dark:bg-green-400/15
+                  px-3 py-2
                             text-sm
                             font-semibold
-                            text-green-700
+                            text-green-700 dark:text-green-300
                           "
                         >
                           <CheckCircle2 size={15} />
@@ -384,13 +385,13 @@ const ParcelTable = ({ parcels, riderCount, assigningId, onAssign }) => {
                           gap-2
                           rounded-xl
                           border
-                          border-blue-200
+                          border-blue-200 dark:border-blue-400/40
                           px-4
                           py-2
                           text-sm
                           font-semibold
-                          text-blue-600
-                          hover:bg-blue-50
+                          text-blue-600 dark:text-blue-400
+                          hover:bg-blue-50 dark:hover:bg-blue-400/20
                           transition
                           disabled:cursor-not-allowed
                           disabled:opacity-60
@@ -465,7 +466,7 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
           max-w-lg
           max-h-[85vh]
           flex flex-col
-          bg-white
+          bg-[var(--surface)]
           rounded-3xl
           shadow-2xl
         "
@@ -482,10 +483,10 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
               top-5
               w-9 h-9
               rounded-full
-              bg-gray-100
+              bg-[var(--surface-muted)]
               flex items-center justify-center
-              text-gray-500
-              hover:bg-gray-200
+              text-[var(--text-muted)]
+              hover:bg-[var(--surface-hover)]
               transition
             "
           >
@@ -493,7 +494,7 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
           </button>
 
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-400/15 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
               <UserCheck size={21} />
             </div>
 
@@ -508,7 +509,7 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
           </div>
 
           {/* Route */}
-          <div className="mt-4 flex items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm">
+          <div className="mt-4 flex items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3 text-sm">
             <div className="min-w-0 flex-1">
               <p className="text-[11px] text-[var(--text)]">PICKUP</p>
               <p className="font-semibold truncate">
@@ -528,17 +529,17 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
 
           {/* Currently assigned */}
           {parcel.riderID && (
-            <div className="mt-4 flex items-center gap-3 rounded-2xl border border-green-200 bg-green-50 px-4 py-3">
-              <CheckCircle2 size={18} className="text-green-600 shrink-0" />
+            <div className="mt-4 flex items-center gap-3 rounded-2xl border border-green-200 dark:border-green-400/40 bg-green-50 px-4 py-3">
+              <CheckCircle2 size={18} className="text-green-600 dark:text-green-400 shrink-0" />
 
               <div className="min-w-0 flex-1">
-                <p className="text-[11px] text-green-700">Currently assigned</p>
+                <p className="text-[11px] text-green-700 dark:text-green-300">Currently assigned</p>
                 <p className="text-sm font-semibold text-green-900 truncate">
                   {parcel.riderName || "—"}
                 </p>
 
                 {parcel.assignedAt ? (
-                  <p className="text-[11px] text-green-700 truncate flex items-center gap-1">
+                  <p className="text-[11px] text-green-700 dark:text-green-300 truncate flex items-center gap-1">
                     <Clock size={10} />
                     {new Date(parcel.assignedAt).toLocaleString()}
                   </p>
@@ -552,13 +553,13 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
                   shrink-0
                   rounded-lg
                   border
-                  border-red-200
+                  border-red-200 dark:border-red-400/40
                   px-3
                   py-1.5
                   text-xs
                   font-semibold
-                  text-red-500
-                  hover:bg-red-50
+                  text-red-500 dark:text-red-400
+                  hover:bg-red-50 dark:hover:bg-red-400/20
                   transition
                 "
               >
@@ -583,8 +584,8 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
                 w-full
                 rounded-full
                 border
-                border-gray-200
-                bg-white
+                border-[var(--border)]
+                bg-[var(--surface)]
                 py-2.5
                 pl-11
                 pr-4
@@ -595,14 +596,14 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
           </div>
 
           {/* Near riders */}
-          <div className="mt-4 rounded-2xl border border-gray-200 overflow-hidden">
-            <div className="flex items-center gap-2 px-4 py-3 bg-gray-100">
+          <div className="mt-4 rounded-2xl border border-[var(--border)] overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-3 bg-[var(--surface-muted)]">
               <Bike size={16} />
               <span className="font-semibold text-sm">
                 Active riders in {parcel.receiverRegion || "this region"}
               </span>
 
-              <span className="ml-auto rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
+              <span className="ml-auto rounded-full bg-blue-100 dark:bg-blue-400/15 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:text-blue-300">
                 {nearRiders.length}
               </span>
             </div>
@@ -617,7 +618,7 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
                     whole route.`}
               </p>
             ) : (
-              <div className="max-h-72 overflow-y-auto divide-y divide-gray-100">
+              <div className="max-h-72 overflow-y-auto divide-y divide-[var(--border)]">
                 {nearRiders.map((rider) => (
                   <RiderRow
                     key={rider.riderID}
@@ -632,27 +633,27 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
 
           {/* Riders from other regions */}
           {farRiders.length > 0 && (
-            <div className="mt-4 rounded-2xl border border-dashed border-orange-200 bg-orange-50/40 overflow-hidden">
+            <div className="mt-4 rounded-2xl border border-dashed border-orange-200 dark:border-orange-400/40 bg-orange-50/40 overflow-hidden">
               <button
                 type="button"
                 onClick={() => setShowAll((prev) => !prev)}
                 className="w-full flex items-center gap-2 px-4 py-3 text-left"
               >
-                <MapPin size={16} className="text-orange-600 shrink-0" />
+                <MapPin size={16} className="text-orange-600 dark:text-orange-400 shrink-0" />
                 <span className="text-sm font-semibold text-[var(--foreground)]">
                   Riders from other regions
                 </span>
 
-                <span className="ml-auto rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-semibold text-orange-800">
+                <span className="ml-auto rounded-full bg-orange-100 dark:bg-orange-400/15 px-2.5 py-0.5 text-xs font-semibold text-orange-800 dark:text-orange-300">
                   {farRiders.length}
                 </span>
 
                 {showAll ? (
-                  <ChevronUp size={16} className="text-orange-600 shrink-0" />
+                  <ChevronUp size={16} className="text-orange-600 dark:text-orange-400 shrink-0" />
                 ) : (
                   <ChevronDown
                     size={16}
-                    className="text-orange-600 shrink-0"
+                    className="text-orange-600 dark:text-orange-400 shrink-0"
                   />
                 )}
               </button>
@@ -663,21 +664,22 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
                     key={center}
                     className="border-t border-orange-100"
                   >
-                    <div className="flex items-center gap-2 px-4 py-2 bg-orange-50/60">
-                      <Building2
-                        size={13}
-                        className="text-orange-600 shrink-0"
-                      />
-                      <span className="text-xs font-semibold text-orange-800 truncate">
+                <div className="flex items-center gap-2 px-4 py-2 bg-orange-50/60 dark:bg-orange-400/15">
+                  <Building2
+                    size={13}
+                    className="text-orange-600 dark:text-orange-400 shrink-0"
+                  />
+
+                  <span className="text-xs font-semibold text-orange-800 dark:text-orange-200 truncate">
                         {center}
                       </span>
 
-                      <span className="ml-auto text-xs text-orange-600">
+                      <span className="ml-auto text-xs text-orange-600 dark:text-orange-400">
                         {list.length}
                       </span>
                     </div>
 
-                    <div className="divide-y divide-gray-100 bg-white">
+                    <div className="divide-y divide-[var(--border)] bg-[var(--surface)]">
                       {list.map((rider) => (
                         <RiderRow
                           key={rider.riderID}
@@ -701,12 +703,12 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
               w-full
               rounded-xl
               border
-              border-gray-200
+              border-[var(--border)]
               py-2.5
               text-sm
               font-semibold
               text-[var(--foreground)]
-              hover:bg-gray-100
+              hover:bg-[var(--surface-muted)]
               transition
             "
           >
@@ -728,13 +730,14 @@ const RiderRow = ({ rider, current, onAssign }) => (
       px-4 py-3
       flex items-center gap-3
       text-left
-      hover:bg-blue-50/60
-      transition
+                  hover:bg-blue-50/60
+                  dark:hover:bg-blue-400/15
+                  transition
       disabled:cursor-not-allowed
-      disabled:bg-green-50
+      disabled:bg-green-50 dark:disabled:bg-green-400/20
     "
   >
-    <div className="w-9 h-9 rounded-full bg-[var(--secondary)] text-[var(--foreground)] flex items-center justify-center shrink-0 font-bold text-xs">
+    <div className="w-9 h-9 rounded-full bg-[var(--secondary)] text-[var(--text-on-secondary)] flex items-center justify-center shrink-0 font-bold text-xs">
       {rider.name?.[0]?.toUpperCase() || "R"}
     </div>
 
@@ -765,7 +768,7 @@ const RiderRow = ({ rider, current, onAssign }) => (
       ) : null}
     </div>
 
-    <span className="text-xs font-semibold text-blue-600 shrink-0">
+    <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 shrink-0">
       {current ? "Assigned" : "Assign"}
     </span>
   </button>

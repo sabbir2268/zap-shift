@@ -58,13 +58,13 @@ const Service = () => {
 
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <span className="inline-block px-4 py-2 rounded-full bg-[var(--secondary)] text-[var(--foreground)] text-sm font-semibold mb-4">
+          <span className="inline-block px-4 py-2 rounded-full bg-[var(--secondary)] text-[var(--text-on-secondary)] text-sm font-semibold mb-4">
             Our Services
           </span>
 
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--foreground)]">
             Delivery Solutions Built
-            <span className="text-[var(--primary)]"> For You</span>
+            <span className="text-[var(--text-on-ink)]"> For You</span>
           </h1>
 
           <p className="mt-4 text-[var(--text)] leading-relaxed">
@@ -84,7 +84,7 @@ const Service = () => {
                 key={index}
                 className="
                   group
-                  bg-[var(--card)]
+                  bg-[var(--surface)]
                   rounded-2xl
                   p-6
                   border border-[var(--border)]
@@ -100,11 +100,11 @@ const Service = () => {
                     w-12 h-12
                     rounded-xl
                     flex items-center justify-center
-                    bg-[var(--primary)]
+                    bg-[var(--surface)]
                     text-[var(--foreground)]
                     mb-5
                     transition-all duration-300
-                    group-hover:bg-[var(--foreground)]
+                    group-hover:bg-[var(--ink)]
                     group-hover:text-[var(--secondary)]
                   "
                 >
@@ -112,17 +112,17 @@ const Service = () => {
                 </div>
 
                 {/* Title */}
-                <h2 className="text-xl font-bold text-[var(--foreground)] mb-3">
+                <h2 className="text-xl font-bold text-[var(--foreground)] mb-3 transition-colors duration-300 group-hover:text-[var(--text-on-secondary)]">
                   {service.title}
                 </h2>
 
                 {/* Description */}
-                <p className="text-sm text-[var(--text)] leading-6">
+                <p className="text-sm text-[var(--text)] leading-6 transition-colors duration-300 group-hover:text-[var(--text-on-secondary)]/85">
                   {service.description}
                 </p>
 
                 {/* Learn More */}
-                <div className="mt-5 flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
+                <div className="mt-5 flex items-center gap-2 text-sm font-semibold text-[var(--foreground)] transition-colors duration-300 group-hover:text-[var(--text-on-secondary)]">
                   <span>Learn More</span>
 
                   <ArrowUpRight
@@ -144,7 +144,7 @@ const Service = () => {
           className="
             mt-12
             rounded-3xl
-            bg-[var(--foreground)]
+            bg-[var(--ink)]
             px-6 py-8 md:px-10 md:py-10
             flex flex-col md:flex-row
             items-center
@@ -156,10 +156,10 @@ const Service = () => {
             <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
               <ShieldCheck
                 size={20}
-                className="text-[var(--primary)]"
+                className="text-[var(--text-on-ink)]"
               />
 
-              <span className="text-sm font-semibold text-[var(--primary)]">
+              <span className="text-sm font-semibold text-[var(--text-on-ink)]">
                 Safe & Reliable Delivery
               </span>
             </div>
@@ -178,7 +178,7 @@ const Service = () => {
             className="
               group
               flex items-center gap-3
-              bg-[var(--primary)]
+              bg-[var(--surface)]
               text-[var(--foreground)]
               px-6 py-3
               rounded-full
@@ -186,7 +186,7 @@ const Service = () => {
               whitespace-nowrap
               transition-all duration-300
               hover:bg-[var(--secondary)]
-              hover:text-[var(--foreground)]
+              hover:text-[var(--text-on-secondary)]
               hover:shadow-lg
             "
           >
@@ -196,8 +196,8 @@ const Service = () => {
               className="
                 w-8 h-8
                 rounded-full
-                bg-[var(--foreground)]
-                text-[var(--primary)]
+                bg-[var(--ink)]
+                text-[var(--text-on-ink)]
                 flex items-center justify-center
                 transition-transform duration-300
                 group-hover:rotate-45

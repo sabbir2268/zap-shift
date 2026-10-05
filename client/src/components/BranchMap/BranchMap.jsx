@@ -111,7 +111,7 @@ const BranchMap = ({
                   {branch.name}
                 </h3>
 
-                <p className="text-xs text-gray-500 mb-3">
+                <p className="text-xs text-[var(--text-muted)] mb-3">
                   {branch.district},{" "}
                   {branch.division}
                 </p>
@@ -149,11 +149,11 @@ const BranchMap = ({
       {/* Map Overlay */}
       <div className="absolute top-4 left-4 z-[1000]">
 
-        <div className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[var(--foreground)] shadow-lg">
+        <div className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[var(--ink)] shadow-lg">
 
           <div className="w-2.5 h-2.5 rounded-full bg-[var(--secondary)] animate-pulse" />
 
-          <span className="text-sm font-medium text-[var(--primary)]">
+          <span className="text-sm font-medium text-[var(--text-on-ink)]">
             {branches.length} Locations
           </span>
 
@@ -165,24 +165,24 @@ const BranchMap = ({
       {selectedBranch && (
         <div className="absolute bottom-5 left-5 right-5 md:left-auto md:w-[330px] z-[1000]">
 
-          <div className="bg-[var(--foreground)] rounded-2xl p-4 shadow-xl border border-white/10">
+          <div className="bg-[var(--ink)] rounded-2xl p-4 shadow-xl border border-white/10">
 
             <div className="flex items-start gap-3">
 
               <div className="w-10 h-10 rounded-xl bg-[var(--secondary)] flex items-center justify-center shrink-0">
                 <Building2
                   size={19}
-                  className="text-[var(--foreground)]"
+                  className="text-[var(--text-on-secondary)]"
                 />
               </div>
 
               <div className="min-w-0">
 
-                <h3 className="font-bold text-[var(--primary)] truncate">
+                <h3 className="font-bold text-[var(--text-on-ink)] truncate">
                   {selectedBranch.name}
                 </h3>
 
-                <p className="text-xs text-[var(--primary)]/70 mt-1">
+                <p className="text-xs text-[var(--text-on-ink)]/70 mt-1">
                   {selectedBranch.district},{" "}
                   {selectedBranch.division}
                 </p>
@@ -197,7 +197,7 @@ const BranchMap = ({
                 className="mt-0.5 shrink-0 text-[var(--secondary)]"
               />
 
-              <p className="text-sm text-[var(--primary)]/80">
+              <p className="text-sm text-[var(--text-on-ink)]/80">
                 {selectedBranch.address}
               </p>
             </div>
@@ -208,7 +208,7 @@ const BranchMap = ({
                 className="text-[var(--secondary)]"
               />
 
-              <p className="text-sm text-[var(--primary)]/80">
+              <p className="text-sm text-[var(--text-on-ink)]/80">
                 {selectedBranch.phone}
               </p>
             </div>

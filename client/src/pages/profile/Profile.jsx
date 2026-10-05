@@ -104,10 +104,10 @@ const Profile = () => {
   };
 
   const accountCard = (
-    <div className="rounded-3xl bg-white border border-gray-200 shadow-md overflow-hidden">
+    <div className="rounded-3xl bg-[var(--surface)] border border-[var(--border)] shadow-md overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 pt-14 pb-14 text-center">
-        <div className="w-24 h-24 mx-auto rounded-full bg-white flex items-center justify-center text-3xl font-bold shadow-lg ring-4 ring-indigo-300 overflow-hidden">
+        <div className="w-24 h-24 mx-auto rounded-full bg-[var(--surface)] flex items-center justify-center text-3xl font-bold shadow-lg ring-4 ring-indigo-300 overflow-hidden">
           {user?.photoURL ? (
             <img
               src={user.photoURL}
@@ -117,7 +117,7 @@ const Profile = () => {
           ) : initials ? (
             initials
           ) : (
-            <UserRound size={40} className="text-indigo-500" />
+            <UserRound size={40} className="text-indigo-500 dark:text-indigo-400" />
           )}
         </div>
 
@@ -129,7 +129,7 @@ const Profile = () => {
           <p className="mt-2 text-sm text-indigo-100 break-words">{email}</p>
 
           {user?.emailVerified && (
-            <span className="inline-flex items-center gap-1.5 mt-4 px-3 py-1 rounded-full bg-green-500 text-white text-xs font-semibold">
+            <span className="inline-flex items-center gap-1.5 mt-4 px-3 py-1 rounded-full bg-green-700 text-white text-xs font-semibold">
               <BadgeCheck size={14} />
               Verified Account
             </span>
@@ -139,7 +139,7 @@ const Profile = () => {
 
       {/* Account details */}
       <div className="px-6 -mt-7">
-        <div className="rounded-2xl border border-gray-200 bg-white divide-y divide-gray-100">
+        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] divide-y divide-[var(--border)]">
           <InfoRow
             icon={<UserRound size={18} />}
             label="Display Name"
@@ -178,7 +178,7 @@ const Profile = () => {
           <button
             type="button"
             onClick={handleLogout}
-            className="flex items-center justify-center gap-2 px-6 py-3 rounded-full border-2 border-red-400 text-red-500 font-semibold hover:bg-red-500 hover:text-white transition-all duration-300"
+            className="flex items-center justify-center gap-2 px-6 py-3 rounded-full border-2 border-red-500/60 dark:border-red-400/60 text-red-600 dark:text-red-400 font-semibold hover:bg-red-600 hover:text-white transition-all duration-300"
           >
             <LogOut size={17} />
             Logout
@@ -189,8 +189,8 @@ const Profile = () => {
   );
 
   const riderCard = (
-    <div className="rounded-3xl bg-white border border-gray-200 shadow-md overflow-hidden">
-      <div className="flex items-center justify-between gap-3 bg-gray-100 px-5 py-3">
+    <div className="rounded-3xl bg-[var(--surface)] border border-[var(--border)] shadow-md overflow-hidden">
+      <div className="flex items-center justify-between gap-3 bg-[var(--surface-muted)] px-5 py-3">
         <span className="flex items-center gap-2 font-semibold text-sm">
           <Bike size={16} />
           Rider Info
@@ -205,7 +205,7 @@ const Profile = () => {
         />
       </div>
 
-      <div className="py-2 divide-y divide-gray-100">
+      <div className="py-2 divide-y divide-[var(--border)]">
         <InfoRow
           icon={<Hash size={18} />}
           label="Rider ID"
@@ -285,12 +285,12 @@ const Profile = () => {
 
 const InfoRow = ({ icon, label, value }) => (
   <div className="flex items-center gap-4 px-5 py-4">
-    <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+    <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-400/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
       {icon}
     </div>
     <div className="min-w-0 text-left">
-      <p className="text-xs text-gray-500">{label}</p>
-      <p className="text-sm font-semibold text-gray-800 break-words">{value}</p>
+      <p className="text-xs text-[var(--text-muted)]">{label}</p>
+      <p className="text-sm font-semibold text-[var(--foreground)] break-words">{value}</p>
     </div>
   </div>
 );

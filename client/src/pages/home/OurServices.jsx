@@ -50,16 +50,16 @@ const OurServices = () => {
   ];
 
   return (
-    <section className="bg-[var(--foreground)] py-10 md:py-15 rounded-2xl mb-5 lg:mb-10">
+    <section className="bg-[var(--ink)] py-10 md:py-15 rounded-2xl mb-5 lg:mb-10">
       <div className="max-w-7xl mx-auto px-4">
 
         {/* Section Header */}
         <div className="max-w-2xl mb-10 md:mb-14 items-center text-center mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-[var(--primary)] mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-[var(--text-on-ink)] mb-4">
             Our Services
           </h2>
 
-          <p className="text-[var(--primary)]/70 leading-relaxed">
+          <p className="text-[var(--text-on-ink)]/70 leading-relaxed">
             Enjoy fast, reliable parcel delivery with real-time tracking and
             zero hassle. From personal packages to business shipments — we
             deliver on time, every time.
@@ -78,7 +78,7 @@ const OurServices = () => {
                   group
                   p-6
                   rounded-2xl
-                  bg-[var(--primary)]
+                  bg-[var(--surface)]
                   border
                   border-[var(--border)]
                   transition-all
@@ -97,12 +97,12 @@ const OurServices = () => {
                     flex
                     items-center
                     justify-center
-                    bg-[var(--foreground)]
+                    bg-[var(--ink)]
                     text-[var(--secondary)]
                     mb-5
                     transition-all
                     duration-300
-                    group-hover:bg-[var(--primary)]
+                    group-hover:bg-[var(--surface)]
                     group-hover:text-[var(--foreground)]
                     group-hover:scale-110
                   "
@@ -119,7 +119,7 @@ const OurServices = () => {
                     mb-3
                     transition-colors
                     duration-300
-                    group-hover:text-[var(--foreground)]
+                    group-hover:text-[var(--text-on-secondary)]
                   "
                 >
                   {service.title}
@@ -132,7 +132,7 @@ const OurServices = () => {
                     leading-relaxed
                     transition-colors
                     duration-300
-                    group-hover:text-[var(--foreground)]/80
+                    group-hover:text-[var(--text-on-secondary)]/85
                   "
                 >
                   {service.description}

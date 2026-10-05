@@ -3,41 +3,143 @@
 
 /* tailwind  */
 @import "tailwindcss";
-/* daisyUi with light theme */
-@plugin "daisyui" {
-  themes: light --default, dark --prefersdark;
-}
 
+/*
+ * dark mode is driven by a class on <html>, not by the operating system
+ *
+ * The toggle in the navbar is the only thing that decides, so the site does not
+ * quietly change under someone who picked a theme on purpose. Anything inside
+ * .dark can also use tailwind's dark: variant.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * The palette, written by role rather than by colour.
+ *
+ * Each token answers one question: what is this thing, and what goes on top of
+ * it. A page never picks a colour, it picks a role, which is why the dark theme
+ * is a second block of values here and not a second copy of every page.
+ *
+ *   surfaces   background, surface, surface-muted, surface-hover
+ *   lines      border, border-strong
+ *   ink        text, text-muted, foreground
+ *   brand      secondary (the lime fill), text-on-secondary, accent-text
+ *   dark fill  ink, text-on-ink
+ *
+ * The split that matters: foreground is ink that lands on a light or dark
+ * surface, so it flips with the theme. ink is a fill that is always dark and
+ * always has light text on it, so it never flips. Mixing the two up is how a
+ * dark theme ends up with dark text on a dark button.
+ *
+ * Every pair used for text is checked by tests/themeContrast.test.js, which
+ * fails if a value here drops below the WCAG AA ratio.
+ */
 :root {
-  /* Light theme */
-  --background: #acabab;
-  --foreground: #03373D;
+  color-scheme: light;
 
-  --primary: #FFFFFF;
-  --secondary: #CAEB66;
+  /* the page behind everything */
+  --background: #e7ebeb;
 
-  --card: #ffffff;
-  --border: #CAEB66;
-  --text: #0B0B0B;
+  /* cards, the navbar, and the inside of inputs */
+  --surface: #ffffff;
+  --surface-muted: #f2f6f6;
+  --surface-hover: #e8eeee;
+
+  --border: #d1dbdb;
+  --border-strong: #adbfbe;
+
+  /* body copy, and the copy that is only there for support */
+  --text: #12211f;
+  --text-muted: #4c5e5d;
+
+  /* headings and anything that has to outrank the copy around it */
+  --foreground: #06333a;
+
+  /* the brand lime, and the two inks that go with it */
+  --secondary: #caeb66;
+  --text-on-secondary: #0b2a0e;
+
+  /* lime cannot be read as text on white, so text that wants the brand gets a
+     darker lime while the theme is light */
+  --accent-text: #56690f;
+
+  /* the dark fill behind white text: sidebars, the mobile top bar, active links */
+  --ink: #06333a;
+  --text-on-ink: #ffffff;
+
+  --focus: #0b5f66;
 }
 
 .dark {
-  /* Dark theme */
-  --background: #03373D;
-  --foreground: #0B3A41;
+  color-scheme: dark;
 
-  --primary: #CAEB66;
-  --secondary: #FFFFFF;
+  --background: #0e1a1d;
 
-  --card: #CAEB66;
-  --border: #FFFFFF;
-  --text: #0B0B0B;
+  --surface: #16272a;
+  --surface-muted: #1c3135;
+  --surface-hover: #243d42;
+
+  --border: #2a4247;
+  --border-strong: #3c5b61;
+
+  --text: #e6efef;
+  --text-muted: #a9bec0;
+
+  /* the same dark teal as the light theme, so the brand still reads as ink */
+  --foreground: #eaf4f4;
+
+  /* lime keeps its value: it is already light enough to sit on a dark surface */
+  --secondary: #caeb66;
+  --text-on-secondary: #0b2a0e;
+  --accent-text: #c7e75f;
+
+  /* the dark fill stays dark, and goes a shade deeper so it is still a fill and
+     not the page behind it */
+  --ink: #0a2226;
+  --text-on-ink: #f2f7f7;
+
+  --focus: #6fd3c8;
 }
 
 body {
   background: var(--background);
   color: var(--text);
   font-family: "Rancho", sans-serif;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
+/* native controls follow the theme rather than staying white */
+input,
+select,
+textarea,
+option {
+  color-scheme: inherit;
+}
+
+::selection {
+  background: var(--secondary);
+  color: var(--text-on-secondary);
+}
+
+/* a keyboard user can always see where they are, without a visible ring on
+   every mouse click */
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* thin scrollbars in the track colour, so a dark page has no white bar down
+   the side of it */
+* {
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+/* leaflet paints its own panes, so the map has to be told which theme it is in
+   or it stays a bright island on a dark page */
+.dark .leaflet-tile-pane {
+  filter: brightness(0.78) invert(1) contrast(0.86) hue-rotate(180deg);
+}
+
+.dark .leaflet-container {
+  background: var(--surface-muted);
+}

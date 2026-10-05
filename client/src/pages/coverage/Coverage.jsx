@@ -59,20 +59,20 @@ const Coverage = () => {
   };
 
   return (
-    <main className="w-full bg-[var(--primary)]">
+    <main className="w-full bg-[var(--surface)]">
 
       {/* ================= HERO ================= */}
       <section className="px-4 pt-16 pb-12 md:pt-20 md:pb-16">
         <div className="max-w-7xl mx-auto text-center">
 
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--secondary)] text-[var(--foreground)] text-sm font-medium mb-5">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--secondary)] text-[var(--text-on-secondary)] text-sm font-medium mb-5">
             <MapPinned size={17} />
             Nationwide Coverage
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--foreground)] leading-tight">
             We Deliver Across{" "}
-            <span className="inline-block text-[var(--secondary)] bg-[var(--foreground)] px-4 py-1 rounded-xl">
+            <span className="inline-block text-[var(--secondary)] bg-[var(--ink)] px-4 py-1 rounded-xl">
               Bangladesh
             </span>
           </h1>
@@ -90,7 +90,7 @@ const Coverage = () => {
       <section className="px-4 pb-16 md:pb-20">
         <div className="max-w-7xl mx-auto">
 
-          <div className="bg-[var(--foreground)] rounded-3xl shadow-xl overflow-hidden">
+          <div className="bg-[var(--ink)] rounded-3xl shadow-xl overflow-hidden">
 
             <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr]">
 
@@ -100,19 +100,19 @@ const Coverage = () => {
                 {/* Heading */}
                 <div className="mb-5">
                   <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-xl bg-[var(--secondary)] flex items-center justify-center">
-                      <MapPin
-                        size={21}
-                        className="text-[var(--foreground)]"
-                      />
+              <div className="w-10 h-10 rounded-xl bg-[var(--secondary)] flex items-center justify-center">
+                <MapPin
+                  size={21}
+                  className="text-[var(--text-on-secondary)]"
+                />
                     </div>
 
                     <div>
-                      <h2 className="text-xl font-bold text-[var(--primary)]">
+                      <h2 className="text-xl font-bold text-[var(--text-on-ink)]">
                         Find a Location
                       </h2>
 
-                      <p className="text-sm text-[var(--primary)]/70">
+                      <p className="text-sm text-[var(--text-on-ink)]/70">
                         Search our delivery network
                       </p>
                     </div>
@@ -139,7 +139,7 @@ const Coverage = () => {
                       }
                     }}
                     placeholder="Search district, branch or area..."
-                    className="w-full h-12 pl-11 pr-10 rounded-xl bg-[var(--primary)] text-[var(--text)] outline-none border border-transparent focus:border-[var(--secondary)] transition"
+                    className="w-full h-12 pl-11 pr-10 rounded-xl bg-[var(--surface)] text-[var(--text)] outline-none border border-transparent focus:border-[var(--secondary)] transition"
                   />
 
                   {search && (
@@ -154,7 +154,7 @@ const Coverage = () => {
 
                 {/* Division Filter */}
                 <div className="mb-5">
-                  <label className="block text-sm font-medium text-[var(--primary)] mb-2">
+                  <label className="block text-sm font-medium text-[var(--text-on-ink)] mb-2">
                     Division
                   </label>
 
@@ -164,7 +164,7 @@ const Coverage = () => {
                       setSelectedDivision(e.target.value);
                       setSelectedBranch(null);
                     }}
-                    className="w-full h-11 px-4 rounded-xl bg-[var(--primary)] text-[var(--text)] border border-transparent focus:border-[var(--secondary)] outline-none cursor-pointer"
+                    className="w-full h-11 px-4 rounded-xl bg-[var(--surface)] text-[var(--text)] border border-transparent focus:border-[var(--secondary)] outline-none cursor-pointer"
                   >
                     {divisions.map((division) => (
                       <option
@@ -180,11 +180,11 @@ const Coverage = () => {
                 {/* Results Header */}
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <h3 className="font-semibold text-[var(--primary)]">
+                    <h3 className="font-semibold text-[var(--text-on-ink)]">
                       Available Locations
                     </h3>
 
-                    <p className="text-xs text-[var(--primary)]/70 mt-1">
+                    <p className="text-xs text-[var(--text-on-ink)]/70 mt-1">
                       {filteredBranches.length} location
                       {filteredBranches.length !== 1 ? "s" : ""} found
                     </p>
@@ -207,7 +207,7 @@ const Coverage = () => {
                         className={`w-full text-left p-4 rounded-2xl border transition-all duration-300 group ${
                           selectedBranch?.id === branch.id
                             ? "bg-[var(--secondary)] border-[var(--secondary)]"
-                            : "bg-[var(--primary)] border-transparent hover:border-[var(--secondary)] hover:-translate-y-0.5"
+                            : "bg-[var(--surface)] border-transparent hover:border-[var(--secondary)] hover:-translate-y-0.5"
                         }`}
                       >
 
@@ -218,7 +218,7 @@ const Coverage = () => {
                             <h4
                               className={`font-semibold truncate ${
                                 selectedBranch?.id === branch.id
-                                  ? "text-[var(--foreground)]"
+                                  ? "text-[var(--text-on-secondary)]"
                                   : "text-[var(--text)]"
                               }`}
                             >
@@ -228,7 +228,7 @@ const Coverage = () => {
                             <p
                               className={`text-xs mt-1 ${
                                 selectedBranch?.id === branch.id
-                                  ? "text-[var(--foreground)] opacity-70"
+                                  ? "text-[var(--text-on-secondary)] opacity-80"
                                   : "text-[var(--text)] opacity-60"
                               }`}
                             >
@@ -239,7 +239,7 @@ const Coverage = () => {
                             <div
                               className={`flex items-start gap-2 mt-3 text-xs ${
                                 selectedBranch?.id === branch.id
-                                  ? "text-[var(--foreground)]"
+                                  ? "text-[var(--text-on-secondary)]"
                                   : "text-[var(--text)] opacity-70"
                               }`}
                             >
@@ -257,11 +257,11 @@ const Coverage = () => {
 
                           <ChevronRight
                             size={18}
-                            className={`shrink-0 transition-transform group-hover:translate-x-1 ${
-                              selectedBranch?.id === branch.id
-                                ? "text-[var(--foreground)]"
-                                : "text-[var(--text)] opacity-50"
-                            }`}
+                      className={`shrink-0 transition-transform group-hover:translate-x-1 ${
+                        selectedBranch?.id === branch.id
+                          ? "text-[var(--text-on-secondary)]"
+                          : "text-[var(--text)] opacity-50"
+                      }`}
                           />
 
                         </div>
@@ -270,18 +270,18 @@ const Coverage = () => {
                     ))
                   ) : (
                     <div className="text-center py-12 px-4">
-                      <div className="w-14 h-14 mx-auto rounded-full bg-[var(--primary)] flex items-center justify-center mb-4">
+                      <div className="w-14 h-14 mx-auto rounded-full bg-[var(--surface)] flex items-center justify-center mb-4">
                         <Search
                           size={24}
                           className="text-[var(--text)] opacity-50"
                         />
                       </div>
 
-                      <h4 className="font-semibold text-[var(--primary)]">
+                      <h4 className="font-semibold text-[var(--text-on-ink)]">
                         No location found
                       </h4>
 
-                      <p className="text-sm text-[var(--primary)]/70 mt-1">
+                      <p className="text-sm text-[var(--text-on-ink)]/70 mt-1">
                         Try searching another district or branch.
                       </p>
                     </div>
@@ -312,7 +312,7 @@ const Coverage = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
-            <div className="p-6 rounded-2xl bg-[var(--foreground)] text-center shadow-sm">
+            <div className="p-6 rounded-2xl bg-[var(--ink)] text-center shadow-sm">
               <h3 className="text-3xl md:text-4xl font-bold text-[var(--secondary)]">
                 64
               </h3>
@@ -322,7 +322,7 @@ const Coverage = () => {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-[var(--foreground)] text-center shadow-sm">
+            <div className="p-6 rounded-2xl bg-[var(--ink)] text-center shadow-sm">
               <h3 className="text-3xl md:text-4xl font-bold text-[var(--secondary)]">
                 8
               </h3>
@@ -332,7 +332,7 @@ const Coverage = () => {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-[var(--foreground)] text-center shadow-sm">
+            <div className="p-6 rounded-2xl bg-[var(--ink)] text-center shadow-sm">
               <h3 className="text-3xl md:text-4xl font-bold text-[var(--secondary)]">
                 100%
               </h3>

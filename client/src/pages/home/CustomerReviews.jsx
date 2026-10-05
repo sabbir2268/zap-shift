@@ -99,7 +99,7 @@ const reviews = [
         </h2>
 
         {/* Description */}
-        <p className="max-w-3xl mx-auto mt-5 text-sm md:text-base leading-6 text-gray-500">
+        <p className="max-w-3xl mx-auto mt-5 text-sm md:text-base leading-6 text-[var(--text-muted)]">
           Enhance posture, mobility, and well-being effortlessly with Posture
           Pro. Achieve proper alignment, reduce pain, and strengthen your body
           with ease!
@@ -143,14 +143,14 @@ const reviews = [
                   ${
                     isActive
                       ? `
-                        bg-white
+                        bg-[var(--surface)]
                         shadow-lg
                         opacity-100
                         translate-y-[-20px]
                         scale-100
                       `
                       : `
-                        bg-white/70
+                        bg-[var(--surface)]/70
                         shadow-sm
                         opacity-25
                         translate-y-0
@@ -164,22 +164,22 @@ const reviews = [
                 <Quote
                   size={38}
                   strokeWidth={3}
-                  className="text-[var(--foreground)] fill-cyan-100 mb-4"
+                  className="text-[var(--foreground)] fill-cyan-100 dark:fill-cyan-400/40 mb-4"
                 />
 
                 {/* Review */}
-                <p className="text-sm leading-6 text-gray-600">
+                <p className="text-sm leading-6 text-[var(--text-muted)]">
                   {review.review}
                 </p>
 
                 {/* Dashed Divider */}
-                <div className="border-t border-dashed border-gray-400 my-5"></div>
+                <div className="border-t border-dashed border-[var(--border-strong)] my-5"></div>
 
                 {/* Customer */}
                 <div className="flex items-center gap-4">
 
                   {/* Avatar */}
-                  <div className="w-12 h-12 rounded-full bg-[var(--foreground)] flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-[var(--ink)] flex items-center justify-center flex-shrink-0">
                     <User
                       size={24}
                       strokeWidth={2}
@@ -193,7 +193,7 @@ const reviews = [
                       {review.name}
                     </h3>
 
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-[var(--text-muted)] mt-1">
                       {review.designation}
                     </p>
                   </div>
@@ -219,13 +219,13 @@ const reviews = [
             w-10
             h-10
             rounded-full
-            bg-white
+            bg-[var(--surface)]
             flex
             items-center
             justify-center
             text-[var(--foreground)]
             shadow-sm
-            hover:bg-[var(--foreground)]
+            hover:bg-[var(--ink)]
             hover:text-white
             transition-all
             duration-300
@@ -249,7 +249,7 @@ const reviews = [
 
                 ${
                   index === currentDot
-                    ? "w-7 h-2 bg-[var(--foreground)]"
+                    ? "w-7 h-2 bg-[var(--ink)]"
                     : "w-2 h-2 bg-cyan-300"
                 }
               `}
@@ -270,8 +270,8 @@ const reviews = [
             flex
             items-center
             justify-center
-            text-[var(--text)]
-            hover:bg-[var(--foreground)]
+            text-[var(--text-on-secondary)]
+            hover:bg-[var(--ink)]
             hover:text-[var(--secondary)]
             transition-all
             duration-300

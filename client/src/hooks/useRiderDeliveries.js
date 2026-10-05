@@ -14,18 +14,18 @@ export const getEarning = (parcel) => parcel?.earning || null;
 const EARNING_TIERS = {
   same_center: {
     label: "Same service center",
-    className: "bg-blue-100 text-blue-800",
+    className: "bg-blue-100 dark:bg-blue-400/15 text-blue-800 dark:text-blue-300",
   },
   same_region: {
     label: "Same region",
-    className: "bg-emerald-100 text-emerald-800",
+    className: "bg-emerald-100 dark:bg-emerald-400/15 text-emerald-800 dark:text-emerald-300",
   },
 };
 
 export const getEarningTier = (tier) =>
   EARNING_TIERS[tier] || {
     label: "Unrated",
-    className: "bg-gray-100 text-gray-700",
+    className: "bg-[var(--surface-muted)] text-[var(--text)]",
   };
 
 /* the money a rider has actually earned, which is only the delivered deliveries.

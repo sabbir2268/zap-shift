@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import useAuth from "../hooks/useAuth";
+import ThemeToggle from "../components/ThemeToggle/ThemeToggle";
 import logo from "../assets/logo.png";
 
 const navItems = [
@@ -55,7 +56,7 @@ const DashboardLayout = () => {
   return (
     <div className="min-h-screen lg:flex">
       {/* ================= MOBILE TOP BAR ================= */}
-      <header className="lg:hidden fixed inset-x-0 top-0 z-40 flex items-center justify-between bg-[var(--foreground)] px-4 py-3 shadow-md">
+      <header className="lg:hidden fixed inset-x-0 top-0 z-40 flex items-center justify-between bg-[var(--ink)] px-4 py-3 shadow-md">
         <button
           type="button"
           onClick={() => setIsOpen(true)}
@@ -89,7 +90,7 @@ const DashboardLayout = () => {
         className={`
           fixed inset-y-0 left-0 z-50
           flex w-72 flex-col
-          bg-[var(--foreground)]
+          bg-[var(--ink)]
           text-white
           shadow-2xl
           transition-transform duration-300
@@ -133,7 +134,7 @@ const DashboardLayout = () => {
                 flex items-center gap-3 rounded-xl px-4 py-3 font-semibold transition-all duration-200
                 ${
                   isActive
-                    ? "bg-[var(--secondary)] text-[var(--foreground)]"
+                    ? "bg-[var(--secondary)] text-[var(--text-on-secondary)]"
                     : "text-white hover:bg-white/10"
                 }
                 `
@@ -148,7 +149,7 @@ const DashboardLayout = () => {
         {/* User + logout */}
         <div className="border-t border-white/10 px-4 py-5">
           <div className="flex items-center gap-3 px-2 pb-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--secondary)] font-bold text-[var(--foreground)]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--secondary)] font-bold text-[var(--text-on-secondary)]">
               {initial}
             </div>
 
@@ -160,6 +161,8 @@ const DashboardLayout = () => {
               <p className="truncate text-xs text-white/60">{user?.email}</p>
             </div>
           </div>
+
+          <ThemeToggle onDark className="mb-3 flex w-full items-center justify-center" />
 
           <button
             type="button"

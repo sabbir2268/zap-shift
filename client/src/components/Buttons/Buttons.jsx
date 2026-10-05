@@ -18,7 +18,7 @@ const LoginButton = () => {
         font-bold text-lg
         transition-all duration-300
         hover:-translate-y-1
-        hover:bg-[var(--foreground)]
+        hover:bg-[var(--ink)]
         hover:text-white
         hover:shadow-[0_8px_25px_rgba(3,55,61,0.35)]
         active:translate-y-0
@@ -61,7 +61,7 @@ const RegisterButton = () => {
         rounded-full
         bg-[var(--secondary)]
         px-5 py-2.5
-        text-[var(--foreground)]
+        text-[var(--text-on-secondary)]
         font-bold text-lg
         shadow-md
         transition-all duration-300
@@ -117,9 +117,9 @@ const LogoutButton = () => {
         group relative overflow-hidden
         flex items-center gap-2
         rounded-full
-        border-2 border-red-300
+        border-2 border-red-300 dark:border-red-400/40
         px-5 py-2.5
-        text-red-500
+        text-red-500 dark:text-red-400
         font-bold text-lg
         transition-all duration-300
         hover:-translate-y-1

@@ -33,7 +33,7 @@ const DeliveryChart = ({ counts }) => {
         ]}
         isEmpty={total === 0}
         empty={
-          <div className="rounded-2xl bg-gray-50 p-10 text-center">
+          <div className="rounded-2xl bg-[var(--surface-muted)] p-10 text-center">
             <BarChart3 size={36} className="mx-auto text-[var(--text)]/40" />
 
             <p className="mt-3 font-semibold text-[var(--text)]">

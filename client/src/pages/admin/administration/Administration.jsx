@@ -25,9 +25,9 @@ const ACTIONS_BY_ROLE = {
 };
 
 const ROLE_META = {
-  [ROLES.USER]: { label: "User", icon: UserRound, className: "bg-gray-100 text-gray-700" },
-  [ROLES.RIDER]: { label: "Rider", icon: Bike, className: "bg-blue-100 text-blue-700" },
-  [ROLES.ADMIN]: { label: "Admin", icon: ShieldCheck, className: "bg-[var(--secondary)] text-[var(--foreground)]" },
+  [ROLES.USER]: { label: "User", icon: UserRound, className: "bg-[var(--surface-muted)] text-[var(--text)]" },
+  [ROLES.RIDER]: { label: "Rider", icon: Bike, className: "bg-blue-100 dark:bg-blue-400/15 text-blue-700 dark:text-blue-300" },
+  [ROLES.ADMIN]: { label: "Admin", icon: ShieldCheck, className: "bg-[var(--secondary)] text-[var(--text-on-secondary)]" },
 };
 
 const getRoleMeta = (role) => ROLE_META[role] || ROLE_META[ROLES.USER];
@@ -135,10 +135,10 @@ const Administration = () => {
               shrink-0
               px-6 py-3
               rounded-full
-              bg-[var(--foreground)]
+              bg-[var(--ink)]
               text-[var(--secondary)]
               font-semibold
-              hover:bg-[var(--primary)]
+              hover:bg-[var(--surface)]
               hover:text-[var(--foreground)]
               transition-all duration-300
               flex items-center gap-2
@@ -167,11 +167,11 @@ const Administration = () => {
                   setRoleFilter(active && card.key !== "all" ? "all" : card.key)
                 }
                 className={`
-                  bg-white rounded-2xl border p-4 text-left transition
+                  bg-[var(--surface)] rounded-2xl border p-4 text-left transition
                   ${
                     active
                       ? "border-[var(--foreground)] shadow-md"
-                      : "border-gray-200 hover:border-gray-300"
+                      : "border-[var(--border)] hover:border-[var(--border-strong)]"
                   }
                 `}
               >
@@ -203,8 +203,8 @@ const Administration = () => {
               w-full
               rounded-full
               border
-              border-gray-200
-              bg-white
+              border-[var(--border)]
+              bg-[var(--surface)]
               py-3
               pl-11
               pr-4
@@ -217,7 +217,7 @@ const Administration = () => {
         {loading ? (
           <PageLoader className="min-h-[60vh]" />
         ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-gray-200 p-16 text-center">
+          <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] p-16 text-center">
             <Users size={48} className="mx-auto text-[var(--text)]" />
             <h2 className="mt-4 text-xl font-bold text-[var(--foreground)]">
               No users found
@@ -229,11 +229,11 @@ const Administration = () => {
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden">
+          <div className="bg-[var(--surface)] rounded-3xl border border-[var(--border)] overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-gray-200 text-xs uppercase tracking-wide text-[var(--text)]/50">
+                  <tr className="border-b border-[var(--border)] text-xs uppercase tracking-wide text-[var(--text)]/50">
                     <th className="px-4 py-3 font-semibold">User</th>
                     <th className="px-4 py-3 font-semibold">Current Role</th>
                     <th className="px-4 py-3 font-semibold text-right">
@@ -257,13 +257,13 @@ const Administration = () => {
                     return (
                       <tr
                         key={item._id}
-                        className="border-b border-gray-100 last:border-0"
+                        className="border-b border-[var(--border)] last:border-0"
                       >
                         {/* Email only, it is the one thing that identifies an
                             account across the whole platform */}
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-9 h-9 rounded-full bg-[var(--secondary)] text-[var(--foreground)] flex items-center justify-center shrink-0 font-bold text-xs">
+                            <div className="w-9 h-9 rounded-full bg-[var(--secondary)] text-[var(--text-on-secondary)] flex items-center justify-center shrink-0 font-bold text-xs">
                               {item.email?.[0]?.toUpperCase() || "U"}
                             </div>
 
@@ -329,18 +329,18 @@ const Administration = () => {
                                       inline-flex
                                       items-center gap-2
                                       rounded-full
-                                      border border-gray-200
+                                      border border-[var(--border)]
                                       px-4 py-2
                                       text-xs
                                       font-semibold
                                       text-[var(--foreground)]
-                                      hover:bg-[var(--primary)]
-                                      hover:border-[var(--primary)]
+                                      hover:bg-[var(--surface)]
+                                      hover:border-[var(--border)]
                                       transition-all duration-300
                                       disabled:opacity-40
                                       disabled:cursor-not-allowed
                                       disabled:hover:bg-transparent
-                                      disabled:hover:border-gray-200
+                                      disabled:hover:border-[var(--border)]
                                     "
                                   >
                                     <nextMeta.icon size={14} />

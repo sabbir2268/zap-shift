@@ -40,10 +40,10 @@ const ForgotPassword = () => {
               name="email"
               placeholder="Email address"
               required
-              className="w-full rounded-xl border-2 border-[var(--foreground)]/15 bg-[var(--card)] py-3.5 pl-12 pr-4 font-sans text-[var(--text)] placeholder:text-[var(--text)]/40 outline-none transition-all duration-300 focus:border-[var(--secondary)] focus:ring-4 focus:ring-[var(--secondary)]/20"
+              className="w-full rounded-xl border-2 border-[var(--foreground)]/15 bg-[var(--surface)] py-3.5 pl-12 pr-4 font-sans text-[var(--text)] placeholder:text-[var(--text)]/40 outline-none transition-all duration-300 focus:border-[var(--secondary)] focus:ring-4 focus:ring-[var(--secondary)]/20"
             />
             {errors.email && (
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-red-500">
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-red-500 dark:text-red-400">
                 {errors.email.type === "required"
                   ? "Email is required"
                   : "Invalid email address"}
@@ -53,7 +53,7 @@ const ForgotPassword = () => {
 
           <button
             type="submit"
-            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-[var(--foreground)] px-6 py-3.5 text-lg font-bold text-[var(--primary)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(3,55,61,0.35)] active:translate-y-0"
+            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-[var(--ink)] px-6 py-3.5 text-lg font-bold text-[var(--text-on-ink)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(3,55,61,0.35)] active:translate-y-0"
           >
             <span className="absolute inset-0 -translate-x-full bg-white/20 skew-x-12 transition-transform duration-700 group-hover:translate-x-full" />
             <span className="relative z-10">Send Reset Link</span>
@@ -74,7 +74,7 @@ const ForgotPassword = () => {
       </div>
 
       {/* Image side */}
-      <div className="relative m-4 flex min-h-72 flex-col items-center justify-center gap-6 overflow-hidden rounded-3xl bg-[var(--foreground)] p-6 sm:m-6 sm:gap-8 sm:p-8 lg:col-span-2 lg:m-8">
+      <div className="relative m-4 flex min-h-72 flex-col items-center justify-center gap-6 overflow-hidden rounded-3xl bg-[var(--ink)] p-6 sm:m-6 sm:gap-8 sm:p-8 lg:col-span-2 lg:m-8">
         {/* Brand badge */}
         <div className="relative z-10 flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-md">
           <PackageCheck size={16} className="text-[var(--secondary)]" />
@@ -98,7 +98,7 @@ const ForgotPassword = () => {
             </span>
           </div>
 
-          <ul className="mt-4 flex flex-col gap-3 text-[var(--primary)]/90">
+          <ul className="mt-4 flex flex-col gap-3 text-[var(--text-on-ink)]/90">
             <li className="flex items-center gap-3">
               <Truck size={18} className="shrink-0 text-[var(--secondary)]" />
               Back up and running in minutes

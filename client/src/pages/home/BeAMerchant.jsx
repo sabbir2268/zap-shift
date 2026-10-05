@@ -2,7 +2,7 @@ import React from "react";
 
 const BeAMerchant = () => {
   return (
-    <section className="relative w-full max-w-6xl mx-auto rounded-2xl overflow-hidden bg-[var(--foreground)] my-12">
+    <section className="relative w-full max-w-6xl mx-auto rounded-2xl overflow-hidden bg-[var(--ink)] my-12">
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
@@ -32,10 +32,10 @@ const BeAMerchant = () => {
                 type="button"
                 className="px-7 py-3.5 rounded-full
                 bg-[var(--secondary)]
-                text-[var(--text)]
+                text-[var(--text-on-secondary)]
                 border-2 border-[var(--secondary)]
                 font-semibold
-                hover:bg-[var(--foreground)]
+                hover:bg-[var(--ink)]
                 hover:text-[var(--secondary)]
                 hover:border-[var(--secondary)]
                 transition-all duration-300"
@@ -46,12 +46,12 @@ const BeAMerchant = () => {
               <button
                 type="button"
                 className="px-7 py-3.5 rounded-full
-                bg-[var(--foreground)]
+                bg-[var(--ink)]
                 text-[var(--secondary)]
                 border-2 border-[var(--secondary)]
                 font-semibold
                 hover:bg-[var(--secondary)]
-                hover:text-[var(--text)]
+                hover:text-[var(--text-on-secondary)]
                 hover:border-[var(--secondary)]
                 transition-all duration-300"
               >

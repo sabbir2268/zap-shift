@@ -10,7 +10,7 @@ const STATUS_OPTIONS = getStatusOptions("delivery");
 const PAYMENT_STATUS_OPTIONS = getStatusOptions("payment");
 
 const inputClass =
-  "w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-[var(--foreground)] outline-none focus:border-[var(--foreground)] transition";
+  "w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--foreground)] outline-none focus:border-[var(--foreground)] transition";
 
 const Field = ({ label, full, children }) => (
   <label className={`block ${full ? "sm:col-span-2" : ""}`}>
@@ -82,7 +82,7 @@ const UpdateParcel = () => {
         <button
           type="button"
           onClick={() => navigate("/dashboard/parcels")}
-          className="mt-6 rounded-full bg-[var(--foreground)] px-6 py-3 text-sm font-semibold text-[var(--secondary)] transition hover:bg-[var(--primary)] hover:text-[var(--foreground)]"
+          className="mt-6 rounded-full bg-[var(--ink)] px-6 py-3 text-sm font-semibold text-[var(--secondary)] transition hover:bg-[var(--surface)] hover:text-[var(--foreground)]"
         >
           Back to My Parcels
         </button>
@@ -102,7 +102,7 @@ const UpdateParcel = () => {
       </button>
 
       <div className="mb-8 flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--secondary)] text-[var(--foreground)]">
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--secondary)] text-[var(--text-on-secondary)]">
           <SquarePen size={21} />
         </div>
         <div>
@@ -117,7 +117,7 @@ const UpdateParcel = () => {
 
       <form
         onSubmit={handleSubmit}
-        className="rounded-3xl border border-gray-200 bg-white p-5 md:p-8"
+        className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5 md:p-8"
       >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Parcel Title" full>
@@ -287,7 +287,7 @@ const UpdateParcel = () => {
             type="button"
             onClick={() => navigate("/dashboard/parcels")}
             disabled={saving}
-            className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-semibold text-[var(--foreground)] transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex-1 rounded-xl border border-[var(--border)] py-2.5 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--surface-muted)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Cancel
           </button>
@@ -295,7 +295,7 @@ const UpdateParcel = () => {
           <button
             type="submit"
             disabled={saving}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--secondary)] py-2.5 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--secondary)] py-2.5 text-sm font-semibold text-[var(--text-on-secondary)] transition hover:bg-[var(--surface)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving ? (
               <>
