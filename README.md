@@ -82,7 +82,7 @@ zap-shift/
 
 | Page | Route | What it does |
 | --- | --- | --- |
-| Rider Dashboard | `/rider` | Region and service center, status counts, upcoming queue, and a Recharts bar chart of where every assigned parcel has got to, with the total and completed share |
+| Rider Dashboard | `/rider` | Region and service center, status counts, upcoming queue, and a Recharts bar chart of the five stages every delivery passes through (assigned, picked up, in transit, delivered, cancelled), with the total and completed share |
 | My Deliveries | `/rider/deliveries` | Full assigned list, searchable, with pickup and receiver details and the next step on each parcel |
 | My Earnings | `/rider/earnings` | Settled earnings, what the open queue is worth, the wallet and a cashout with its history |
 | My Profile | `/rider/profile` | The shared profile card, with the rider record beside it |

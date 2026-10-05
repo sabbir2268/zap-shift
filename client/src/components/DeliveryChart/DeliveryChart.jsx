@@ -18,12 +18,12 @@ import {
 /*
  * Where a rider's parcels have got to.
  *
- * Every step a parcel can be at gets a bar, the empty ones included, so the rider
- * sees the whole journey rather than only the part they happen to be standing
- * on. The total and the completed share are stated in words, because a rider
- * reads those two numbers rather than measuring them off a bar, and every figure
- * is written out underneath so a colour is never the only thing carrying the
- * meaning.
+ * The five steps a delivery passes through are charted, the empty ones included,
+ * so the rider sees the whole journey rather than only the part they happen to be
+ * standing on. The total and the completed share are stated in words, because a
+ * rider reads those two numbers rather than measuring them off a bar, and every
+ * figure is written out underneath so a colour is never the only thing carrying
+ * the meaning.
  */
 const DeliveryChart = ({ counts }) => {
   const rows = getDeliveryChartRows(counts);
@@ -79,16 +79,14 @@ const DeliveryChart = ({ counts }) => {
                   strokeOpacity={0.12}
                 />
 
-                {/* every step is labelled even when its bar is nothing, so the labels
-                    are angled to keep from colliding on a narrow screen */}
+                {/* five labels sit side by side without colliding, so they stay horizontal
+                    and readable rather than tilted */}
                 <XAxis
                   dataKey="label"
                   tickLine={false}
                   axisLine={false}
                   interval={0}
-                  angle={-35}
-                  textAnchor="end"
-                  height={58}
+                  height={40}
                   tick={{ fontSize: 11, fill: "var(--text)" }}
                 />
 
@@ -114,7 +112,7 @@ const DeliveryChart = ({ counts }) => {
             </ResponsiveContainer>
           </div>
 
-          <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             {rows.map((row) => (
               <li key={row.key} className="flex items-center gap-2 text-sm">
                 <span

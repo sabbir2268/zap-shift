@@ -21,7 +21,7 @@ test("a rider with nothing assigned is at zero, not at a made up hundred", () =>
   assert.equal(getDeliveryRate({ delivered: 0, total: 0 }), 0);
 });
 
-test("every step of a delivery gets a bar", () => {
+test("only the steps that matter are charted", () => {
   const rows = getDeliveryChartRows({
     assigned: 1,
     pending: 1,
@@ -34,34 +34,21 @@ test("every step of a delivery gets a bar", () => {
 
   assert.deepEqual(
     rows.map((row) => row.label),
-    [
-      "Assigned",
-      "Pending",
-      "Picked Up",
-      "In Transit",
-      "At Center",
-      "Delivered",
-      "Cancelled",
-    ]
+    ["Assigned", "Picked Up", "In Transit", "Delivered", "Cancelled"]
   );
+
+  /* the quiet statuses are still counted in the total, they just get no bar */
+  assert.equal(getDeliveryTotal({ total: 7 }), 7);
 });
 
 test("a step with nothing in it still gets a bar", () => {
   const rows = getDeliveryChartRows({ pickedUp: 2, delivered: 5, cancelled: 0 });
 
-  assert.equal(rows.length, 7);
+  assert.equal(rows.length, 5);
 
   assert.deepEqual(
     rows.map((row) => row.label),
-    [
-      "Assigned",
-      "Pending",
-      "Picked Up",
-      "In Transit",
-      "At Center",
-      "Delivered",
-      "Cancelled",
-    ]
+    ["Assigned", "Picked Up", "In Transit", "Delivered", "Cancelled"]
   );
 
   assert.equal(rows.find((row) => row.label === "Cancelled").value, 0);
@@ -71,7 +58,7 @@ test("a step with nothing in it still gets a bar", () => {
 test("a rider with nothing assigned still has the whole journey to look at", () => {
   const rows = getDeliveryChartRows({});
 
-  assert.equal(rows.length, 7);
+  assert.equal(rows.length, 5);
 
   for (const row of rows) {
     assert.equal(row.value, 0);
