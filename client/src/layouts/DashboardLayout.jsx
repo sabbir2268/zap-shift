@@ -56,7 +56,7 @@ const DashboardLayout = () => {
   return (
     <div className="min-h-screen lg:flex">
       {/* ================= MOBILE TOP BAR ================= */}
-      <header className="lg:hidden fixed inset-x-0 top-0 z-40 flex items-center justify-between bg-[var(--ink)] px-4 py-3 shadow-md">
+      <header className="lg:hidden fixed inset-x-0 top-0 z-40 flex items-center gap-2 bg-[var(--ink)] px-4 py-3 shadow-md">
         <button
           type="button"
           onClick={() => setIsOpen(true)}
@@ -66,14 +66,20 @@ const DashboardLayout = () => {
           <Menu size={24} />
         </button>
 
-        <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="ZapShift logo" className="h-9 w-9" />
-          <span className="text-xl font-bold text-[var(--secondary)]">
-            Dashboard
-          </span>
-        </Link>
+        <div className="flex items-center">
+          <Link to="/" className="flex items-center gap-2">
+            <img src={logo} alt="ZapShift logo" className="h-9 w-9" />
+            <span className="text-xl font-bold text-[var(--secondary)]">
+              Dashboard
+            </span>
+          </Link>
 
-        <div className="w-9" />
+          <ThemeToggle
+            onDark
+            iconSize={22}
+            className="ml-1 p-2 rounded-lg text-[var(--text-on-ink)] hover:bg-white/10 transition"
+          />
+        </div>
       </header>
 
       {/* ================= BACKDROP (MOBILE) ================= */}
@@ -161,8 +167,6 @@ const DashboardLayout = () => {
               <p className="truncate text-xs text-white/60">{user?.email}</p>
             </div>
           </div>
-
-          <ThemeToggle onDark className="mb-3 flex w-full items-center justify-center" />
 
           <button
             type="button"

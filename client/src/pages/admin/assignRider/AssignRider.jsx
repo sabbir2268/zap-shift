@@ -529,12 +529,12 @@ const RiderPickerModal = ({ parcel, riders, onAssign, onClose }) => {
 
           {/* Currently assigned */}
           {parcel.riderID && (
-            <div className="mt-4 flex items-center gap-3 rounded-2xl border border-green-200 dark:border-green-400/40 bg-green-50 px-4 py-3">
+              <div className="mt-4 flex items-center gap-3 rounded-2xl border border-green-200 dark:border-green-400/40 bg-green-50 dark:bg-green-400/15 px-4 py-3">
               <CheckCircle2 size={18} className="text-green-600 dark:text-green-400 shrink-0" />
 
               <div className="min-w-0 flex-1">
                 <p className="text-[11px] text-green-700 dark:text-green-300">Currently assigned</p>
-                <p className="text-sm font-semibold text-green-900 truncate">
+                <p className="text-sm font-semibold text-green-900 dark:text-green-300 truncate">
                   {parcel.riderName || "—"}
                 </p>
 

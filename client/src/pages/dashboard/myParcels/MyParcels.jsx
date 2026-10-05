@@ -761,7 +761,7 @@ const ConfirmCancelModal = ({ parcel, deleting, onConfirm, onClose }) => {
 
         <div className="p-6">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-red-100 text-red-500 dark:text-red-400 flex items-center justify-center shrink-0">
+              <div className="w-11 h-11 rounded-xl bg-red-100 dark:bg-red-400/15 text-red-500 dark:text-red-400 flex items-center justify-center shrink-0">
               <Ban size={21} />
             </div>
 

@@ -50,8 +50,8 @@ const EARNING_LEGEND = [
 /* one of the summary cards above the table */
 const EarningCard = ({ icon, label, amount, hint, tone }) => {
   const toneClass = {
-    green: "border-green-200 dark:border-green-400/40 bg-green-50",
-    amber: "border-amber-200 dark:border-amber-400/40 bg-amber-50",
+    green: "border-green-200 dark:border-green-400/40 bg-green-50 dark:bg-green-400/15",
+    amber: "border-amber-200 dark:border-amber-400/40 bg-amber-50 dark:bg-amber-400/15",
     plain: "border-[var(--border)] bg-[var(--surface)]",
   }[tone];
 
@@ -811,7 +811,7 @@ const ConfirmCancelModal = ({ parcel, busy, onConfirm, onClose }) => (
 
       <div className="p-6">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-red-100 text-red-500 dark:text-red-400 flex items-center justify-center shrink-0">
+              <div className="w-11 h-11 rounded-xl bg-red-100 dark:bg-red-400/15 text-red-500 dark:text-red-400 flex items-center justify-center shrink-0">
             <Ban size={21} />
           </div>
 

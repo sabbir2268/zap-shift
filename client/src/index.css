@@ -116,6 +116,15 @@ option {
   color-scheme: inherit;
 }
 
+/* the open list of a dropdown is painted by the browser from the option, not
+   from the select, so the theme has to reach the option as well. left to the
+   browser the dark theme's text lands on a white list it made up itself */
+select,
+option {
+  background-color: var(--surface);
+  color: var(--text);
+}
+
 ::selection {
   background: var(--secondary);
   color: var(--text-on-secondary);

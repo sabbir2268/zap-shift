@@ -180,6 +180,8 @@ const Service = () => {
               flex items-center gap-3
               bg-[var(--surface)]
               text-[var(--foreground)]
+              dark:bg-[var(--secondary)]
+              dark:text-[var(--text-on-secondary)]
               px-6 py-3
               rounded-full
               font-semibold
@@ -188,6 +190,8 @@ const Service = () => {
               hover:bg-[var(--secondary)]
               hover:text-[var(--text-on-secondary)]
               hover:shadow-lg
+              dark:hover:bg-white
+              dark:hover:text-[var(--ink)]
             "
           >
             Send Parcel

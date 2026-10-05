@@ -219,7 +219,7 @@ const RiderHome = () => {
 
       {/* ================= CANCELLED ================= */}
       {counts.cancelled > 0 && (
-        <div className="mt-6 flex items-center gap-3 rounded-3xl border border-dashed border-red-200 dark:border-red-400/40 bg-red-50/40 p-5">
+            <div className="mt-6 flex items-center gap-3 rounded-3xl border border-dashed border-red-200 dark:border-red-400/40 bg-red-50/40 dark:bg-red-400/15 p-5">
           <CircleSlash size={20} className="text-red-500 dark:text-red-400 shrink-0" />
 
           <p className="text-sm text-[var(--text)]">

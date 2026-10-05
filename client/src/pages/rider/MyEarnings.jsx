@@ -10,7 +10,6 @@ import {
   CalendarDays,
   TrendingUp,
   History,
-  Info,
 } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
 import useRiderEarnings from "../../hooks/useRiderEarnings";
@@ -366,21 +365,6 @@ const MyEarnings = () => {
                   </table>
                 </div>
               )}
-            </div>
-
-            <div className="mt-5 flex items-start gap-3 rounded-2xl border border-amber-200 dark:border-amber-400/40 bg-amber-50/60 p-5">
-              <Info size={18} className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
-
-              <div className="text-sm leading-6 text-[var(--text)]">
-                <p className="font-semibold text-[var(--foreground)]">
-                  Cashouts are recorded here only
-                </p>
-                <p className="mt-1">
-                  A cashout leaves your wallet and is listed in your history, but
-                  sending the money to a mobile wallet or bank account is not
-                  switched on yet.
-                </p>
-              </div>
             </div>
           </>
         )}

@@ -5,8 +5,9 @@ import useTheme from "../../hooks/useTheme";
  * The one control that flips the whole site between light and dark.
  *
  * It sits in front of the account button wherever the account button is, on the
- * public navbar and in each dashboard sidebar alike, so a visitor never has to
- * walk back to the home page to change the theme.
+ * public navbar, in the dashboard's top bar, and in the admin and rider
+ * sidebars alike, so a visitor never has to walk back to the home page to change
+ * the theme.
  *
  * The icon names the theme it will switch to rather than the one already on, so
  * it is a promise about what pressing it does instead of a picture of the
