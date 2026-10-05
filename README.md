@@ -78,6 +78,15 @@ zap-shift/
 | Manage Payment | `/admin/manage-payments` | Every payment, with total revenue and paying-user counts |
 | Administration | `/admin/administration` | Promote or demote any account between user, rider and admin |
 
+### Rider dashboard
+
+| Page | Route | What it does |
+| --- | --- | --- |
+| Rider Dashboard | `/rider` | Region and service center, status counts, upcoming queue, and a Recharts bar chart of where every assigned parcel has got to, with the total and completed share |
+| My Deliveries | `/rider/deliveries` | Full assigned list, searchable, with pickup and receiver details and the next step on each parcel |
+| My Earnings | `/rider/earnings` | Settled earnings, what the open queue is worth, the wallet and a cashout with its history |
+| My Profile | `/rider/profile` | The shared profile card, with the rider record beside it |
+
 ### Cross-cutting
 
 - Role-based route guards on both dashboards
@@ -103,6 +112,7 @@ zap-shift/
 | Auth | Firebase 12.19 (email/password and Google) |
 | Payments | Stripe (`@stripe/react-stripe-js`, `@stripe/js`) |
 | Maps | Leaflet 1.9 with react-leaflet 5, OpenStreetMap tiles |
+| Charts | Recharts 3.10 (rider delivery breakdown) |
 | UI extras | lucide-react icons, react-hot-toast, react-responsive-carousel, react-fast-marquee |
 | Lint | ESLint 9 flat config |
 

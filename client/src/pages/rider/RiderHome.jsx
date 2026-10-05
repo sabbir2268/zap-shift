@@ -10,12 +10,12 @@ import {
   MapPin,
   Warehouse,
   ArrowRight,
-  Bike,
 } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
 import useRiderDeliveries from "../../hooks/useRiderDeliveries";
 import { getRiderServiceCenter } from "../../data/rider";
 import StatusBadge from "../../components/StatusBadge/StatusBadge";
+import DeliveryChart from "../../components/DeliveryChart/DeliveryChart";
 import PageLoader from "../../components/PageLoader/PageLoader";
 
 const RiderHome = () => {
@@ -214,6 +214,9 @@ const RiderHome = () => {
         )}
       </div>
 
+      {/* ================= DELIVERY BREAKDOWN ================= */}
+      <DeliveryChart counts={counts} />
+
       {/* ================= CANCELLED ================= */}
       {counts.cancelled > 0 && (
         <div className="mt-6 flex items-center gap-3 rounded-3xl border border-dashed border-red-200 bg-red-50/40 p-5">
@@ -225,22 +228,6 @@ const RiderHome = () => {
           </p>
         </div>
       )}
-
-      {/* ================= RIDER LINK ================= */}
-      <div className="mt-6 flex items-center gap-3 rounded-3xl border border-gray-200 bg-white p-5">
-        <Bike size={20} className="text-[var(--text)] shrink-0" />
-
-        <p className="text-sm text-[var(--text)]">
-          Need the full list with pickup and receiver details? Open{" "}
-          <Link
-            to="/rider/deliveries"
-            className="font-semibold text-[var(--foreground)] underline"
-          >
-            My Deliveries
-          </Link>
-          .
-        </p>
-      </div>
     </section>
   );
 };

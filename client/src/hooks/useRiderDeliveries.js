@@ -124,6 +124,7 @@ const useRiderDeliveries = () => {
       pending: byStatus("pending"),
       pickedUp: byStatus("picked_up"),
       inTransit: byStatus("in_transit"),
+      transferred: byStatus("transferred"),
       delivered: byStatus("delivered"),
       cancelled: byStatus("cancelled"),
     };
