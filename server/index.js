@@ -23,10 +23,27 @@ app.use(cors(allowedOrigins.length ? { origin: allowedOrigins } : undefined));
 app.use(express.json());
 
 // firebase token initializing
-const serviceAccount = require("./firebase-adminsdk.json");
+function getFirebaseCredential() {
+  const { FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY } =
+    process.env;
+  if (FIREBASE_PROJECT_ID && FIREBASE_CLIENT_EMAIL && FIREBASE_PRIVATE_KEY) {
+    return admin.credential.cert({
+      projectId: FIREBASE_PROJECT_ID,
+      clientEmail: FIREBASE_CLIENT_EMAIL,
+      privateKey: FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+    });
+  }
+  try {
+    return admin.credential.cert(require("./firebase-adminsdk.json"));
+  } catch (err) {
+    throw new Error(
+      "Firebase credentials missing: set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY (Render), or add server/firebase-adminsdk.json (local)."
+    );
+  }
+}
 
 admin.initializeApp({
-  credential: admin.cert(serviceAccount),
+  credential: getFirebaseCredential(),
 });
 
 const uri = process.env.MONGODB_URI;
