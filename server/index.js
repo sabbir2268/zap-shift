@@ -27,17 +27,19 @@ function getFirebaseCredential() {
   const { FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY } =
     process.env;
   if (FIREBASE_PROJECT_ID && FIREBASE_CLIENT_EMAIL && FIREBASE_PRIVATE_KEY) {
-    return admin.credential.cert({
+    return admin.cert({
       projectId: FIREBASE_PROJECT_ID,
       clientEmail: FIREBASE_CLIENT_EMAIL,
       privateKey: FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
     });
   }
   try {
-    return admin.credential.cert(require("./firebase-adminsdk.json"));
+    return admin.cert(require("./firebase-adminsdk.json"));
   } catch (err) {
     throw new Error(
-      "Firebase credentials missing: set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY (Render), or add server/firebase-adminsdk.json (local)."
+      "Firebase credentials failed: " +
+        err.message +
+        ". Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY (Render), or add server/firebase-adminsdk.json (local)."
     );
   }
 }
