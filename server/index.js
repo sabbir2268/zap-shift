@@ -15,7 +15,11 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // middleware
-app.use(cors());
+const allowedOrigins = (process.env.CLIENT_URL || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+app.use(cors(allowedOrigins.length ? { origin: allowedOrigins } : undefined));
 app.use(express.json());
 
 // firebase token initializing
