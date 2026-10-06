@@ -17,8 +17,11 @@ const port = process.env.PORT || 3000;
 // middleware
 const allowedOrigins = (process.env.CLIENT_URL || "")
   .split(",")
-  .map((origin) => origin.trim())
+  .map((origin) => origin.trim().replace(/\/+$/, ""))
   .filter(Boolean);
+if (allowedOrigins.length) {
+  console.log("CORS restricted to:", allowedOrigins.join(", "));
+}
 app.use(cors(allowedOrigins.length ? { origin: allowedOrigins } : undefined));
 app.use(express.json());
 
@@ -79,9 +82,6 @@ const ALLOWED_ROLES = Object.values(ROLES);
 /* role of the caller, as stored on the server. never trust the role that the
    client or the id token claims, always read it from the database */
 const isAdmin = (user) => user?.role === ROLES.ADMIN;
-
-/* role of the caller for the rider panel, the same rule, read from the database */
-const isRider = (user) => user?.role === ROLES.RIDER;
 
 /* case insensitive exact email match, so an account cannot be impersonated by
    changing the case of its address */

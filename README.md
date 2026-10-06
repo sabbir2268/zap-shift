@@ -105,7 +105,7 @@ zap-shift/
 | Framework | React 19.1 |
 | Build | Vite 7.1 |
 | Routing | react-router 7.9 (`createBrowserRouter`) |
-| Styling | Tailwind CSS 4.1 with daisyUI 5.0, driven by CSS variables |
+| Styling | Tailwind CSS 4.1, driven by CSS variables |
 | Server state | TanStack Query 5.103 |
 | Forms | react-hook-form 7.87 |
 | HTTP | axios 1.20 with auth and error interceptors |
