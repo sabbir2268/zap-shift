@@ -221,7 +221,6 @@ app.post("/api/upload-image", requireAuth, upload.single("image"), async (req, r
         });
     }
 
-    console.log("imgbb link:", data.data.url);
     res.json({ url: data.data.url });
   } catch (error) {
     res.status(500).json({ message: error.message });

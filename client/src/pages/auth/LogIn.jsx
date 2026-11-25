@@ -128,22 +128,6 @@ const Login = () => {
             </button>
           </div>
 
-          <div className="flex items-center justify-between">
-            <label className="flex cursor-pointer items-center gap-2 text-[var(--text)]/70">
-              <input
-                type="checkbox"
-                className="h-4 w-4 accent-[var(--secondary)]"
-              />
-              Remember me
-            </label>
-            <Link
-              to="/forgot-password"
-              className="font-semibold text-[var(--foreground)] underline-offset-4 transition-colors duration-300 hover:text-[var(--secondary)] hover:underline"
-            >
-              Forgot password?
-            </Link>
-          </div>
-
           <button
             type="submit"
             disabled={loading}

@@ -59,7 +59,7 @@ const Footer = () => {
         {/* Copyright */}
         <div className="flex justify-center items-center mt-7 text-center">
           <p className="text-sm text-[var(--text-on-ink)]/50">
-            © {new Date().getFullYear()} Profast Courier. All rights reserved.
+            © {new Date().getFullYear()} ZapShift. All rights reserved.
           </p>
         </div>
 

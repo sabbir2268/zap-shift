@@ -16,6 +16,7 @@ import PageLoader from "../../components/PageLoader/PageLoader";
 import StatsBarChart from "../../components/StatsBarChart/StatsBarChart";
 import { getRiderAge, getRiderName } from "../../utils/riders";
 import { getParcelRows, getPeopleRows } from "../../utils/platformStats";
+import { toast } from "react-hot-toast";
 
 const AdminHome = () => {
   const api = useAxios();
@@ -39,7 +40,7 @@ const AdminHome = () => {
       setApplications(Array.isArray(applicationData) ? applicationData : []);
       setPayments(Array.isArray(paymentData) ? paymentData : []);
     } catch (error) {
-      console.log(error);
+      toast.error(error.message || "Could not load dashboard data");
     } finally {
       setLoading(false);
     }

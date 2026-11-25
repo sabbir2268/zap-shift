@@ -327,9 +327,6 @@ const run = async () => {
 
   section("6. a user only sees their own data");
   const riderParcels = await call("GET", "/api/parcels", { token: "token-rider" });
-  if (!Array.isArray(riderParcels.data)) {
-    console.log("  DEBUG raw response:", riderParcels.status, JSON.stringify(riderParcels.data));
-  }
   check("GET /api/parcels -> only own", riderParcels.data.map((p) => p.parcelTitle), ["Rider parcel"]);
 
   const riderSneaks = await call("GET", "/api/parcels?email=zapshiftadmin@gmail.com", { token: "token-rider" });

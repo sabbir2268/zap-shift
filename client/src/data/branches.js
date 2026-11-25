@@ -5,7 +5,7 @@ const branches = [
 
   {
     id: 1,
-    name: "Profast Dhaka Branch",
+    name: "ZapShift Dhaka Branch",
     district: "Dhaka",
     division: "Dhaka",
     address: "Dhaka District Headquarters",
@@ -15,7 +15,7 @@ const branches = [
 
   {
     id: 2,
-    name: "Profast Faridpur Branch",
+    name: "ZapShift Faridpur Branch",
     district: "Faridpur",
     division: "Dhaka",
     address: "Faridpur District Headquarters",
@@ -25,7 +25,7 @@ const branches = [
 
   {
     id: 3,
-    name: "Profast Gazipur Branch",
+    name: "ZapShift Gazipur Branch",
     district: "Gazipur",
     division: "Dhaka",
     address: "Gazipur District Headquarters",
@@ -35,7 +35,7 @@ const branches = [
 
   {
     id: 4,
-    name: "Profast Gopalganj Branch",
+    name: "ZapShift Gopalganj Branch",
     district: "Gopalganj",
     division: "Dhaka",
     address: "Gopalganj District Headquarters",
@@ -45,7 +45,7 @@ const branches = [
 
   {
     id: 5,
-    name: "Profast Kishoreganj Branch",
+    name: "ZapShift Kishoreganj Branch",
     district: "Kishoreganj",
     division: "Dhaka",
     address: "Kishoreganj District Headquarters",
@@ -55,7 +55,7 @@ const branches = [
 
   {
     id: 6,
-    name: "Profast Madaripur Branch",
+    name: "ZapShift Madaripur Branch",
     district: "Madaripur",
     division: "Dhaka",
     address: "Madaripur District Headquarters",
@@ -65,7 +65,7 @@ const branches = [
 
   {
     id: 7,
-    name: "Profast Manikganj Branch",
+    name: "ZapShift Manikganj Branch",
     district: "Manikganj",
     division: "Dhaka",
     address: "Manikganj District Headquarters",
@@ -75,7 +75,7 @@ const branches = [
 
   {
     id: 8,
-    name: "Profast Munshiganj Branch",
+    name: "ZapShift Munshiganj Branch",
     district: "Munshiganj",
     division: "Dhaka",
     address: "Munshiganj District Headquarters",
@@ -85,7 +85,7 @@ const branches = [
 
   {
     id: 9,
-    name: "Profast Narayanganj Branch",
+    name: "ZapShift Narayanganj Branch",
     district: "Narayanganj",
     division: "Dhaka",
     address: "Narayanganj District Headquarters",
@@ -95,7 +95,7 @@ const branches = [
 
   {
     id: 10,
-    name: "Profast Narsingdi Branch",
+    name: "ZapShift Narsingdi Branch",
     district: "Narsingdi",
     division: "Dhaka",
     address: "Narsingdi District Headquarters",
@@ -105,7 +105,7 @@ const branches = [
 
   {
     id: 11,
-    name: "Profast Rajbari Branch",
+    name: "ZapShift Rajbari Branch",
     district: "Rajbari",
     division: "Dhaka",
     address: "Rajbari District Headquarters",
@@ -115,7 +115,7 @@ const branches = [
 
   {
     id: 12,
-    name: "Profast Shariatpur Branch",
+    name: "ZapShift Shariatpur Branch",
     district: "Shariatpur",
     division: "Dhaka",
     address: "Shariatpur District Headquarters",
@@ -125,7 +125,7 @@ const branches = [
 
   {
     id: 13,
-    name: "Profast Tangail Branch",
+    name: "ZapShift Tangail Branch",
     district: "Tangail",
     division: "Dhaka",
     address: "Tangail District Headquarters",
@@ -140,7 +140,7 @@ const branches = [
 
   {
     id: 14,
-    name: "Profast Bagerhat Branch",
+    name: "ZapShift Bagerhat Branch",
     district: "Bagerhat",
     division: "Khulna",
     address: "Bagerhat District Headquarters",
@@ -150,7 +150,7 @@ const branches = [
 
   {
     id: 15,
-    name: "Profast Chuadanga Branch",
+    name: "ZapShift Chuadanga Branch",
     district: "Chuadanga",
     division: "Khulna",
     address: "Chuadanga District Headquarters",
@@ -160,7 +160,7 @@ const branches = [
 
   {
     id: 16,
-    name: "Profast Jashore Branch",
+    name: "ZapShift Jashore Branch",
     district: "Jashore",
     division: "Khulna",
     address: "Jashore District Headquarters",
@@ -170,7 +170,7 @@ const branches = [
 
   {
     id: 17,
-    name: "Profast Jhenaidah Branch",
+    name: "ZapShift Jhenaidah Branch",
     district: "Jhenaidah",
     division: "Khulna",
     address: "Jhenaidah District Headquarters",
@@ -180,7 +180,7 @@ const branches = [
 
   {
     id: 18,
-    name: "Profast Khulna Branch",
+    name: "ZapShift Khulna Branch",
     district: "Khulna",
     division: "Khulna",
     address: "Khulna District Headquarters",
@@ -190,7 +190,7 @@ const branches = [
 
   {
     id: 19,
-    name: "Profast Kushtia Branch",
+    name: "ZapShift Kushtia Branch",
     district: "Kushtia",
     division: "Khulna",
     address: "Kushtia District Headquarters",
@@ -200,7 +200,7 @@ const branches = [
 
   {
     id: 20,
-    name: "Profast Magura Branch",
+    name: "ZapShift Magura Branch",
     district: "Magura",
     division: "Khulna",
     address: "Magura District Headquarters",
@@ -210,7 +210,7 @@ const branches = [
 
   {
     id: 21,
-    name: "Profast Meherpur Branch",
+    name: "ZapShift Meherpur Branch",
     district: "Meherpur",
     division: "Khulna",
     address: "Meherpur District Headquarters",
@@ -220,7 +220,7 @@ const branches = [
 
   {
     id: 22,
-    name: "Profast Narail Branch",
+    name: "ZapShift Narail Branch",
     district: "Narail",
     division: "Khulna",
     address: "Narail District Headquarters",
@@ -230,7 +230,7 @@ const branches = [
 
   {
     id: 23,
-    name: "Profast Satkhira Branch",
+    name: "ZapShift Satkhira Branch",
     district: "Satkhira",
     division: "Khulna",
     address: "Satkhira District Headquarters",
@@ -245,7 +245,7 @@ const branches = [
 
   {
     id: 24,
-    name: "Profast Bandarban Branch",
+    name: "ZapShift Bandarban Branch",
     district: "Bandarban",
     division: "Chattogram",
     address: "Bandarban District Headquarters",
@@ -255,7 +255,7 @@ const branches = [
 
   {
     id: 25,
-    name: "Profast Brahmanbaria Branch",
+    name: "ZapShift Brahmanbaria Branch",
     district: "Brahmanbaria",
     division: "Chattogram",
     address: "Brahmanbaria District Headquarters",
@@ -265,7 +265,7 @@ const branches = [
 
   {
     id: 26,
-    name: "Profast Chandpur Branch",
+    name: "ZapShift Chandpur Branch",
     district: "Chandpur",
     division: "Chattogram",
     address: "Chandpur District Headquarters",
@@ -275,7 +275,7 @@ const branches = [
 
   {
     id: 27,
-    name: "Profast Chattogram Branch",
+    name: "ZapShift Chattogram Branch",
     district: "Chattogram",
     division: "Chattogram",
     address: "Chattogram District Headquarters",
@@ -285,7 +285,7 @@ const branches = [
 
   {
     id: 28,
-    name: "Profast Cumilla Branch",
+    name: "ZapShift Cumilla Branch",
     district: "Cumilla",
     division: "Chattogram",
     address: "Cumilla District Headquarters",
@@ -295,7 +295,7 @@ const branches = [
 
   {
     id: 29,
-    name: "Profast Cox's Bazar Branch",
+    name: "ZapShift Cox's Bazar Branch",
     district: "Cox's Bazar",
     division: "Chattogram",
     address: "Cox's Bazar District Headquarters",
@@ -305,7 +305,7 @@ const branches = [
 
   {
     id: 30,
-    name: "Profast Feni Branch",
+    name: "ZapShift Feni Branch",
     district: "Feni",
     division: "Chattogram",
     address: "Feni District Headquarters",
@@ -315,7 +315,7 @@ const branches = [
 
   {
     id: 31,
-    name: "Profast Khagrachhari Branch",
+    name: "ZapShift Khagrachhari Branch",
     district: "Khagrachhari",
     division: "Chattogram",
     address: "Khagrachhari District Headquarters",
@@ -325,7 +325,7 @@ const branches = [
 
   {
     id: 32,
-    name: "Profast Lakshmipur Branch",
+    name: "ZapShift Lakshmipur Branch",
     district: "Lakshmipur",
     division: "Chattogram",
     address: "Lakshmipur District Headquarters",
@@ -335,7 +335,7 @@ const branches = [
 
   {
     id: 33,
-    name: "Profast Noakhali Branch",
+    name: "ZapShift Noakhali Branch",
     district: "Noakhali",
     division: "Chattogram",
     address: "Noakhali District Headquarters",
@@ -345,7 +345,7 @@ const branches = [
 
   {
     id: 34,
-    name: "Profast Rangamati Branch",
+    name: "ZapShift Rangamati Branch",
     district: "Rangamati",
     division: "Chattogram",
     address: "Rangamati District Headquarters",
@@ -360,7 +360,7 @@ const branches = [
 
   {
     id: 35,
-    name: "Profast Bogura Branch",
+    name: "ZapShift Bogura Branch",
     district: "Bogura",
     division: "Rajshahi",
     address: "Bogura District Headquarters",
@@ -370,7 +370,7 @@ const branches = [
 
   {
     id: 36,
-    name: "Profast Joypurhat Branch",
+    name: "ZapShift Joypurhat Branch",
     district: "Joypurhat",
     division: "Rajshahi",
     address: "Joypurhat District Headquarters",
@@ -380,7 +380,7 @@ const branches = [
 
   {
     id: 37,
-    name: "Profast Naogaon Branch",
+    name: "ZapShift Naogaon Branch",
     district: "Naogaon",
     division: "Rajshahi",
     address: "Naogaon District Headquarters",
@@ -390,7 +390,7 @@ const branches = [
 
   {
     id: 38,
-    name: "Profast Natore Branch",
+    name: "ZapShift Natore Branch",
     district: "Natore",
     division: "Rajshahi",
     address: "Natore District Headquarters",
@@ -400,7 +400,7 @@ const branches = [
 
   {
     id: 39,
-    name: "Profast Chapainawabganj Branch",
+    name: "ZapShift Chapainawabganj Branch",
     district: "Chapainawabganj",
     division: "Rajshahi",
     address: "Chapainawabganj District Headquarters",
@@ -410,7 +410,7 @@ const branches = [
 
   {
     id: 40,
-    name: "Profast Pabna Branch",
+    name: "ZapShift Pabna Branch",
     district: "Pabna",
     division: "Rajshahi",
     address: "Pabna District Headquarters",
@@ -420,7 +420,7 @@ const branches = [
 
   {
     id: 41,
-    name: "Profast Rajshahi Branch",
+    name: "ZapShift Rajshahi Branch",
     district: "Rajshahi",
     division: "Rajshahi",
     address: "Rajshahi District Headquarters",
@@ -430,7 +430,7 @@ const branches = [
 
   {
     id: 42,
-    name: "Profast Sirajganj Branch",
+    name: "ZapShift Sirajganj Branch",
     district: "Sirajganj",
     division: "Rajshahi",
     address: "Sirajganj District Headquarters",
@@ -445,7 +445,7 @@ const branches = [
 
   {
     id: 43,
-    name: "Profast Habiganj Branch",
+    name: "ZapShift Habiganj Branch",
     district: "Habiganj",
     division: "Sylhet",
     address: "Habiganj District Headquarters",
@@ -455,7 +455,7 @@ const branches = [
 
   {
     id: 44,
-    name: "Profast Moulvibazar Branch",
+    name: "ZapShift Moulvibazar Branch",
     district: "Moulvibazar",
     division: "Sylhet",
     address: "Moulvibazar District Headquarters",
@@ -465,7 +465,7 @@ const branches = [
 
   {
     id: 45,
-    name: "Profast Sunamganj Branch",
+    name: "ZapShift Sunamganj Branch",
     district: "Sunamganj",
     division: "Sylhet",
     address: "Sunamganj District Headquarters",
@@ -475,7 +475,7 @@ const branches = [
 
   {
     id: 46,
-    name: "Profast Sylhet Branch",
+    name: "ZapShift Sylhet Branch",
     district: "Sylhet",
     division: "Sylhet",
     address: "Sylhet District Headquarters",
@@ -490,7 +490,7 @@ const branches = [
 
   {
     id: 47,
-    name: "Profast Dinajpur Branch",
+    name: "ZapShift Dinajpur Branch",
     district: "Dinajpur",
     division: "Rangpur",
     address: "Dinajpur District Headquarters",
@@ -500,7 +500,7 @@ const branches = [
 
   {
     id: 48,
-    name: "Profast Gaibandha Branch",
+    name: "ZapShift Gaibandha Branch",
     district: "Gaibandha",
     division: "Rangpur",
     address: "Gaibandha District Headquarters",
@@ -510,7 +510,7 @@ const branches = [
 
   {
     id: 49,
-    name: "Profast Kurigram Branch",
+    name: "ZapShift Kurigram Branch",
     district: "Kurigram",
     division: "Rangpur",
     address: "Kurigram District Headquarters",
@@ -520,7 +520,7 @@ const branches = [
 
   {
     id: 50,
-    name: "Profast Lalmonirhat Branch",
+    name: "ZapShift Lalmonirhat Branch",
     district: "Lalmonirhat",
     division: "Rangpur",
     address: "Lalmonirhat District Headquarters",
@@ -530,7 +530,7 @@ const branches = [
 
   {
     id: 51,
-    name: "Profast Nilphamari Branch",
+    name: "ZapShift Nilphamari Branch",
     district: "Nilphamari",
     division: "Rangpur",
     address: "Nilphamari District Headquarters",
@@ -540,7 +540,7 @@ const branches = [
 
   {
     id: 52,
-    name: "Profast Panchagarh Branch",
+    name: "ZapShift Panchagarh Branch",
     district: "Panchagarh",
     division: "Rangpur",
     address: "Panchagarh District Headquarters",
@@ -550,7 +550,7 @@ const branches = [
 
   {
     id: 53,
-    name: "Profast Rangpur Branch",
+    name: "ZapShift Rangpur Branch",
     district: "Rangpur",
     division: "Rangpur",
     address: "Rangpur District Headquarters",
@@ -560,7 +560,7 @@ const branches = [
 
   {
     id: 54,
-    name: "Profast Thakurgaon Branch",
+    name: "ZapShift Thakurgaon Branch",
     district: "Thakurgaon",
     division: "Rangpur",
     address: "Thakurgaon District Headquarters",
@@ -575,7 +575,7 @@ const branches = [
 
   {
     id: 55,
-    name: "Profast Jamalpur Branch",
+    name: "ZapShift Jamalpur Branch",
     district: "Jamalpur",
     division: "Mymensingh",
     address: "Jamalpur District Headquarters",
@@ -585,7 +585,7 @@ const branches = [
 
   {
     id: 56,
-    name: "Profast Mymensingh Branch",
+    name: "ZapShift Mymensingh Branch",
     district: "Mymensingh",
     division: "Mymensingh",
     address: "Mymensingh District Headquarters",
@@ -595,7 +595,7 @@ const branches = [
 
   {
     id: 57,
-    name: "Profast Netrokona Branch",
+    name: "ZapShift Netrokona Branch",
     district: "Netrokona",
     division: "Mymensingh",
     address: "Netrokona District Headquarters",
@@ -605,7 +605,7 @@ const branches = [
 
   {
     id: 58,
-    name: "Profast Sherpur Branch",
+    name: "ZapShift Sherpur Branch",
     district: "Sherpur",
     division: "Mymensingh",
     address: "Sherpur District Headquarters",
@@ -620,7 +620,7 @@ const branches = [
 
   {
     id: 59,
-    name: "Profast Barguna Branch",
+    name: "ZapShift Barguna Branch",
     district: "Barguna",
     division: "Barishal",
     address: "Barguna District Headquarters",
@@ -630,7 +630,7 @@ const branches = [
 
   {
     id: 60,
-    name: "Profast Barishal Branch",
+    name: "ZapShift Barishal Branch",
     district: "Barishal",
     division: "Barishal",
     address: "Barishal District Headquarters",
@@ -640,7 +640,7 @@ const branches = [
 
   {
     id: 61,
-    name: "Profast Bhola Branch",
+    name: "ZapShift Bhola Branch",
     district: "Bhola",
     division: "Barishal",
     address: "Bhola District Headquarters",
@@ -650,7 +650,7 @@ const branches = [
 
   {
     id: 62,
-    name: "Profast Jhalokathi Branch",
+    name: "ZapShift Jhalokathi Branch",
     district: "Jhalokathi",
     division: "Barishal",
     address: "Jhalokathi District Headquarters",
@@ -660,7 +660,7 @@ const branches = [
 
   {
     id: 63,
-    name: "Profast Patuakhali Branch",
+    name: "ZapShift Patuakhali Branch",
     district: "Patuakhali",
     division: "Barishal",
     address: "Patuakhali District Headquarters",
@@ -670,7 +670,7 @@ const branches = [
 
   {
     id: 64,
-    name: "Profast Pirojpur Branch",
+    name: "ZapShift Pirojpur Branch",
     district: "Pirojpur",
     division: "Barishal",
     address: "Pirojpur District Headquarters",

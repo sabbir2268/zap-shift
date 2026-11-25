@@ -4,33 +4,33 @@ const CustomerReviews = () => {
 const reviews = [
   {
     name: "Awlad Hossin",
-    designation: "Senior Product Designer",
+    designation: "Online store owner",
     review:
-      "A posture corrector works by providing support and gentle alignment to your shoulders, back, and spine, encouraging you to maintain proper posture throughout the day.",
+      "Booking a parcel takes a couple of minutes and the customer can follow every step of the journey. Support has been quick to answer every question.",
   },
   {
     name: "Rasel Ahamed",
-    designation: "CTO",
+    designation: "Small business owner",
     review:
-      "A posture corrector works by providing support and gentle alignment to your shoulders, back, and spine, encouraging you to maintain proper posture throughout the day.",
+      "The service centres near me make pickup simple, and the cost is worked out before I confirm. There are no surprises at the counter.",
   },
   {
     name: "Nasir Uddin",
-    designation: "CEO",
+    designation: "Frequent sender",
     review:
-      "A posture corrector works by providing support and gentle alignment to your shoulders, back, and spine, encouraging you to maintain proper posture throughout the day.",
+      "I send documents across divisions every week. Tracking is clear and deliveries have always arrived when they were supposed to.",
   },
   {
-    name: "Awlad Hossin",
-    designation: "Senior Product Designer",
+    name: "Sumaiya Akter",
+    designation: "Merchant",
     review:
-      "A posture corrector works by providing support and gentle alignment to your shoulders, back, and spine, encouraging you to maintain proper posture throughout the day.",
+      "Being able to see all my parcels, payments and pending deliveries in one dashboard saves me a lot of time each day.",
   },
   {
-    name: "Rasel Ahamed",
-    designation: "Senior Product Designer",
+    name: "Tanvir Rahman",
+    designation: "Rider",
     review:
-      "A posture corrector works by providing support and gentle alignment to your shoulders, back, and spine, encouraging you to maintain proper posture throughout the day.",
+      "Assignments, earnings and cashouts are all in one place. I can see what each delivery pays before I accept the next one.",
   },
 ];
 
@@ -103,9 +103,8 @@ const reviews = [
 
         {/* Description */}
         <p className="max-w-3xl mx-auto mt-5 text-sm md:text-base leading-6 text-[var(--text-muted)]">
-          Enhance posture, mobility, and well-being effortlessly with Posture
-          Pro. Achieve proper alignment, reduce pain, and strengthen your body
-          with ease!
+          Senders, merchants and riders share how ZapShift makes every delivery
+          simpler, from booking to doorstep.
         </p>
 
       </div>

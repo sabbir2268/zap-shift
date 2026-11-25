@@ -21,7 +21,6 @@ import Payment from "../pages/dashboard/payment/Payment";
 import PaymentHistory from "../pages/dashboard/payment/PaymentHistory";
 import Login from "../pages/auth/LogIn";
 import Register from "../pages/auth/Register";
-import ForgotPassword from "../pages/auth/ForgotPassword";
 import AdminHome from "../pages/admin/AdminHome";
 import PendingRiders from "../pages/admin/riders/PendingRiders";
 import ActiveRiders from "../pages/admin/riders/ActiveRiders";
@@ -109,9 +108,6 @@ export const router = createBrowserRouter([
       { index: true, element: <RiderHome /> },
       { path: "deliveries", element: <MyDeliveries /> },
       { path: "earnings", element: <MyEarnings /> },
-      /* the old cashout address still opens the earnings page, so a link that
-         predates the rename is not a dead end */
-      { path: "cashout", element: <MyEarnings /> },
       { path: "profile", element: <Profile /> },
     ],
   },
@@ -120,7 +116,6 @@ export const router = createBrowserRouter([
     children: [
       { path: "/login", element: <Login /> },
       { path: "/register", element: <Register /> },
-      { path: "/forgot-password", element: <ForgotPassword /> },
     ],
   },
 ]);

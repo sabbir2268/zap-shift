@@ -4,29 +4,29 @@ import { Plus, Minus, ArrowRight } from "lucide-react";
 const FAQ = () => {
   const faqs = [
     {
-      question: "How does this posture corrector work?",
+      question: "How do I send a parcel with ZapShift?",
       answer:
-        "A posture corrector works by providing support and gentle alignment to your shoulders, back, and spine, encouraging you to maintain proper posture throughout the day. Here’s how it typically functions: A posture corrector works by providing support and gentle alignment to your shoulders.",
+        "Sign in, open Send Parcel, fill in the parcel details and the sender and receiver addresses, review the calculated cost in the confirmation dialog, then confirm. The parcel appears in My Parcels straight away.",
     },
     {
-      question: "Is it suitable for all ages and body types?",
+      question: "How is the delivery cost calculated?",
       answer:
-        "Yes, the posture corrector is designed to accommodate different body types and can be adjusted for a comfortable fit. However, users with specific medical conditions should consult a healthcare professional before using one.",
+        "Documents are a flat 60 taka. Non-documents start at 80 taka for up to one kilo, plus 20 taka for each extra kilo. A different destination region adds 40 taka, and a 10% service charge is added on top.",
     },
     {
-      question: "Does it really help with back pain and posture improvement?",
+      question: "How can I track my parcel?",
       answer:
-        "A posture corrector can help remind you to maintain proper alignment and develop better posture habits. Results can vary depending on the individual and how consistently it is used.",
+        "Open Track Parcel from your dashboard and enter the parcel id. You will see its current delivery status, the pickup and delivery contacts, the route and the cost.",
     },
     {
-      question: "Does it have smart features like vibration alerts?",
+      question: "When does a rider get assigned?",
       answer:
-        "Some smart posture correctors include vibration alerts that gently remind you whenever your posture starts to become incorrect.",
+        "An admin assigns a rider only after the parcel has been paid for. Until then it stays in the booking queue, so a delivery can never start without payment.",
     },
     {
-      question: "How will I be notified when the product is back in stock?",
+      question: "Can I change a parcel after booking it?",
       answer:
-        "You can subscribe to our stock notifications. Once the product becomes available again, we will notify you through your registered contact information.",
+        "Yes. Use Update Parcel from My Parcels to edit the details while the parcel is still pending. Delivery status is controlled by the platform, not by the sender.",
     },
   ];
 
@@ -61,9 +61,8 @@ const FAQ = () => {
 
           {/* Description */}
           <p className="mt-5 text-base md:text-lg leading-7 text-[var(--text)]/60">
-            Enhance posture, mobility, and well-being effortlessly with
-            Posture Pro. Achieve proper alignment, reduce pain, and strengthen
-            your body with ease!
+            Everything you need to know about sending, tracking and receiving
+            parcels with ZapShift.
           </p>
 
           <div className="w-4 h-[2px] bg-[var(--secondary)] mx-auto mt-5"></div>

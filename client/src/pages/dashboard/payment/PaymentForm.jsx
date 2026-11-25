@@ -47,9 +47,6 @@ const PaymentForm = () => {
     return "...loading";
   }
 
-  const amount = parcelInfo.totalCost;
-  const amountInCents = amount * 100;
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -75,7 +72,6 @@ const PaymentForm = () => {
         setError("");
         //step -2: create payment intent
         const res = await axiosSecure.post("/create-payment-intent", {
-          amountInCents,
           parcelInfo,
         });
 
@@ -107,18 +103,7 @@ const PaymentForm = () => {
               paymentMethod: "card",
               status: "succeeded",
             });
-            console.log("payment info:", {
-              userEmail: user.email,
-              userName: user.displayName,
-              parcelId: id,
-              parcelTitle: parcelInfo.parcelTitle,
-              amount: parcelInfo.totalCost,
-              transactionId: result.paymentIntent.id,
-              paymentMethod: "card",
-              status: "succeeded",
-            });
             toast.success("Payment successful!");
-            console.log("payment Successful");
             navigate("/dashboard/parcels");
           }
         }

@@ -5,9 +5,6 @@ import {
   Zap,
   MapPin,
   Banknote,
-  RotateCcw,
-  PackageCheck,
-  Warehouse,
   ArrowUpRight,
   ShieldCheck,
 } from "lucide-react";
@@ -32,24 +29,6 @@ const Service = () => {
       description:
         "Collect payment from your customers safely and conveniently when the parcel is delivered.",
     },
-    // {
-    //   icon: PackageCheck,
-    //   title: "Live Parcel Tracking",
-    //   description:
-    //     "Track your parcel in real time and stay updated from pickup to final delivery.",
-    // },
-    // {
-    //   icon: RotateCcw,
-    //   title: "Easy Parcel Return",
-    //   description:
-    //     "Make product returns and exchanges simple with our convenient reverse logistics service.",
-    // },
-    // {
-    //   icon: Warehouse,
-    //   title: "Fulfillment Solution",
-    //   description:
-    //     "Manage inventory, packaging, order processing and delivery from one complete solution.",
-    // },
   ];
 
   return (
