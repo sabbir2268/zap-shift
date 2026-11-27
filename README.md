@@ -2,7 +2,7 @@
 
 ZapShift is a courier and parcel-delivery platform where customers book and track parcels, riders take approved deliveries and manage their earnings, and admins run the operation from a separate dashboard. The repository holds a React 19 + Vite client and an Express 5 + MongoDB API that are installed and run independently.
 
-**Live demo:** [https://zap-shift-eight.vercel.app](https://zap-shift-eight.vercel.app)
+**Live demo:** [https://zapshift-sr.vercel.app/]
 
 > The backend is on a free tier, so the first request after an idle period can take about 50 seconds to wake up. Please wait for it rather than refreshing repeatedly.
 
