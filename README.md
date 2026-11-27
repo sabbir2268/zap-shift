@@ -1,8 +1,10 @@
 # ZapShift
 
-A courier and parcel-delivery platform. Customers send and track parcels, riders
-apply to deliver them and manage their earnings, and admins run the whole
-operation from a separate dashboard.
+ZapShift is a courier and parcel-delivery platform where customers book and track parcels, riders take approved deliveries and manage their earnings, and admins run the operation from a separate dashboard. The repository holds a React 19 + Vite client and an Express 5 + MongoDB API that are installed and run independently.
+
+**Live demo:** [https://zap-shift-eight.vercel.app](https://zap-shift-eight.vercel.app)
+
+> The backend is on a free tier, so the first request after an idle period can take about 50 seconds to wake up. Please wait for it rather than refreshing repeatedly.
 
 The repository is a two-package project with **no root package manager**. Each
 folder is installed and run on its own:
@@ -215,6 +217,45 @@ For the full route and endpoint maps, see the two package READMEs.
 
 ---
 
+## Screenshots
+
+<!-- TODO: capture the six screenshots below and add the files to docs/screenshots/ -->
+
+| Page | Placeholder file |
+| --- | --- |
+| Home | `docs/screenshots/home.png` |
+| Coverage map | `docs/screenshots/coverage-map.png` |
+| Send parcel | `docs/screenshots/send-parcel.png` |
+| Customer dashboard | `docs/screenshots/customer-dashboard.png` |
+| Rider dashboard | `docs/screenshots/rider-dashboard.png` |
+| Admin dashboard | `docs/screenshots/admin-dashboard.png` |
+
+<!-- TODO: replace the file list with embedded images once the screenshots exist -->
+
+---
+
+## Demo accounts
+
+<!-- TODO: replace the credential placeholders with real demo accounts before sharing this link publicly. -->
+
+| Role | Email | Password | What it shows |
+| --- | --- | --- | --- |
+| Customer | `<customer-email>` | `<password>` | Booking, paying for and tracking parcels |
+| Rider | `<rider-email>` | `<password>` | Assigned deliveries, earnings and cashouts |
+| Admin | `<admin-email>` | `<password>` | Rider review, assignment and platform management |
+
+---
+
+## Key technical highlights
+
+- **The role is read from the database on every request.** `requireAuth` verifies the Firebase token, then loads the caller's stored record; `requireRole` compares that stored role, never a token claim or request body (`server/index.js:101`, `server/index.js:159`).
+- **Earnings and the wallet are worked out on the server.** `getEarning` picks the tier and amount for a delivery (`server/earnings.js:86`), and the wallet is delivered parcels' earnings minus recorded cashouts (`server/index.js:913`).
+- **The Stripe amount comes from the stored parcel.** `/create-payment-intent` reads `parcel.totalCost` and ignores any amount sent by the client (`server/index.js:1218`).
+- **Region and service-centre selects cascade.** The form derives centre options from the chosen region and disables the centre select until a region is picked (`client/src/pages/dashboard/sendParcel/SendParcel.jsx:45`).
+- **Axios interceptors refresh and replay requests.** The request interceptor attaches the Firebase ID token, and the response interceptor refreshes it on a 401 and retries once (`client/src/context/AxiosContext/axiosClient.js:20`).
+
+---
+
 ## Data model
 
 Five MongoDB collections in `zapShift`:
@@ -323,14 +364,28 @@ Sign in again and the navbar arrow points to `/admin`.
   It currently needs Firebase credentials to be present when `index.js` loads
   (see the credential options above), otherwise it exits at startup.
 
-## Future work
+## Troubleshooting
 
+**`npm test` in `server/` exits at startup without Firebase credentials.** The
+suite boots the real `server/index.js`, whose `getFirebaseCredential()` reads
+either `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL` and `FIREBASE_PRIVATE_KEY`
+from the environment or the git-ignored `server/firebase-adminsdk.json`
+(`server/index.js:29`). Provide one of the two before running the tests; once
+booted, the suite uses its own fake database, token verifier and Stripe.
+
+## Known limitations and roadmap
+
+Honest list of what is not finished. The payment gap comes first because it is
+the next planned fix.
+
+- Move the `paid` transition behind a **Stripe webhook (planned)** so a client
+  request cannot mark a parcel paid without paying. Today `PUT /api/parcels/:id`
+  strips `status` and rider fields for non-admins but still accepts
+  `paymentStatus` (`server/index.js:633`), so the generic update endpoint must
+  stop accepting it too.
 - Reintroduce **password reset** as a real Firebase `sendPasswordResetEmail`
   flow. The old form-only stub was removed during cleanup because it did
   nothing; the login screen no longer links to it.
-- Move the `paid` transition behind a **Stripe webhook** so a client request
-  cannot mark a parcel paid without paying, and stop accepting `paymentStatus`
-  in the generic parcel-update endpoint.
 - Wire a **payout provider** behind rider cashouts; today a cashout is recorded
   as `paid` but no money moves.
 - Replace the placeholder **branch coordinates and phone numbers** with real
@@ -342,6 +397,13 @@ Sign in again and the navbar arrow points to `/admin`.
   suite.
 - Wire the marketing CTAs ("Become a Merchant", "Earn with ZapShift") to real
   destinations.
+
+## My role
+
+I designed the architecture, folder structure and API for ZapShift. I set up the
+stack and its integrations — React and Vite on the client, Express and MongoDB
+on the server, Firebase Authentication, Stripe, imgBB uploads and Leaflet — and
+used AI tools to produce and run the automated test suites.
 
 ## License
 
